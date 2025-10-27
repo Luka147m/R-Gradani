@@ -1,9 +1,9 @@
-.izdvojene-analize {
+.izdvojeni-skupovi-podataka {
   padding: 10px;
   color: white;
 }
 
-.izdvojene-analize h2 {
+.izdvojeni-skupovi-podataka h2 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   text-align: center;
@@ -14,13 +14,16 @@
   text-decoration: underline;
 }
 
-.analize-grid {
+.skupovi-podataka-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.analiza-card {
+.analiza-card,
+.skup-podatka-card,
+.skup-podatka-card /* defensive duplicate for hyphen variants */,
+.skup-podataka-card {
   background-color: #bb86fc;
   padding: 14px 16px;
   color: white;
@@ -33,12 +36,16 @@
   overflow: hidden;
 }
 
-.analiza-card:hover {
+.analiza-card:hover,
+.skup-podataka-card:hover,
+.skup-podatka-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
 }
 
-.analiza-card h3 {
+.analiza-card h3,
+.skup-podataka-card h3,
+.skup-podatka-card h3 {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 6px;
@@ -46,13 +53,17 @@
   white-space: normal;
 }
 
-.analiza-card .datum {
+.analiza-card .datum,
+.skup-podataka-card .datum,
+.skup-podatka-card .datum {
   font-size: 0.8rem;
   opacity: 0.9;
   margin-bottom: 3px;
 }
 
-.analiza-card a {
+.analiza-card a,
+.skup-podataka-card a,
+.skup-podatka-card a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -61,12 +72,14 @@
   font-size: 0.9rem;
 }
 
-.analiza-card a:hover {
+.analiza-card a:hover,
+.skup-podataka-card a:hover,
+.skup-podatka-card a:hover {
   text-decoration: underline;
 }
 
 @media (max-width: 750px) {
-  .analize-grid {
+  .skupovi-podataka-grid {
     grid-template-columns: 1fr;
   }
 }

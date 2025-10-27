@@ -1,10 +1,10 @@
 import React from 'react';
-import { AnalizaCard } from './AnalizaCard';
+import { SkupPodatakaCard} from './SkupPodatakaCard';
 import './IzdvojeniSkupoviPodataka.css';
 
 export const IzdvojeniSkupoviPodataka = () => {
 
-    const analize = [
+    const skupoviPodataka = [
         {
         naslov: "Korištenje e-usluga u sustavu e-Građani",
         datum: "27. 1. 2025.",
@@ -44,17 +44,17 @@ export const IzdvojeniSkupoviPodataka = () => {
     ];
 
     return (
-        <div className = "izdvojene-analize">
+        <div className = "izdvojeni-skupovi-podataka">
             <h2>
-                Izdvojene analize
+                Izdvojeni skupovi podataka
             </h2>
-            <div className="analize-grid">
-                {analize.map((analiza, index) => (
-                    <AnalizaCard
+            <div className="skupovi-podataka-grid">
+                {skupoviPodataka.map((skupPodataka, index) => (
+                    <SkupPodatakaCard
                         key={index}
-                        naslov={analiza.naslov}
-                        datum={analiza.datum}
-                        link={analiza.link}
+                        naslov={skupPodataka.naslov}
+                        datum={skupPodataka.datum}
+                        link={skupPodataka.link}
                     />
                 ))}
             </div>

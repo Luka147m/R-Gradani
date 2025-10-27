@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Home, User } from "lucide-react";
-import { IzdvojeneAnalize } from './components/IzdvojeneAnalize';
+import { IzdvojeniSkupoviPodataka } from './components/IzdvojeniSkupoviPodataka';
 
 
 
@@ -8,6 +8,7 @@ function filterAnalyses(event: React.MouseEvent<HTMLButtonElement>) {
     // Function to filter analyses based on search input
 
     event.preventDefault();
+
     const searchTerm = (document.querySelector('.search-input') as HTMLInputElement).value.toLowerCase();
     const analyses = document.querySelectorAll('.analiza-card');
     
@@ -57,7 +58,7 @@ function App() {
             <User size={24} />
           </button>
         </div>
-        <IzdvojeneAnalize />
+        <IzdvojeniSkupoviPodataka />
       </div>
     </>
   );
