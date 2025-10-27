@@ -1,0 +1,72 @@
+.izdvojene-analize {
+  padding: 10px;
+  color: white;
+}
+
+.izdvojene-analize h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: underline;
+}
+
+.analize-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.analiza-card {
+  background-color: #bb86fc;
+  padding: 14px 16px;
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid white;
+  aspect-ratio: 3 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.analiza-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.analiza-card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.analiza-card .datum {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 3px;
+}
+
+.analiza-card a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.analiza-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 750px) {
+  .analize-grid {
+    grid-template-columns: 1fr;
+  }
+}

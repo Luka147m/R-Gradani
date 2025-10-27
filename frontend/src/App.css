@@ -1,0 +1,119 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+#root{
+  padding: 0;
+  background-color: #121212;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  
+
+}
+
+.search{
+  padding: 0px;
+  position: absolute;
+  top: 2px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  
+}
+
+.search-inner{
+  display: relative;
+  padding: 0;
+
+}
+
+.search-input{
+  color: white;
+  height: 28px;;
+  border: none;
+  padding: 2px;
+  font-size: 16px;
+  background-color: #BB86FC;
+}
+
+.search-button{
+  position: absolute;
+  right: -50px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
+  padding: 0 10px;
+  border: none;
+  background-color: #3700B3;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.main-container{
+  width: min(1000px, 85.8vw);
+  height: min(900px, 91.8vh);
+
+  margin: auto;
+  box-sizing: border-box;
+  background-color: #1E1E1E;
+  
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: auto;
+}
+
+/* ----------- Home/Profile Selector Styles ----------- */
+
+.home-profile-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 0px;
+  width: fit-content;
+  margin: 5px auto;
+  scale: 0.7;
+}
+
+.selector-btn {
+  background-color: transparent;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.selector-btn svg {
+  color: #000;
+  transition: color 0.2s ease;
+}
+
+.selector-btn.active-home {
+  background-color: #BB86FC;
+}
+
+
+.selector-btn.active-profile {
+  background-color: #6be0d7;
+}
+
+.selector-btn.active-home svg {
+  color: #fff;
+}
+.selector-btn.active-profile svg {
+  color: #fff;
+}
