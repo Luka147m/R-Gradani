@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: R-Gradani API
+  version: 0.1.0
+  description: Backend API for R-Gradani
+servers:
+  - url: http://localhost:3000
+paths:
+  /:
+    get:
+      summary: Service health check
+      responses:
+        "200":
+          description: Service status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: R-Gradani backend
