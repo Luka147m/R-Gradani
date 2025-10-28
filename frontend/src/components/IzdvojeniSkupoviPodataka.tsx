@@ -1,6 +1,7 @@
 import React from 'react';
 import { SkupPodatakaCard} from './SkupPodatakaCard';
 import './IzdvojeniSkupoviPodataka.css';
+import { Heading1 } from 'lucide-react';
 
 export const IzdvojeniSkupoviPodataka = () => {
 
@@ -39,15 +40,61 @@ export const IzdvojeniSkupoviPodataka = () => {
         datum: "27. 1. 2025.",
         link: "https://data.gov.hr",
         },
+        {
+        naslov: "Korištenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "hgadhuadkjvg",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "Korištenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "hgadhuadkjvg",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "Korištenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "hgadhuadkjvg",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        },
+        {
+        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
+        datum: "27. 1. 2025.",
+        link: "https://data.gov.hr",
+        }
+
         
         
     ];
 
     return (
         <div className = "izdvojeni-skupovi-podataka">
-            <h2>
+            <h1>
                 Izdvojeni skupovi podataka
-            </h2>
+            </h1>
             <div className="skupovi-podataka-grid">
                 {skupoviPodataka.map((skupPodataka, index) => (
                     <SkupPodatakaCard

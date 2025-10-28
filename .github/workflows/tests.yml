@@ -1,0 +1,64 @@
+name: Daily Unit & Selenium Tests
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # every day at 00:00 UTC (midnight)
+  workflow_dispatch: {}   # allows manual run
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r frontend/requirements.txt
+
+      - name: Install Chrome & Chromedriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          echo "Chrome version:" $(chromium-browser --version)
+
+      - name: Run unit tests
+        id: unit
+        run: |
+          python -m unittest discover -s frontend/tests -p "test_calculator_unit.py"
+
+      - name: Run Selenium tests
+        id: selenium
+        continue-on-error: true   # continue to next step even if fails
+        run: |
+          python -m unittest discover -s frontend/tests -p "test_google_selenium.py"
+
+      - name: Archive screenshots (if any)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-screenshots
+          path: frontend/screenshots/
+
+      - name: Send email on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "❌ Test failure in ${{ github.repository }}"
+          body: |
+            One or more tests failed in the daily run.
+            Check the logs and screenshots at:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: goos0741@email.com
+          from: "CI Bot <ci@example.com>"

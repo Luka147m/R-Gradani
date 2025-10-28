@@ -3,15 +3,14 @@
   color: white;
 }
 
-.izdvojeni-skupovi-podataka h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+.izdvojeni-skupovi-podataka h1 {
+  font-size: 2rem;
+  margin-bottom: 3rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  text-decoration: underline;
 }
 
 .skupovi-podataka-grid {
@@ -51,6 +50,13 @@
   margin-bottom: 6px;
   line-height: 1.2;
   white-space: normal;
+}
+
+.analiza-card h3:hover,
+.skup-podataka-card h3:hover,
+.skup-podatka-card h3:hover{
+  cursor: pointer;
+
 }
 
 .analiza-card .datum,
