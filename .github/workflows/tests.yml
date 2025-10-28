@@ -60,5 +60,5 @@ jobs:
             One or more tests failed in the daily run.
             Check the logs and screenshots at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          to: goos0741@email.com
+          to: goose0741@email.com
           from: "CI Bot <ci@example.com>"
