@@ -1,0 +1,80 @@
+-- Kreiranje baze (ako već ne postoji)
+CREATE DATABASE moodle_import;
+
+-- Spoji se na bazu
+\c moodle_import
+
+-- Kreiranje tablica
+CREATE TABLE analiza (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    created TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE skup (
+    id UUID PRIMARY KEY,
+    url VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE analiza_skup (
+    analiza_id INTEGER NOT NULL REFERENCES analiza(id) ON DELETE CASCADE,
+    skup_id UUID NOT NULL REFERENCES skup(id) ON DELETE CASCADE,
+    PRIMARY KEY (analiza_id, skup_id)
+);
+
+CREATE TABLE slika (
+    id SERIAL PRIMARY KEY,
+    analiza_id INTEGER NOT NULL REFERENCES analiza(id) ON DELETE CASCADE,
+    content_hash VARCHAR(255) NOT NULL UNIQUE,
+    original_name VARCHAR(255),
+    mime_type VARCHAR(30),
+    created TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE procjena (
+    id SERIAL PRIMARY KEY,
+    analiza_id INTEGER NOT NULL REFERENCES analiza(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    created TIMESTAMP DEFAULT NOW()
+);
+
+-- Spajanje psql terminal
+psql -h localhost -p 5432 -U postgres -d moodle_import
+
+\copy skup (id, url, name) FROM './skup.csv' CSV HEADER QUOTE '"';
+
+\copy analiza (id, user_id, created, subject, message) FROM './analize.csv' CSV HEADER QUOTE '"';
+
+\copy slika (analiza_id, content_hash, original_name, mime_type, created) FROM './slike.csv' CSV HEADER QUOTE '"';
+
+\copy analiza_skup (analiza_id, skup_id) FROM './analize_skup.csv' CSV HEADER QUOTE '"';
+
+-----------------------------
+The steps outlined in the post are:
+    open cmd
+    SET PGCLIENTENCODING=utf-8
+    chcp 65001
+    Log into Postgres
+
+
+SELECT analiza_id
+    FROM analiza_skup
+    GROUP BY analiza_id
+    HAVING COUNT(*) > 1;
+
+
+-- Obrisane analize koje obraduju vise skupova (Good or bad thing yet to decide)
+DELETE FROM analiza
+WHERE id IN (
+    SELECT analiza_id
+    FROM analiza_skup
+    GROUP BY analiza_id
+    HAVING COUNT(*) > 1
+);
+
+pg_dump -U postgres -h localhost -p 5432 -s -f moodle_schema.sql moodle_backup
+
+pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f moodle_full_v1.backup moodle_backup
