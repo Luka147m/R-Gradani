@@ -126,7 +126,8 @@ CREATE TABLE public.skup_podataka (
     license_title text,
     license_url text,
     license_id text,
-    publisher_id text
+    publisher_id text,
+    tags jsonb
 );
 
 

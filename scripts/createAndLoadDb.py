@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import html
 import requests
 import psycopg2
-from psycopg2.extras import execute_values
+from psycopg2.extras import execute_values, Json
 
 def get_connection():
     conn = psycopg2.connect(
@@ -45,7 +45,8 @@ def create_postgres_tables(conn):
             license_title TEXT,
             license_url TEXT,
             license_id TEXT,
-            publisher_id TEXT REFERENCES izdavac(id)
+            publisher_id TEXT REFERENCES izdavac(id),
+            tags JSONB
         );
         
         CREATE TABLE IF NOT EXISTS resurs (
@@ -114,7 +115,7 @@ def insert_skup_podataka(conn, datasets_dict):
                 v["id"], v["title"], v["refresh_frequency"], v["theme"], v["description"],
                 v["url"], v["state"], v["created"], v["modified"], v["isopen"],
                 v["access_rights"], v["license_title"], v["license_url"], v["license_id"],
-                v["publisher_id"]
+                v["publisher_id"], Json(v.get("tags", []))
             )
             for v in datasets_dict.values()
         ]
@@ -123,11 +124,13 @@ def insert_skup_podataka(conn, datasets_dict):
             """INSERT INTO skup_podataka (
                 id, title, refresh_frequency, theme, description, url, state,
                 created, modified, isopen, access_rights, license_title,
-                license_url, license_id, publisher_id
-            ) VALUES %s ON CONFLICT (id) DO NOTHING""",
+                license_url, license_id, publisher_id, tags
+            ) VALUES %s ON CONFLICT (id) DO UPDATE
+               SET tags = EXCLUDED.tags""",
             values
         )
         conn.commit()
+
 
 def insert_resurs(conn, resurs_list):
     if not resurs_list:
