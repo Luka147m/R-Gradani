@@ -51,7 +51,7 @@ def create_postgres_tables(conn):
         
         CREATE TABLE IF NOT EXISTS resurs (
             id TEXT PRIMARY KEY,
-            skup_id TEXT REFERENCES skup_podataka(id),
+            skup_id TEXT REFERENCES skup_podataka(id) ON DELETE CASCADE,
             available_through_api BOOLEAN,
             name TEXT,
             description TEXT,
@@ -74,7 +74,7 @@ def create_postgres_tables(conn):
         );
         
         CREATE TABLE IF NOT EXISTS slika (
-            komentar_id BIGINT,
+            komentar_id BIGINT REFERENCES komentar(id) ON DELETE CASCADE,
             content_hash TEXT,
             original_name TEXT,
             mime_type TEXT,
@@ -84,7 +84,7 @@ def create_postgres_tables(conn):
         
         CREATE TABLE IF NOT EXISTS odgovor (
             id SERIAL PRIMARY KEY,
-            komentar_id BIGINT REFERENCES komentar(id),
+            komentar_id BIGINT REFERENCES komentar(id) ON DELETE CASCADE,
             created TIMESTAMP,
             message TEXT
         );
@@ -487,7 +487,10 @@ def main(args):
         process_single_backup(mbz, all_datasets, all_discussions, all_resources, all_files, all_publishers, output_folder)
         
     all_discussions = [d for d in all_discussions if d["skup_id"] is not None]
-
+    valid_comment_ids = {d["id"] for d in all_discussions}
+    all_files = [f for f in all_files if f["komentar_id"] in valid_comment_ids]
+    
+    
     conn = get_connection()
     create_postgres_tables(conn)
     insert_izdavac(conn, all_publishers)

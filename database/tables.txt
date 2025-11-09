@@ -19,12 +19,13 @@ CREATE TABLE IF NOT EXISTS izdavac (
             license_title TEXT,
             license_url TEXT,
             license_id TEXT,
-            publisher_id TEXT REFERENCES izdavac(id)
+            publisher_id TEXT REFERENCES izdavac(id),
+            tags JSONB
         );
         
         CREATE TABLE IF NOT EXISTS resurs (
             id TEXT PRIMARY KEY,
-            skup_id TEXT REFERENCES skup_podataka(id),
+            skup_id TEXT REFERENCES skup_podataka(id) ON DELETE CASCADE,
             available_through_api BOOLEAN,
             name TEXT,
             description TEXT,
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS izdavac (
         );
         
         CREATE TABLE IF NOT EXISTS slika (
-            komentar_id BIGINT,
+            komentar_id BIGINT REFERENCES komentar(id) ON DELETE CASCADE,
             content_hash TEXT,
             original_name TEXT,
             mime_type TEXT,
@@ -57,7 +58,7 @@ CREATE TABLE IF NOT EXISTS izdavac (
         
         CREATE TABLE IF NOT EXISTS odgovor (
             id SERIAL PRIMARY KEY,
-            komentar_id BIGINT REFERENCES komentar(id),
+            komentar_id BIGINT REFERENCES komentar(id) ON DELETE CASCADE,
             created TIMESTAMP,
             message TEXT
         );

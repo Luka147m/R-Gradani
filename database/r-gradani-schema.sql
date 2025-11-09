@@ -216,7 +216,7 @@ ALTER TABLE ONLY public.komentar
 --
 
 ALTER TABLE ONLY public.odgovor
-    ADD CONSTRAINT odgovor_komentar_id_fkey FOREIGN KEY (komentar_id) REFERENCES public.komentar(id);
+    ADD CONSTRAINT odgovor_komentar_id_fkey FOREIGN KEY (komentar_id) REFERENCES public.komentar(id) ON DELETE CASCADE;
 
 
 --
@@ -224,7 +224,7 @@ ALTER TABLE ONLY public.odgovor
 --
 
 ALTER TABLE ONLY public.resurs
-    ADD CONSTRAINT resurs_skup_id_fkey FOREIGN KEY (skup_id) REFERENCES public.skup_podataka(id);
+    ADD CONSTRAINT resurs_skup_id_fkey FOREIGN KEY (skup_id) REFERENCES public.skup_podataka(id) ON DELETE CASCADE;
 
 
 --
@@ -233,6 +233,14 @@ ALTER TABLE ONLY public.resurs
 
 ALTER TABLE ONLY public.skup_podataka
     ADD CONSTRAINT skup_podataka_publisher_id_fkey FOREIGN KEY (publisher_id) REFERENCES public.izdavac(id);
+
+
+--
+-- Name: slika slika_komentar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.slika
+    ADD CONSTRAINT slika_komentar_id_fkey FOREIGN KEY (komentar_id) REFERENCES public.komentar(id) ON DELETE CASCADE;
 
 
 --
