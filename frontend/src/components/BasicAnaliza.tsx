@@ -1,7 +1,7 @@
 import React from 'react';
 import Analysis from '../Analysis.tsx';
 import InfoAnalize from '../info-analize.tsx';
-import '../App.css'
+import '../HomePage.css'
 
 interface BasicAnalizaProps {
     key: number;

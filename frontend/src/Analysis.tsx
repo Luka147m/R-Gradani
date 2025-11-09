@@ -1,5 +1,5 @@
 
-import './App.css'
+import './HomePage.css'
 import BasicAnaliza from './components/BasicAnaliza.tsx';
 
 class Analiza{

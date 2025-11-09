@@ -2,7 +2,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Analiza } from './Analysis.tsx'
-import './App.css'
+import './HomePage.css'
 
 function InfoAnalize(analiza: Analiza) {
 
