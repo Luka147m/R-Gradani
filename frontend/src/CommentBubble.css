@@ -11,13 +11,12 @@
 
 .left{
     background-color: white;
-    padding-top: 30px;
 }
 
 
 .right{
     background-color: #BB86FC;
-    color: white;
+    color: black;
     margin-left: auto;
 }
 p{
@@ -33,6 +32,10 @@ p{
     gap: 10px;
     color: gray;
     cursor: pointer;
+}
+
+.text-box{
+    width: 80%;
 }
 
 .save-icon .active{

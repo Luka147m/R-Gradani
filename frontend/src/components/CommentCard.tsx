@@ -4,6 +4,8 @@ import { CommentBubble } from './CommentBubble';
 import {Sparkles, TextSelect, HatGlasses} from 'lucide-react';
 import '../DatasetPage.css';
 
+import type { Reply } from '../Reply';
+
 
 
 interface CommentCardProps {
@@ -11,9 +13,10 @@ interface CommentCardProps {
     subject: string;
     message: string; // HTML content
     created: string;
+    replies: Reply[];
 }
 
-const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, created }) => {
+const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, created, replies }) => {
     const [selectedHomeProfile, setSelectedHomeProfile] = useState<"home" | "profile">("home");
     const [selectedComment, setSelectedComment] = useState<"AISearch" | "normalSearch">("AISearch");
     console.log(subject)
@@ -43,22 +46,24 @@ const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, cr
             </div>
             <div className="comments-flex">
                 {selectedComment === "normalSearch" ? (
-                    <p dangerouslySetInnerHTML={{ __html: message }}></p>
-                ) : (
-                    <div className="comment-bubble-space">
-                        <CommentBubble 
-                            key={user_id}
-                            content={message}
-                            isFromComment={true}
-                            />
-                        <CommentBubble 
-                            key={user_id}
-                            content={message}
-                            isFromComment={false}
-                            />
-
-                    
+                    <div className="comment-bubble-normal"> 
+                        <p dangerouslySetInnerHTML={{ __html: message }}></p>
                     </div>
+                ) : (
+                    replies.map((reply: Reply) => (
+                        <>
+                            <CommentBubble 
+                                key={reply.id}
+                                content={reply.reply}
+                                isFromComment={true}
+                            />
+                            <CommentBubble 
+                                key={reply.id}
+                                content={reply.message}
+                                isFromComment={false}
+                            />
+                        </>
+                    ))
                 )}  
             
        
