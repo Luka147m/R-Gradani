@@ -23,7 +23,7 @@ const DatasetPage = () => {
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  console.log(error, setError)
   const params = useParams();
   const location = useLocation();
   const state = (location.state || {}) as DatasetState;
@@ -32,7 +32,7 @@ const DatasetPage = () => {
   const name = state.name ?? params.name;
   const url = state.url ?? params.url;
   const created = state.created ?? params.created;
-
+  console.log(created)
   useEffect(() => {
     const fetchAnalyses = async () => {
       // try {

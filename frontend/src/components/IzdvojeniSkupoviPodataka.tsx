@@ -1,4 +1,3 @@
-import React from 'react';
 import { SkupPodatakaCard} from './SkupPodatakaCard';
 import './IzdvojeniSkupoviPodataka.css';
 /* import { Heading1 } from 'lucide-react'; */

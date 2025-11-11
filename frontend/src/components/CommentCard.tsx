@@ -15,7 +15,10 @@ interface CommentCardProps {
 const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, created }) => {
     const [selectedHomeProfile, setSelectedHomeProfile] = useState<"home" | "profile">("home");
     const [selectedComment, setSelectedComment] = useState<"AISearch" | "normalSearch">("AISearch");
-
+    console.log(subject)
+    console.log(created)
+    console.log(selectedHomeProfile)
+    console.log(setSelectedHomeProfile)
     return (
         <div className="analysis-card">
             <div className="user-info">
