@@ -1,93 +1,48 @@
 import React from 'react';
 import { SkupPodatakaCard} from './SkupPodatakaCard';
 import './IzdvojeniSkupoviPodataka.css';
-import { Heading1 } from 'lucide-react';
+/* import { Heading1 } from 'lucide-react'; */
 
 export const IzdvojeniSkupoviPodataka = () => {
 
+    // Primjer podataka koji odgovaraju tvojoj DB shemi (skup: id (UUID), url, name)
     const skupoviPodataka = [
         {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            name: "Korištenje e-usluga u sustavu e-Građani",
+            url: "https://data.gov.hr/datasets/egov-services",
+            created: "2025-01-27"
         },
         {
-        naslov: "hgadhuadkjvg",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "9a3b2e7e-1c4b-4f8b-9c5f-1e2d3f4a5b6c",
+            name: "Otvoreni podaci o prijevozu",
+            url: "https://data.gov.hr/datasets/transport",
+            created: "2024-12-10"
         },
         {
-        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "2d5f6e7a-4b2c-11ec-81d3-0242ac130003",
+            name: "Demografski statistički podaci",
+            url: "https://data.gov.hr/datasets/demographics",
+            created: "2023-08-05"
         },
         {
-        naslov: "HAHAHAHAHAHHHAHAHAHA",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        }, {
-        naslov: "avu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-         {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-         {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "a1b2c3d4-e5f6-7a8b-9c0d-111213141516",
+            name: "Javne financije - proračun",
+            url: "https://data.gov.hr/datasets/budget",
+            created: "2024-06-01"
         },
         {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "c0ffee00-0000-4000-8000-000000000001",
+            name: "Registri - poslovni subjekti",
+            url: "https://data.gov.hr/datasets/business-registry",
+            created: "2022-11-20"
         },
         {
-        naslov: "hgadhuadkjvg",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "hgadhuadkjvg",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "Korištenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "hgadhuadkjvg",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
-        },
-        {
-        naslov: "Kankjkkdistenje e-usluga u sustavu e-Građani",
-        datum: "27. 1. 2025.",
-        link: "https://data.gov.hr",
+            id: "7f3e2d1c-9b8a-4d3c-8e7f-222222222222",
+            name: "Okolišni indikatori",
+            url: "https://data.gov.hr/datasets/environment",
+            created: "2025-01-10"
         }
-
-        
-        
     ];
 
     return (
@@ -96,12 +51,13 @@ export const IzdvojeniSkupoviPodataka = () => {
                 Izdvojeni skupovi podataka
             </h1>
             <div className="skupovi-podataka-grid">
-                {skupoviPodataka.map((skupPodataka, index) => (
+                {skupoviPodataka.map((skupPodataka) => (
                     <SkupPodatakaCard
-                        key={index}
-                        naslov={skupPodataka.naslov}
-                        datum={skupPodataka.datum}
-                        link={skupPodataka.link}
+                        key={skupPodataka.id}
+                        id={skupPodataka.id}
+                        naslov={skupPodataka.name}
+                        datum={skupPodataka.created}
+                        link={skupPodataka.url}
                     />
                 ))}
             </div>

@@ -11,15 +11,124 @@ html, body {
   background-color: #121212;
   display: flex;
   justify-content: center;
-  flex-direction: column;
-  align-items: center;
   margin: 0px;
   color: white;
   font-family: Arial, sans-serif;
 }
 
+.dataset-title{
+  font-size: 2rem;
+  margin-bottom: 0px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: underline;
+
+}
+.dataset-url{
+    color: #ffffff;
+    text-align: center;
+    margin-top: 4px;
+    text-decoration: underline;
+}
+
+.pregled-komentara-lable{
+  display: flex;
+  align-items: center;  
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  
+}
+
+.analysis-card{
+  background-color: #2C2C2C;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  position: relative;
+
+}
+
+.user-info{
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+    top: 16px;
+    left: 16px;
+    font-size: 1.2rem;
+    color: #BBBBBB;
+}
+
+
+/* ----------- AI/normal Selector Styles ----------- */
+
+.AI-normal-selector{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row ;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 0px;
+    width: fit-content;
+    margin: 5px auto;
+    scale: 0.7;
+}
+
+.selector-btn {
+  background-color: transparent;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.selector-btn svg {
+  color: #000;
+  transition: color 0.2s ease;
+}
+
+.selector-btn.active-AISearch {
+  background-color: #BB86FC;
+}
+
+
+.selector-btn.active-normalSearch {
+  background-color: #6be0d7;
+}
+
+.selector-btn.active-AISearch svg {
+  color: #fff;
+}
+.selector-btn.active-normalSearch svg {
+  color: #fff;
+}
+
+
+/* ------------------------------------------- */
+
+/* ----------- Comments Styles ----------- */
+.commentIndex{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+
+/* ----------- Main Container Styles ----------- */
 .main-container{
-  width: 60rem;
+  width: 88%;
   height: 100%;
   background-color: #1E1E1E;
   display: flex;
@@ -56,10 +165,6 @@ html, body {
   border-bottom-left-radius: 10px;
 }
 
-.search-input::placeholder{
-  color: #cecece;
-}
-
 .search-input:focus{
   outline: none;
   border: none;
@@ -78,10 +183,10 @@ html, body {
   border-bottom-right-radius: 10px;
 }
 
-.search-skupovi-div{
+.search-home-profile-div{
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   margin: 32px;
@@ -232,16 +337,4 @@ html, body {
   background-color: #373737;
   padding: 2px 16px 2px 16px;
   border-radius: 10px;
-}
-
-.ikona-naslov-div{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-}
-
-.ikona{
-  color:#b983ff;
 }
