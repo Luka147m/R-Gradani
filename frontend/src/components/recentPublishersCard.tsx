@@ -40,7 +40,6 @@ export const RecentPublishers = () => {
                     <PublisherCard
                         id={publ.id}
                         name={publ.name}
-                        description={publ.description}
                         numOfDatasets={publ.numOfDatasets}
                     />
                 ))}
