@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CommentBubble } from './CommentBubble';
 
 import {Sparkles, TextSelect, HatGlasses} from 'lucide-react';
 import '../DatasetPage.css';
@@ -40,11 +41,33 @@ const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, cr
                 <TextSelect size={24} />
                 </button>
             </div>
+            <div className="comments-flex">
+                {selectedComment === "normalSearch" ? (
+                    <p dangerouslySetInnerHTML={{ __html: message }}></p>
+                ) : (
+                    <div className="comment-bubble-space">
+                        <CommentBubble 
+                            key={user_id}
+                            content={message}
+                            isFromComment={true}
+                            />
+                        <CommentBubble 
+                            key={user_id}
+                            content={message}
+                            isFromComment={false}
+                            />
+
+                    
+                    </div>
+                )}  
+            
+       
+
+            </div>
 
             
             
-            <p dangerouslySetInnerHTML={{ __html: message }}></p>
-
+            
         </div>
     );
 }

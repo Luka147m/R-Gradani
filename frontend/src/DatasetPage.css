@@ -125,6 +125,17 @@ html, body {
     font-size: 20px;
 }
 
+.comments-flex{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+}
+.comment-bubble-space{
+    
+    width: 100%;
+}
+
 
 /* ----------- Main Container Styles ----------- */
 .main-container{

@@ -1,0 +1,48 @@
+
+.comment{
+    position: relative;
+    width: 45%;
+    background-color: rgb(227, 197, 197);
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+
+}
+
+.left{
+    background-color: white;
+    padding-top: 30px;
+}
+
+
+.right{
+    background-color: #BB86FC;
+    color: white;
+    margin-left: auto;
+}
+p{
+    margin: 0px;
+
+}
+
+.icons-top-right {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    color: gray;
+    cursor: pointer;
+}
+
+.save-icon .active{
+    color: #03DAC6;
+    fill: #03DAC6;
+    stroke: none;
+}
+.report-icon .active{
+    color: #CF6679;
+    fill: #CF6679;
+    stroke: none;
+
+}
