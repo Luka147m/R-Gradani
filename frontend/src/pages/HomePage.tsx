@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Home, User } from "lucide-react";
+import { Home, LayoutDashboard, Search } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
 import { IzdvojeniSkupoviPodataka } from '../components/IzdvojeniSkupoviPodataka';
-
+import { RecentPublishers } from '../components/recentPublishersCard';
 
 
 function filterAnalyses(event: React.MouseEvent<HTMLButtonElement>) {
@@ -31,29 +31,34 @@ function HomePage() {
 
   return (
     <>
+      <div className="home-profile-selector">
+        <button
+          className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
+          onClick={() => setSelected("home")}
+        >
+          <Home size={24} />
+        </button>
+
+        <button
+          className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
+          onClick={() => setSelected("profile")}
+        >
+          <LayoutDashboard  size={24} />
+        </button>
+      </div>
       <div className="main-container">
-        <div className='search-home-profile-div'>
+        <div className='search-skupovi-div'>
+          <div className='ikona-naslov-div'>
+                <Search className="ikona"/>
+                <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
+          </div>
           <form className="search">
-              <input type="text" className = "search-input"/>
+              <input type="text" placeholder="Unesite naziv skupa podataka" className = "search-input"/>
               <button className="search-button" type = "submit" onClick ={filterAnalyses}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
           </form>
-          <div className="home-profile-selector">
-            <button
-              className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
-              onClick={() => setSelected("home")}
-            >
-              <Home size={24} />
-            </button>
-
-            <button
-              className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
-              onClick={() => setSelected("profile")}
-            >
-              <User size={24} />
-            </button>
-          </div>
         </div>
         <IzdvojeniSkupoviPodataka />
+        <RecentPublishers />
       </div>
     </>
   );

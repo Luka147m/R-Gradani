@@ -1,5 +1,7 @@
 import { SkupPodatakaCard} from './SkupPodatakaCard';
 import './IzdvojeniSkupoviPodataka.css';
+import { BadgeAlert } from 'lucide-react';
+import '../HomePage.css'
 /* import { Heading1 } from 'lucide-react'; */
 
 export const IzdvojeniSkupoviPodataka = () => {
@@ -45,10 +47,11 @@ export const IzdvojeniSkupoviPodataka = () => {
     ];
 
     return (
-        <div className = "izdvojeni-skupovi-podataka">
-            <h1>
-                Izdvojeni skupovi podataka
-            </h1>
+        <div className = "search-skupovi-div">
+            <div className='ikona-naslov-div'>
+                <BadgeAlert className='ikona' />
+                <h1 className='search-skupovi-h1'>Nedavno ažurirani skupovi podataka</h1>
+            </div>
             <div className="skupovi-podataka-grid">
                 {skupoviPodataka.map((skupPodataka) => (
                     <SkupPodatakaCard
