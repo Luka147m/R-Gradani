@@ -21,8 +21,9 @@
 
 .analiza-card,
 .skup-podatka-card,
-.skup-podatka-card /* defensive duplicate for hyphen variants */,
+.skup-podatka-card,
 .skup-podataka-card {
+  position: relative;
   background-color: #bb86fc;
   padding: 14px 16px;
   color: white;
@@ -40,6 +41,20 @@
 .skup-podatka-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.save-icon-dataset {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: white;
+  cursor: pointer;
+  background-color: black;
+  border-radius: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
 }
 
 .analiza-card h3,
@@ -87,5 +102,13 @@
 @media (max-width: 750px) {
   .skupovi-podataka-grid {
     grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .main-container {
+    padding: 0px;
+  }
+  .skupovi-podataka-grid {
+    gap: 12px;
+    width: 100%;
   }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from "react-router-dom";
 import { Home, LayoutDashboard, Search } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
@@ -32,19 +33,26 @@ function HomePage() {
   return (
     <>
       <div className="home-profile-selector">
-        <button
-          className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
-          onClick={() => setSelected("home")}
-        >
-          <Home size={24} />
-        </button>
-
-        <button
-          className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
-          onClick={() => setSelected("profile")}
-        >
-          <LayoutDashboard  size={24} />
-        </button>
+        <Link to="/">
+            <button
+            className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
+            onClick={() => setSelected("home")}
+            >
+            <Home size={24} />
+            </button>
+        </Link>
+        <Link to="/profile">
+          <button
+            className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
+            onClick={() => setSelected("profile")}
+            
+              
+          >
+            <LayoutDashboard  
+              size={24} 
+              />
+          </button>
+        </Link>
       </div>
       <div className="main-container">
         <div className='search-skupovi-div'>

@@ -1,16 +1,16 @@
+
 html, body {
   height: 100%;
   margin: 0;
-  color: white;
+  background-color: #121212;
   font-family: Arial, sans-serif;
 }
 
 #root{
-  min-height: 100%;
-  padding: 24px;
+  min-height: 100vh;
+  padding: 15px;
   background-color: #121212;
   display: flex;
-  justify-content: center;
   flex-direction: column;
   align-items: center;
   margin: 0px;
@@ -19,14 +19,15 @@ html, body {
 }
 
 .main-container{
-  width: 80%;
-  height: 100%;
+  width: 100%;
+  min-height: 100%;
   background-color: #1E1E1E;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding:16px;
-  margin: 16px;
+  padding: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
 }
 
 
@@ -42,9 +43,10 @@ html, body {
 }
 
 .search-input{
+  
   width: 40vw;
   color: white;
-  height: 28px;;
+  height: 32px;;
   border: none;
   padding: 2px;
   padding-left: 12px;
@@ -274,4 +276,18 @@ html, body {
   display: grid;
   grid-template-columns: 29% 29% 29%;
   justify-content: space-between;
+}
+
+@media (max-width: 750px) {
+  .skupovi-podataka-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .main-container {
+    padding: 0px;
+  }
+  .skupovi-podataka-grid {
+    gap: 12px;
+    width: 100%;
+  }
 }
