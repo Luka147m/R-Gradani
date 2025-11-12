@@ -7,7 +7,7 @@ import '../HomePage.css'
 export const RecentlyVisitedDatasets = () => {
 
     // Primjer podataka koji odgovaraju tvojoj DB shemi (skup: id (UUID), url, name)
-    const skupoviPodataka = [
+    const nedavniSkupoviPodataka = [
         {
             id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             name: "Korištenje e-usluga u sustavu e-Građani",
@@ -46,14 +46,17 @@ export const RecentlyVisitedDatasets = () => {
         }
     ];
 
+    const arr = JSON.parse(localStorage.getItem('recentlyVisitedDatasets') || '[]');
+    const markedDatasets = nedavniSkupoviPodataka.filter(skup => arr.includes(skup.id));
+
     return (
         <div className = "search-skupovi-div">
             <div className='ikona-naslov-div'>
                 <History className='ikona' />
-                <h1 className='search-skupovi-h1'>Nedavno posjeceni skupovi podataka</h1>
+                <h1 className='search-skupovi-h1'>Nedavno posjećeni skupovi podataka</h1>
             </div>
             <div className="skupovi-podataka-grid">
-                {skupoviPodataka.map((skupPodataka) => (
+                {markedDatasets.map((skupPodataka) => (
                     <SkupPodatakaCard
                         key={skupPodataka.id}
                         id={skupPodataka.id}

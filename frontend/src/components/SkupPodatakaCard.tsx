@@ -44,13 +44,28 @@ export const SkupPodatakaCard: React.FC<SkupPodatakaCardProps> = ({ id, naslov, 
         }
     };
 
+    const updateRecentlyVisited = () => {
+        try{
+            const raw = localStorage.getItem('recentlyVisitedDatasets');
+            const arr: string[] = raw ? JSON.parse(raw) : [];
+            if(!arr.includes(id)){
+                arr.push(id);
+                localStorage.setItem('recentlyVisitedDatasets', JSON.stringify(arr));
+                setIsSaved(true);
+            }       
+        } catch(e){
+            console.error("Error u localStorage-u:", e);
+        }
+    }
+
     return (
         <div className="skup-podataka-card" data-id={id}>
             <Link 
                 to={`/dataset/${encodeURIComponent(id)}`} 
                 style={{ color: 'inherit', textDecoration: 'none' }}
+                onClick={updateRecentlyVisited}
                 state={{ id, name: naslov, url: link, created: datum }}>
-                <h3>{naslov}</h3>
+                <h3 onClick={updateRecentlyVisited}>{naslov}</h3>
             </Link>
             <p className="datum">{datum}</p>
             <a href={link} className="link" target="_blank" rel="noreferrer">
