@@ -57,7 +57,8 @@ CREATE TABLE public.odgovor (
     id integer NOT NULL,
     komentar_id bigint,
     created timestamp without time zone,
-    message text
+    message jsonb,
+    score double precision
 );
 
 

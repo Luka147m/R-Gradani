@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS izdavac (
             id SERIAL PRIMARY KEY,
             komentar_id BIGINT REFERENCES komentar(id) ON DELETE CASCADE,
             created TIMESTAMP,
-            message TEXT
+            message JSONB,
+	    score float
         );
 
 -- Spajanje psql terminal
