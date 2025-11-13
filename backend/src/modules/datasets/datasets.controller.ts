@@ -10,3 +10,17 @@ export const getAllDatasets = async (_req: Request, res: Response) => {
     sendError(res, 500, `${error}`);
   }
 };
+
+export const getDatasetById = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const dataset = await datasetsService.fetchDatasetById(id);
+    if (dataset) {
+      sendSuccess(res, 200, 'Dataset fetched successfully.', dataset);
+    } else {
+      sendError(res, 404, 'Dataset not found.');
+    }
+  } catch (error) {
+    sendError(res, 500, `${error}`);
+  }
+};

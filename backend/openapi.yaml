@@ -55,6 +55,93 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/skupovi/{id}:
+    get:
+      summary: Get a single dataset by ID
+      description: Retrieves a specific dataset (skup podataka) by its unique ID.
+      tags:
+        - Datasets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the dataset to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested dataset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Dataset fetched successfully.
+                  result:
+                    $ref: '#/components/schemas/SkupPodataka'
+        '404':
+          description: Dataset not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/skupovi/{id}/komentari:
+    get:
+      summary: Get comments for a dataset
+      description: Retrieves all comments associated with a specific dataset ID.
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the dataset.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of comment messages for the dataset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Comments fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      type: '#/components/schemas/Komentar'
+        '404':
+          description: Dataset not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
 
 components:
   schemas:
@@ -96,6 +183,32 @@ components:
         tags:
           type: object
           additionalProperties: true
+
+    Komentar:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The unique identifier for the comment.
+        user_id:
+          type: integer
+          format: int64
+          description: The ID of the user who posted the comment.
+        skup_id:
+          type: string
+          description: The ID of the dataset this comment belongs to.
+        created:
+          type: string
+          format: date-time
+          description: The timestamp when the comment was created.
+        subject:
+          type: string
+          description: The subject or title of the comment.
+        message:
+          type: string
+          description: The main content of the comment.
+
     ErrorResponse:
       type: object
       properties:
