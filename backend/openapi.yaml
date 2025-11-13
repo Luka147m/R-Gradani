@@ -23,3 +23,88 @@ paths:
                   message:
                     type: string
                     example: R-Gradani backend
+
+  /api/skupovi:
+    get:
+      summary: Get all datasets
+      description: Retrieves a list of all datasets (skupovi podataka).
+      tags:
+        - Datasets
+      responses:
+        '200':
+          description: A list of datasets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Datasets fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkupPodataka'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+  schemas:
+    SkupPodataka:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        refresh_frequency:
+          type: string
+        theme:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        state:
+          type: string
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        isopen:
+          type: boolean
+        access_rights:
+          type: string
+        license_title:
+          type: string
+        license_url:
+          type: string
+        license_id:
+          type: string
+        publisher_id:
+          type: string
+        tags:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Failed to fetch datasets.
+        result:
+          type: 'null'
+          example: null
