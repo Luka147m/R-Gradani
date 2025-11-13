@@ -4,6 +4,7 @@ import yaml from "js-yaml";
 import fs from "fs";
 import path from "path";
 import { connectDB } from "./src/config/prisma"
+import datasetsRouter from "./src/modules/datasets/datasets.routes"
 
 const app = express();
 const port: number = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -17,6 +18,8 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
 app.get("/", (_req: Request, res: Response) => {
   res.json({ status: "ok", message: "R-Gradani backend" });
 });
+
+app.use('/api/skupovi', datasetsRouter);
 
 const startServer = async () => {
   await connectDB();
