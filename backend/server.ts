@@ -3,8 +3,12 @@ import swaggerUi from "swagger-ui-express";
 import yaml from "js-yaml";
 import fs from "fs";
 import path from "path";
-import { connectDB } from "./src/config/prisma"
-import datasetsRouter from "./src/modules/datasets/datasets.routes"
+import { connectDB } from "./src/config/prisma";
+import datasetsRouter from "./src/modules/datasets/datasets.routes";
+
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 
 const app = express();
 const port: number = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -19,7 +23,7 @@ app.get("/", (_req: Request, res: Response) => {
   res.json({ status: "ok", message: "R-Gradani backend" });
 });
 
-app.use('/api/skupovi', datasetsRouter);
+app.use("/api/skupovi", datasetsRouter);
 
 const startServer = async () => {
   await connectDB();
