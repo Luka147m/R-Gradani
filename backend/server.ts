@@ -32,8 +32,10 @@ app.use("/api/skupovi", datasetsRouter);
 const startServer = async () => {
   await connectDB();
   app.listen(port, () => {
-    console.log(`Server listening on ${port}`);
-    console.log(`API documentation available at ${port}/docs`);
+    console.log(`Server listening on http://localhost:${port}`);
+    console.log(
+      `API documentation available at http://localhost:${port}/docs`
+    );
   });
 };
 
