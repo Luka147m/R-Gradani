@@ -11,10 +11,14 @@ import datasetsRouter from "./src/modules/datasets/datasets.routes";
 };
 
 const app = express();
-const port: number = process.env.PORT ? Number(process.env.PORT) : 3000;
+const port: number = process.env.PORT
+  ? Number(process.env.PORT)
+  : 3000;
 
 const openApiPath = path.resolve(__dirname, "openapi.yaml");
-const openApiSpec = yaml.load(fs.readFileSync(openApiPath, "utf8")) as Record<string, unknown>;
+const openApiSpec = yaml.load(
+  fs.readFileSync(openApiPath, "utf8")
+) as Record<string, unknown>;
 
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
@@ -28,8 +32,8 @@ app.use("/api/skupovi", datasetsRouter);
 const startServer = async () => {
   await connectDB();
   app.listen(port, () => {
-    console.log(`Server listening on http://localhost:${port}`);
-    console.log(`API documentation available at http://localhost:${port}/docs`);
+    console.log(`Server listening on ${port}`);
+    console.log(`API documentation available at ${port}/docs`);
   });
 };
 
