@@ -128,7 +128,8 @@ CREATE TABLE public.skup_podataka (
     license_url text,
     license_id text,
     publisher_id text,
-    tags jsonb
+    tags jsonb,
+    fetched_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -202,6 +203,13 @@ ALTER TABLE ONLY public.skup_podataka
 
 ALTER TABLE ONLY public.slika
     ADD CONSTRAINT slika_pkey PRIMARY KEY (komentar_id, content_hash);
+
+
+--
+-- Name: idx_skup_tags; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_skup_tags ON public.skup_podataka USING gin (tags);
 
 
 --

@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS izdavac (
             license_url TEXT,
             license_id TEXT,
             publisher_id TEXT REFERENCES izdavac(id),
-            tags JSONB
+            tags JSONB,
+	    fetched_at TIMESTAMP
         );
         
         CREATE TABLE IF NOT EXISTS resurs (
