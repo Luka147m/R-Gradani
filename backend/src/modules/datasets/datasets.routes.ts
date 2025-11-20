@@ -7,6 +7,13 @@ const router = Router();
 router.get('/', datasetsController.getAllDatasets);
 router.get('/:id', datasetsController.getDatasetById);
 
+router.post('/ids', datasetsController.getDatasetsByIds);
+
+router.get('/izdavaci/:id', datasetsController.getDatasetsByPublisher);
+router.post('/izdavaci', datasetsController.getDatasetsByPublishers);
+
+router.post('/filter', datasetsController.getDatasetsByTagsOrPublishers);
+
 router.use('/:id/komentari', commentsRouter);
 
 export default router;

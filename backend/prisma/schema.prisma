@@ -68,9 +68,12 @@ model skup_podataka {
   license_id        String?
   publisher_id      String?
   tags              Json?
+  fetched_at        DateTime   @default(now()) @db.Timestamp(6)
   komentar          komentar[]
   resurs            resurs[]
   izdavac           izdavac?   @relation(fields: [publisher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([tags], map: "idx_skup_tags", type: Gin)
 }
 
 model slika {
