@@ -5,6 +5,8 @@ import fs from "fs";
 import path from "path";
 import { connectDB } from "./src/config/prisma";
 import datasetsRouter from "./src/modules/datasets/datasets.routes";
+import initRouter from "./src/modules/init/init.routes";
+import publishersRouter from "./src/modules/publishers/publishers.routes";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -24,6 +26,8 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.use("/api/skupovi", datasetsRouter);
+app.use("/api/izdavaci", publishersRouter);
+app.use("/api/init", initRouter);
 
 const startServer = async () => {
   await connectDB();

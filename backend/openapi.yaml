@@ -10,7 +10,7 @@ paths:
     get:
       summary: Service health check
       responses:
-        "200":
+        '200':
           description: Service status
           content:
             application/json:
@@ -97,6 +97,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/skupovi/ids:
+    post:
+      summary: Get datasets by multiple IDs
+      description: Retrieves datasets by an array of IDs.
+      tags:
+        - Datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - ids
+      responses:
+        '200':
+          description: Datasets fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Datasets fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkupPodataka'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/skupovi/{id}/komentari:
     get:
       summary: Get comments for a dataset
@@ -141,7 +191,223 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/init:
+    get:
+      summary: Get initial app data
+      description: Fetches tags, publishers, and latest datasets.
+      tags:
+        - Init
+      responses:
+        '200':
+          description: Initial data fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Initial data fetched successfully.
+                  result:
+                    type: object
+                    properties:
+                      tags:
+                        type: array
+                        items:
+                          type: string
+                      publishers:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Publisher'
+                      latestDatasets:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SkupPodataka'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /api/izdavaci:
+    get:
+      summary: Get all publishers
+      description: Retrieves a list of all publishers.
+      tags:
+        - Publishers
+      responses:
+        '200':
+          description: Publishers fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Publishers fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Publisher'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/skupovi/izdavaci/{id}:
+    get:
+      summary: Get datasets for a single publisher
+      description: Retrieves datasets that belong to a specific publisher ID.
+      tags:
+        - Datasets
+      parameters:
+        - name: publisherId
+          in: path
+          required: true
+          description: The ID of the publisher to filter datasets by.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datasets fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Datasets fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkupPodataka'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/skupovi/izdavaci:
+    post:
+      summary: Get datasets for multiple publishers
+      description: Retrieves datasets that belong to any of the publisher IDs in the request body.
+      tags:
+        - Datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - ids
+      responses:
+        '200':
+          description: Datasets fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Datasets fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkupPodataka'
+        '400':
+          description: Bad Request (invalid body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/skupovi/filter:
+    post:
+      summary: Get datasets by tags and/or publishers
+      description: Retrieves datasets that match at least one tag or belong to any of the given publisher IDs.
+      tags:
+        - Datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of tags to filter datasets by. Optional.
+                publisherIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of publisher IDs to filter datasets by. Optional.
+              example:
+                tags: ['education', 'health']
+                publisherIds: ['pub1', 'pub2']
+      responses:
+        '200':
+          description: Datasets fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Datasets fetched successfully.
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkupPodataka'
+        '400':
+          description: Bad Request (invalid body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
