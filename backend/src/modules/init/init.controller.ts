@@ -1,13 +1,11 @@
-import { Request, Response } from 'express';
-import * as initService from './init.service';
-import { sendSuccess, sendError } from '../../utils/response';
+import { Request, Response } from "express";
+import * as initService from "./init.service";
 
 export const getInit = async (_req: Request, res: Response) => {
-    try {
-        const init = await initService.fetchData();
-        sendSuccess(res, 200, 'Initial data fetched successfully.', init);
-    } catch (error) {
-        sendError(res, 500, `${error}`);
-    }
+  try {
+    const init = await initService.fetchData();
+    res.status(200).json(init);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
 };
-

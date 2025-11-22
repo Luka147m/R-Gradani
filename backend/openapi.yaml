@@ -10,7 +10,7 @@ paths:
     get:
       summary: Service health check
       responses:
-        '200':
+        "200":
           description: Service status
           content:
             application/json:
@@ -31,29 +31,20 @@ paths:
       tags:
         - Datasets
       responses:
-        '200':
+        "200":
           description: A list of datasets.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Datasets fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SkupPodataka'
-        '500':
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/{id}:
     get:
@@ -69,33 +60,24 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: The requested dataset.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Dataset fetched successfully.
-                  result:
-                    $ref: '#/components/schemas/SkupPodataka'
-        '404':
+                $ref: "#/components/schemas/SkupPodataka"
+        "404":
           description: Dataset not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/ids:
     post:
@@ -117,35 +99,26 @@ paths:
               required:
                 - ids
       responses:
-        '200':
+        "200":
           description: Datasets fetched successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Datasets fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SkupPodataka'
-        '400':
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/{id}/komentari:
     get:
@@ -161,35 +134,26 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: A list of comment messages for the dataset.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Comments fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      type: '#/components/schemas/Komentar'
-        '404':
+                type: array
+                items:
+                  $ref: "#/components/schemas/Komentar"
+        "404":
           description: Dataset not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/init:
     get:
@@ -198,40 +162,31 @@ paths:
       tags:
         - Init
       responses:
-        '200':
+        "200":
           description: Initial data fetched successfully.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Initial data fetched successfully.
-                  result:
-                    type: object
-                    properties:
-                      tags:
-                        type: array
-                        items:
-                          type: string
-                      publishers:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Publisher'
-                      latestDatasets:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/SkupPodataka'
-        '500':
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                  publishers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Publisher"
+                  latestDatasets:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SkupPodataka"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/izdavaci:
     get:
@@ -240,29 +195,20 @@ paths:
       tags:
         - Publishers
       responses:
-        '200':
+        "200":
           description: Publishers fetched successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Publishers fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Publisher'
-        '500':
+                type: array
+                items:
+                  $ref: "#/components/schemas/Publisher"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/izdavaci/{id}:
     get:
@@ -278,29 +224,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Datasets fetched successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Datasets fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SkupPodataka'
-        '500':
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/izdavaci:
     post:
@@ -322,35 +259,26 @@ paths:
               required:
                 - ids
       responses:
-        '200':
+        "200":
           description: Datasets fetched successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Datasets fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SkupPodataka'
-        '400':
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "400":
           description: Bad Request (invalid body)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/skupovi/filter:
     post:
@@ -376,38 +304,29 @@ paths:
                     type: string
                   description: Array of publisher IDs to filter datasets by. Optional.
               example:
-                tags: ['education', 'health']
-                publisherIds: ['pub1', 'pub2']
+                tags: ["education", "health"]
+                publisherIds: ["pub1", "pub2"]
       responses:
-        '200':
+        "200":
           description: Datasets fetched successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Datasets fetched successfully.
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SkupPodataka'
-        '400':
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "400":
           description: Bad Request (invalid body)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:
@@ -478,12 +397,6 @@ components:
     ErrorResponse:
       type: object
       properties:
-        status:
-          type: string
-          example: error
         message:
           type: string
-          example: Failed to fetch datasets.
-        result:
-          type: 'null'
-          example: null
+          example: An error occurred.
