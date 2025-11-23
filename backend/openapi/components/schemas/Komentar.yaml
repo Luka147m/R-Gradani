@@ -1,0 +1,14 @@
+type: object
+properties:
+  id:
+    type: integer
+  user_id:
+    type: integer
+  skup_id:
+    type: string
+  created:
+    type: string
+  subject:
+    type: string
+  message:
+    type: string

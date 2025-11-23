@@ -1,0 +1,39 @@
+post:
+  summary: Get datasets for multiple publishers
+  description: Retrieves datasets that belong to any of the publisher IDs in the request body.
+  tags:
+    - Datasets
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: string
+          required:
+            - ids
+  responses:
+    "200":
+      description: Datasets fetched successfully.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "400":
+      description: Bad Request (invalid body)
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

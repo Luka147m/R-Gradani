@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    type: string
+  title:
+    type: string
+  refresh_frequency:
+    type: string
+  theme:
+    type: string
+  description:
+    type: string
+  url:
+    type: string
+  state:
+    type: string
+  created:
+    type: string
+    format: date-time
+  modified:
+    type: string
+    format: date-time
+  isopen:
+    type: boolean
+  access_rights:
+    type: string
+  license_title:
+    type: string
+  license_url:
+    type: string
+  license_id:
+    type: string
+  publisher_id:
+    type: string
+  tags:
+    type: object
+    additionalProperties: true

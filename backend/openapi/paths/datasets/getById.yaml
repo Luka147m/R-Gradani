@@ -1,0 +1,31 @@
+get:
+  summary: Get a single dataset by ID
+  description: Retrieves a specific dataset by its unique ID.
+  tags:
+    - Datasets
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ID of the dataset to retrieve.
+      schema:
+        type: string
+  responses:
+    "200":
+      description: The requested dataset.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/SkupPodataka.yaml"
+    "404":
+      description: Dataset not found.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

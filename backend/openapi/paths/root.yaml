@@ -1,0 +1,16 @@
+get:
+  summary: Service health check
+  responses:
+    "200":
+      description: Service status
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: ok
+              message:
+                type: string
+                example: R-Gradani backend

@@ -1,0 +1,31 @@
+get:
+  summary: Get initial app data
+  description: Fetches tags, publishers, and latest datasets.
+  tags:
+    - Init
+  responses:
+    "200":
+      description: Initial data fetched successfully.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              tags:
+                type: array
+                items:
+                  type: string
+              publishers:
+                type: array
+                items:
+                  $ref: "../components/schemas/Izdavac.yaml"
+              latestDatasets:
+                type: array
+                items:
+                  $ref: "../components/schemas/SkupPodataka.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/ErrorResponse.yaml"
