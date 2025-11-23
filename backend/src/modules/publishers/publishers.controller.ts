@@ -9,3 +9,12 @@ export const getPublishers = async (req: Request, res: Response) => {
     res.status(500).json({ message: `${error}` });
   }
 };
+
+export const getRecentlyActivePublishers = async (_req: Request, res: Response) => {
+  try {
+    const publishers = await publishersService.fetchRecentlyActivePublishers();
+    res.status(200).json(publishers);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};

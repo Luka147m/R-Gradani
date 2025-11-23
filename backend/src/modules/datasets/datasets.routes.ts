@@ -5,8 +5,9 @@ import commentsRouter from '../comments/comments.routes';
 const router = Router();
 
 router.get('/', datasetsController.getAllDatasets);
-router.get('/:id', datasetsController.getDatasetById);
+router.get('/nedavno', datasetsController.getLatestDatasets);
 
+router.get('/:id', datasetsController.getDatasetById);
 router.post('/ids', datasetsController.getDatasetsByIds);
 
 router.get('/izdavaci/:id', datasetsController.getDatasetsByPublisher);

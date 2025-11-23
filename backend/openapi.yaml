@@ -46,6 +46,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/skupovi/nedavno:
+    get:
+      summary: Get most recently fetched datasets
+      description: Retrieves a list of the 10 most recently fetched datasets.
+      tags:
+        - Datasets
+      responses:
+        "200":
+          description: A list of the 10 most recent datasets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkupPodataka"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /api/skupovi/{id}:
     get:
       summary: Get a single dataset by ID
@@ -197,6 +219,28 @@ paths:
       responses:
         "200":
           description: Publishers fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Publisher"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/izdavaci/nedavno:
+    get:
+      summary: Get recently active publishers
+      description: Retrieves a list of the 5 publishers whose datasets have been most recently updated.
+      tags:
+        - Publishers
+      responses:
+        "200":
+          description: A list of recently active publishers.
           content:
             application/json:
               schema:

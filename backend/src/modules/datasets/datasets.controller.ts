@@ -10,6 +10,15 @@ export const getAllDatasets = async (_req: Request, res: Response) => {
   }
 };
 
+export const getLatestDatasets = async (_req: Request, res: Response) => {
+  try {
+    const datasets = await datasetsService.fetchLatestFetchedDatasets(10);
+    res.status(200).json(datasets);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
+
 export const getDatasetById = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
