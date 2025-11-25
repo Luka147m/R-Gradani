@@ -2,32 +2,17 @@ import { PublisherCard} from './Publishercard';
 import './IzdvojeniSkupoviPodataka.css';
 import { Building } from 'lucide-react';
 import '../HomePage.css'
-/* import { Heading1 } from 'lucide-react'; */
+import { mockInitData }  from '../mockData';
 
 export const RecentPublishers = () => {
 
-    // Primjer podataka koji odgovaraju tvojoj DB shemi (skup: id (UUID), url, name)
-    const publishers = [
-        {
-            id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            name: "Grad Zagreb",
-            description: "",
-            numOfDatasets: 207
-        },
-        {
-            id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            name: "Ministarstvo Unutarnjih Poslova",
-            description: "",
-            numOfDatasets: 288
-        },
-        {
-            id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            name: "Grad Rovinj-Rovingo",
-            description: "",
-            numOfDatasets: 65
-        }
-        
-    ];
+    const publishersData = mockInitData.result.publishers;
+    const datasets = mockInitData.result.latestDatasets;
+
+    // Funkcija koja broji datasete po publisheru
+    const getDatasetCount = (publisherId: string): number => {
+        return datasets.filter(dataset => dataset.publisher_id === publisherId).length;
+    };
 
     return (
         <div className = "search-skupovi-div">
@@ -36,11 +21,12 @@ export const RecentPublishers = () => {
                 <h1 className='search-skupovi-h1'>Nedavno aktivni izdavači</h1>
             </div>
             <div className="recent-publishers-div">
-                {publishers.map((publ) => (
+                {publishersData.map((publisher) => (
                     <PublisherCard
-                        id={publ.id}
-                        name={publ.name}
-                        numOfDatasets={publ.numOfDatasets}
+                        key={publisher.id}
+                        id={publisher.id}
+                        name={publisher.title}
+                        numOfDatasets={getDatasetCount(publisher.id)}
                     />
                 ))}
             </div>

@@ -1,0 +1,43 @@
+.filter-container {
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+.search-publisher {
+    width: 100%;
+    margin-bottom: 5px;
+}
+.publisher-input{
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.publisher-item{
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.ignore-checkboxes{
+    display: flex;
+    flex-direction: column;
+    margin-right: 8px;
+}
+
+.slider-wrapper { 
+    margin-bottom: 24px; 
+}
+
+
+.slider-values {
+    display: flex; justify-content: space-between; color: #fff; font-size: 13px; margin-top: 4px; 
+}
