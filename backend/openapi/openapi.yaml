@@ -27,6 +27,8 @@ paths:
     $ref: "./paths/datasets/getByIds.yaml"
   /api/skupovi/{id}/komentari:
     $ref: "./paths/datasets/getComments.yaml"
+  /api/skupovi/izdavaci/{id}:
+    $ref: "./paths/datasets/getByPublisherId.yaml"
   /api/skupovi/izdavaci:
     $ref: "./paths/datasets/getByPublishers.yaml"
   /api/skupovi/filter:

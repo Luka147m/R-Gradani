@@ -51,7 +51,7 @@ export const getDatasetsByIds = async (req: Request, res: Response) => {
 };
 
 export const getDatasetsByPublisher = async (req: Request, res: Response) => {
-  const { publisherId } = req.params;
+  const { id: publisherId } = req.params;
   try {
     const datasets = await datasetsService.fetchDatasetsByPublisher(publisherId);
     res.status(200).json(datasets);
