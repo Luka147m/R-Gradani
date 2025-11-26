@@ -9,24 +9,6 @@ import { RecentPublishers } from '../components/recentPublishersCard';
 import '../HomePage.css'
 
 
-// function filterAnalyses(event: React.MouseEvent<HTMLButtonElement>) {
-    
-//     event.preventDefault();
-    
-//     const searchTerm = (document.querySelector('.search-input') as HTMLInputElement).value.toLowerCase();
-//     const analyses = document.querySelectorAll('.skup-podataka-card');
-    
-//     analyses.forEach((analysis) => {
-//       const title = analysis.querySelector('h3')?.textContent?.toLowerCase() || '';
-//       if (title.includes(searchTerm)) {
-//         (analysis as HTMLElement).style.display = 'block';
-//       } else {
-//         (analysis as HTMLElement).style.display = 'none';
-//       }
-//     });
-//   }
-
-
 
 function HomePage() {
   const navigate = useNavigate();
@@ -40,6 +22,16 @@ function HomePage() {
         return; // Ne radi ništa ako je unos prazan
     }
     navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+  };
+
+
+  const handlePublisherSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const searchTerm = (event.currentTarget.querySelector('.publisher-search-input') as HTMLInputElement).value;
+    if(searchTerm.trim() === '') {
+        return;
+    }
+    navigate(`/search/publishers?q=${encodeURIComponent(searchTerm)}`);
   };
 
   return (
@@ -66,18 +58,38 @@ function HomePage() {
           </button>
         </Link>
       </div>
+
+    
       <div className="main-container">
+
+        
         <div className='search-skupovi-div'>
           <div className='ikona-naslov-div'>
                 <Search className="ikona"/>
                 <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
           </div>
           <form className="search" onSubmit={handsleSearch}>
-              <input type="text" placeholder="Unesite naziv skupa podataka" className = "search-input"/>
+              <input type="text" placeholder="Unesite naziv skupa podataka" className = "search-input search-container"/>
               <button className="search-button" type = "submit" ><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
           </form>
         </div>
         <IzdvojeniSkupoviPodataka />
+
+        {/* Search za publishere  */}
+
+        <div className='search-skupovi-div'>
+          <div className='ikona-naslov-div'>
+                <Search className="ikona"/>
+                <h1 className='search-skupovi-h1'>Pretražite izdavače</h1>
+          </div>
+          <form className="search" onSubmit={handlePublisherSearch}>
+              <input type="text" placeholder="Unesite naziv izdavača" className="publisher-search-input search-container"/>
+              <button className="search-button" type="submit">
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </button>
+          </form>
+        </div>
+
         <RecentPublishers />
       </div>
     </>

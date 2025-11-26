@@ -8,7 +8,6 @@ import { mockInitData }  from '../mockData.ts';
 export const IzdvojeniSkupoviPodataka = () => {
 
     
-
     const datasets = mockInitData.result.latestDatasets;
 
     return (
