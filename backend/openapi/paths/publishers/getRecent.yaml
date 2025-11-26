@@ -1,0 +1,20 @@
+get:
+  summary: Get recently active publishers
+  description: Retrieves a list of the 5 publishers whose datasets have been most recently updated.
+  tags:
+    - Publishers
+  responses:
+    "200":
+      description: A list of recently active publishers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/Izdavac.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

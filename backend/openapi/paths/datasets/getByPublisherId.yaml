@@ -1,0 +1,33 @@
+get:
+  summary: Get datasets by publisher ID
+  description: Retrieves all datasets associated with a specific publisher ID.
+  tags:
+    - Datasets
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ID of the publisher.
+      schema:
+        type: string
+  responses:
+    "200":
+      description: A list of datasets for the given publisher.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "404":
+      description: Publisher not found.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

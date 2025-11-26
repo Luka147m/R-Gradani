@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: R-Gradani API
+  version: 0.1.0
+  description: Backend API for R-Gradani
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: Datasets
+    description: Operations related to datasets 
+  - name: Comments
+    description: Operations related to comments on datasets
+  - name: Init
+    description: Operations for fetching initial application data
+  - name: Publishers
+    description: Operations related to data publishers 
+paths:
+  /:
+    $ref: "./paths/root.yaml"
+  /api/skupovi:
+    $ref: "./paths/datasets/getAll.yaml"
+  /api/skupovi/nedavno:
+    $ref: "./paths/datasets/getRecent.yaml"
+  /api/skupovi/{id}:
+    $ref: "./paths/datasets/getById.yaml"
+  /api/skupovi/ids:
+    $ref: "./paths/datasets/getByIds.yaml"
+  /api/skupovi/{id}/komentari:
+    $ref: "./paths/datasets/getComments.yaml"
+  /api/skupovi/izdavaci/{id}:
+    $ref: "./paths/datasets/getByPublisherId.yaml"
+  /api/skupovi/izdavaci:
+    $ref: "./paths/datasets/getByPublishers.yaml"
+  /api/skupovi/filter:
+    $ref: "./paths/datasets/filter.yaml"
+  /api/init:
+    $ref: "./paths/init.yaml"
+  /api/izdavaci:
+    $ref: "./paths/publishers/getAll.yaml"
+  /api/izdavaci/nedavno:
+    $ref: "./paths/publishers/getRecent.yaml"
+components:
+  schemas:
+    SkupPodataka:
+      $ref: "./components/schemas/SkupPodataka.yaml"
+    Komentar:
+      $ref: "./components/schemas/Komentar.yaml"
+    ErrorResponse:
+      $ref: "./components/schemas/ErrorResponse.yaml"
+    Izdavac:
+      $ref: "./components/schemas/Izdavac.yaml"

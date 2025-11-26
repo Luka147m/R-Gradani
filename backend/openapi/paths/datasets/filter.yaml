@@ -1,0 +1,46 @@
+post:
+  summary: Get datasets by tags and/or publishers
+  description: Retrieves datasets that match at least one tag or belong to any of the given publisher IDs.
+  tags:
+    - Datasets
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+              description: Array of tags to filter datasets by. Optional.
+            publisherIds:
+              type: array
+              items:
+                type: string
+              description: Array of publisher IDs to filter datasets by. Optional.
+          example:
+            tags: ["education", "health"]
+            publisherIds: ["pub1", "pub2"]
+  responses:
+    "200":
+      description: Datasets fetched successfully.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "400":
+      description: Bad Request (invalid body)
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

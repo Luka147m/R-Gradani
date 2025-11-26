@@ -1,13 +1,21 @@
-import { Request, Response } from 'express';
-import * as datasetsService from './datasets.service';
-import { sendSuccess, sendError } from '../../utils/response';
+import { Request, Response } from "express";
+import * as datasetsService from "./datasets.service";
 
 export const getAllDatasets = async (_req: Request, res: Response) => {
   try {
     const datasets = await datasetsService.fetchDatasets();
-    sendSuccess(res, 200, 'Datasets fetched successfully.', datasets);
+    res.status(200).json(datasets);
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
+  }
+};
+
+export const getLatestDatasets = async (_req: Request, res: Response) => {
+  try {
+    const datasets = await datasetsService.fetchLatestFetchedDatasets(10);
+    res.status(200).json(datasets);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
   }
 };
 
@@ -16,12 +24,12 @@ export const getDatasetById = async (req: Request, res: Response) => {
   try {
     const dataset = await datasetsService.fetchDatasetById(id);
     if (dataset) {
-      sendSuccess(res, 200, 'Dataset fetched successfully.', dataset);
+      res.status(200).json(dataset);
     } else {
-      sendError(res, 404, 'Dataset not found.');
+      res.status(404).json({ message: "Dataset not found." });
     }
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
   }
 };
 
@@ -32,24 +40,23 @@ export const getDatasetsByIds = async (req: Request, res: Response) => {
     const ids: string[] = req.body.ids;
 
     if (!ids || !Array.isArray(ids)) {
-      return sendError(res, 400, 'Invalid input: ids must be an array of strings.');
+      return res.status(400).json({ message: "Invalid input: ids must be an array of strings." });
     }
 
     const datasets = await datasetsService.fetchDatasetsByIds(ids);
-    sendSuccess(res, 200, 'Datasets fetched successfully.', datasets);
+    res.status(200).json(datasets);
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
   }
 };
 
-
 export const getDatasetsByPublisher = async (req: Request, res: Response) => {
-  const { publisherId } = req.params;
+  const { id: publisherId } = req.params;
   try {
     const datasets = await datasetsService.fetchDatasetsByPublisher(publisherId);
-    sendSuccess(res, 200, 'Datasets fetched successfully.', datasets);
+    res.status(200).json(datasets);
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
   }
 };
 
@@ -58,13 +65,13 @@ export const getDatasetsByPublishers = async (req: Request, res: Response) => {
     const publisherIds: string[] = req.body.ids;
 
     if (!publisherIds || !Array.isArray(publisherIds)) {
-      return sendError(res, 400, 'Invalid input: publisherIds must be an array of strings.');
+      return res.status(400).json({ message: "Invalid input: publisherIds must be an array of strings." });
     }
 
     const datasets = await datasetsService.fetchDatasetsByPublishers(publisherIds);
-    sendSuccess(res, 200, 'Datasets fetched successfully.', datasets);
+    res.status(200).json(datasets);
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
   }
 };
 
@@ -73,12 +80,12 @@ export const getDatasetsByTagsOrPublishers = async (req: Request, res: Response)
     const { tags, publisherIds } = req.body;
 
     if ((!tags || !Array.isArray(tags)) && (!publisherIds || !Array.isArray(publisherIds))) {
-      return sendError(res, 400, 'Invalid input: provide tags or publisherIds as arrays.');
+      return res.status(400).json({ message: "Invalid input: provide tags or publisherIds as arrays." });
     }
 
     const datasets = await datasetsService.fetchDatasetsByTagsOrPublishers(tags, publisherIds);
-    sendSuccess(res, 200, 'Datasets fetched successfully.', datasets);
+    res.status(200).json(datasets);
   } catch (error) {
-    sendError(res, 500, `${error}`);
+    res.status(500).json({ message: `${error}` });
   }
 };

@@ -1,0 +1,20 @@
+get:
+  summary: Get most recently fetched datasets
+  description: Retrieves a list of the 10 most recently fetched datasets.
+  tags:
+    - Datasets
+  responses:
+    "200":
+      description: A list of the 10 most recent datasets.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

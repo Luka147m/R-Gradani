@@ -1,0 +1,20 @@
+get:
+  summary: Get all publishers
+  description: Retrieves a list of all publishers.
+  tags:
+    - Publishers
+  responses:
+    "200":
+      description: Publishers fetched successfully.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/Izdavac.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

@@ -1,0 +1,20 @@
+get:
+  summary: Get all datasets
+  description: Retrieves a list of all datasets.
+  tags:
+    - Datasets
+  responses:
+    "200":
+      description: A list of datasets.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
