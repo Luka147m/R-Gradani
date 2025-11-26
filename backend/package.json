@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "build": "tsc",
+    "build": "tsc && prisma generate",
     "postbuild": "cp openapi.yaml dist/openapi.yaml",
     "start": "node dist/server.js"
   },
