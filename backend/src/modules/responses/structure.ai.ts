@@ -140,7 +140,11 @@ async function structureComment(comment: string): Promise<Statement[]> {
             text: { format: zodTextFormat(izjaveSchema, "event") },
         });
 
-        const parsed = izjaveSchema.parse(response.output_text);
+        // console.log("LLM response received.");
+        // console.log(response.output_text);
+
+        const responseObj = JSON.parse(response.output_text);
+        const parsed = izjaveSchema.parse(responseObj);
         return parsed.statements;
     } catch (err: any) {
         if (err.status === 401) {
@@ -254,6 +258,47 @@ async function test() {
         izjave: statements,
     };
 
+    // console.log  responseDatae izgleda
+    /*
+    {
+        izjave: [
+            {
+              id: 1,
+              text: 'Podaci su dostupni isključivo u XLS formatu.',
+              category: 'FORMAT PODATAKA'
+            },
+        ....
+            {
+                id: 6,
+                text: 'Skup sadrži podatke samo za grad Ivanec (ograničena prostorna pokrivenost).',
+                category: 'OSTALO'
+            }
+        ]
+    }
+    */
+
+    //Kod spremanja uzmi responsedata.izjave ili samo statements (ali rename onda)
+
+    /*
+    Konacno spremanje izgleda
+    spremiti u stupac baze ocjena ukupnu ocjenu, mora se kasnije izracunati, ocjena 1-100 mozes mijenjati
+    u stupac jsonb spremiti
+    {
+        "izjave": [
+            {
+                "id": ,
+                "text": ,
+                "category":
+                "analiza" : { -- ovo se kasnije dodaje nakon analize
+                    "usvojeno": true/false,
+                    "komentar": "",
+                    "ocjena": 1-100
+                }
+            },
+            ...
+        ]
+    }
+    */
     console.log(responseData);
 
 }
