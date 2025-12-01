@@ -3,6 +3,6 @@ import * as commentsController from './comments.controller';
 
 const router = Router({ mergeParams: true });
 
-router.get('/', commentsController.getCommentsByDatasetId);
+router.get('/:id', commentsController.getCommentsByDatasetId);
 
 export default router;
