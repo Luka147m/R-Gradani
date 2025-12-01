@@ -66,8 +66,9 @@ function cleanComment(comment?: string | null): string {
         .trim();
 }
 
+// Od grupiranja return type Promise<CommentsDictionary>
+async function getComments(limit: number, offset: number = 0): Promise<CommentRow[]> {
 
-async function getComments() {
     const comments = await prisma.komentar.findMany({
         where: {
             odgovor: {
@@ -83,33 +84,47 @@ async function getComments() {
                     title: true,  // samo title skupa podataka
                 }
             }
-        }
+
+        },
+        take: limit,
+        skip: offset
     });
+
+    // Bigint mapping
+    return comments.map(c => ({
+        ...c,
+        id: Number(c.id)
+    }));
+
+    // Grupiranje nije potrebno?
+    // ============================================================
 
     // Dictionary po skupu podatka, sadrži komentare za svaki skup
-    const groupedComments: CommentsDictionary = {};
+    // const groupedComments: CommentsDictionary = {};
 
-    comments.forEach(row => {
-        const skupId = row.skup_id;
-        if (!skupId) return; // preskoči komentare bez skup_id
+    // comments.forEach(row => {
+    //     const skupId = row.skup_id;
+    //     if (!skupId) return; // preskoči komentare bez skup_id
 
-        if (!groupedComments[skupId]) {
-            groupedComments[skupId] = {
-                skup_id: skupId,
-                subject: row.skup_podataka?.title || "",
-                comments: [],
-            };
-        }
+    //     if (!groupedComments[skupId]) {
+    //         groupedComments[skupId] = {
+    //             skup_id: skupId,
+    //             subject: row.skup_podataka?.title || "",
+    //             comments: [],
+    //         };
+    //     }
 
-        groupedComments[skupId].comments.push({
-            comment_id: Number(row.id),
-            message: cleanComment(row.message),
-            statements: [], // kasnije se popunjava s LLMom
-        });
-    });
+    //     groupedComments[skupId].comments.push({
+    //         comment_id: Number(row.id),
+    //         message: cleanComment(row.message),
+    //         statements: [], // kasnije se popunjava s LLMom
+    //     });
+    // });
 
 
-    return groupedComments
+    // return groupedComments
+    // ============================================================
+
 }
 
 // Primjer izlaza za prvi ključ iz groupedComments
@@ -160,13 +175,17 @@ async function structureComment(comment: string): Promise<Statement[]> {
     }
 }
 
-async function structureAllComments() {
+// ==========================Verzija grupiranje================================
+/*
+async function structureNComments() {
     console.log("Počinjem strukturiranje komentara...");
 
+    Od grupiranog
     const groupedComments = await getComments();
     const skupIds = Object.keys(groupedComments);
 
     console.log(`Pronađeno ${skupIds.length} skupova podataka s komentarima`);
+
 
     let totalComments = 0;
     let processedComments = 0;
@@ -226,6 +245,66 @@ async function structureAllComments() {
             }
         }
     }
+*/
+
+async function structureNComments(limit: number, offset: number = 0) {
+    console.log("Počinjem strukturiranje komentara...");
+
+    const commentsRows = await getComments(limit, offset);
+    console.log(`Pronađeno ${commentsRows.length} komentara za procesiranje`);
+    // console.log(commentsRows[0])
+
+    let totalComments = commentsRows.length;
+    let processedComments = 0;
+    let failedComments = 0;
+
+    // Procesiramo svaki komentar
+    for (const comment of commentsRows) {
+        try {
+            // console.log(`Procesiram komentar ${comment.comment_id}`);
+            if (!comment.message) {
+                console.log(`Komentar ${comment.id}: Prazna poruka`);
+                failedComments++;
+                continue;
+            }
+
+            // Strukturiramo komentar pomoću LLM-a
+            const statements = await structureComment(comment.message);
+
+            if (statements.length === 0) {
+                console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
+                failedComments++;
+                continue;
+            }
+
+            // Pripremamo objekt za spremanje
+            const responseData = {
+                izjave: statements,
+            };
+
+            // Spremamo u bazu
+            await prisma.odgovor.create({
+                data: {
+                    komentar_id: comment.id,
+                    created: new Date(),
+                    message: responseData,
+                    score: null
+                }
+            });
+
+            processedComments++;
+            // console.log(`Komentar ${comment.comment_id}: ${statements.length} izjava spremljeno`);
+
+            // Pauza između poziva da izbjegnemo rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Provjeriti moze li se pauza smanjiti
+
+        } catch (error: any) {
+            failedComments++;
+            console.error(`Greška kod komentara ${comment.id}:`, error.message);
+            continue;
+        }
+    }
 
     // Finalni izvještaj
     console.log("\n" + "=".repeat(60));
@@ -237,70 +316,10 @@ async function structureAllComments() {
     console.log("=".repeat(60));
 }
 
-async function test() {
-    const message = 'Naziv skupa: "Evidencija sportskih igrališta"\n' +
-        'URL skupa:https://data.gov.hr/ckan/dataset/evidencija-sportskih-igralista\n' +
-        'Tema skupa je obrazovanje, kultura i sport, frekvencija osvježavanja je godišnja, no podaci su zadnje ažurirani 27. veljače 2023., te je otvorenost skupa prema Tim Berners-Lee skali razine 2.\n' +
-        'Podaci su o sportskim igralištima u gradu Ivanec te su dostupni samo u formatu XLS.\n' +
-        'Problem je što postoji mnogo redaka koji imaju podatke, no nemaju nikakav redni broj pripadnosti. Npr. Na priloženoj slici za određene katastre nema nikakvih podataka o lokaciji, podlozi, površini. Nije jasno jesu li to podaci vezani uz prijašnje navedenu lokaciju ili su pogrešno upisani.\n' +
-        '\n' +
-        'Također, kao unaprjeđenje, umjesto 3 stupca ("vlasništvo - Grad Ivanec","vlasništvo - javno dobro","vlasništvo - privatno i sl."), predlažem 2 stupca. Stupac "vlasništvo" u kojem bi bio naveden vlasnik, bio to grad Ivanec, privatni vlasnik ili netko treći, te stupac "vrsta vlasništva" u kojem bi bila navedena vrsta vlasništva, npr. privatno, javno... Time bi podaci bili pregledniji i u priloženoj slici bi se izbjegla praznina jer trenutačno nema podataka u stupcu "vlasništvo - javno dobro".'
 
-    const statements = await structureComment(message);
-
-
-    if (statements.length === 0) {
-        console.log(`Komentar: Nema strukturiranih izjava`);
-    }
-
-    // Pripremamo objekt za spremanje
-    const responseData = {
-        izjave: statements,
-    };
-
-    // console.log  responseDatae izgleda
-    /*
-    {
-        izjave: [
-            {
-              id: 1,
-              text: 'Podaci su dostupni isključivo u XLS formatu.',
-              category: 'FORMAT PODATAKA'
-            },
-        ....
-            {
-                id: 6,
-                text: 'Skup sadrži podatke samo za grad Ivanec (ograničena prostorna pokrivenost).',
-                category: 'OSTALO'
-            }
-        ]
-    }
-    */
-
-    //Kod spremanja uzmi responsedata.izjave ili samo statements (ali rename onda)
-
-    /*
-    Konacno spremanje izgleda
-    spremiti u stupac baze ocjena ukupnu ocjenu, mora se kasnije izracunati, ocjena 1-100 mozes mijenjati
-    u stupac jsonb spremiti
-    {
-        "izjave": [
-            {
-                "id": ,
-                "text": ,
-                "category":
-                "analiza" : { -- ovo se kasnije dodaje nakon analize
-                    "usvojeno": true/false,
-                    "komentar": "",
-                    "ocjena": 1-100
-                }
-            },
-            ...
-        ]
-    }
-    */
-    console.log(responseData);
-
+// Ovo je za testiranje bilo
+async function main() {
+    structureNComments(10, 0);
 }
 
-test()
+// main();
