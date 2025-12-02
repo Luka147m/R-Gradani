@@ -272,6 +272,34 @@ async function createFile(filePath: string, format: string | null, fileSize: num
     }
 }
 
+// Add this helper function
+async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number = 300000): Promise<boolean> {
+    const startTime = Date.now();
+    const pollInterval = 15000;
+
+    while (Date.now() - startTime < maxWaitMs) {
+        const filesResponse = await openai.vectorStores.files.list(vectorStoreId);
+
+        const allCompleted = filesResponse.data.every(file => file.status === 'completed');
+        const anyFailed = filesResponse.data.some(file => file.status === 'failed');
+
+        if (anyFailed) {
+            console.error("Some files failed to process");
+            return false;
+        }
+
+        if (allCompleted && filesResponse.data.length > 0) {
+            console.log("All files processed successfully");
+            return true;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+
+    console.error("Timeout waiting for vector store to be ready");
+    return false;
+}
+
 // Create vector store for a dataset
 async function createVectorStore(skup: SkupGroup): Promise<OpenAI.VectorStore | null> {
 
@@ -295,7 +323,6 @@ async function createVectorStore(skup: SkupGroup): Promise<OpenAI.VectorStore | 
     });
     console.log("Vector store ID:", vectorStore.id);
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
 
     for (const fileId of fileIds) {
         try {
@@ -308,14 +335,34 @@ async function createVectorStore(skup: SkupGroup): Promise<OpenAI.VectorStore | 
         }
     }
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    const isReady = await waitForVectorStoreReady(vectorStore.id);
+    if (!isReady) {
+        console.error("Vector store not ready, cleaning up...");
+
+        // const files = await openai.vectorStores.files.list(vectorStore.id);
+        // for await (const file of files.data) {
+        //     try {
+        //         await openai.vectorStores.files.delete(vectorStore.id, file.id);
+        //         console.log(`Datoteka ${file.id} obrisana iz vector store.`);
+        //     } catch (error) {
+        //         console.error(`Greška pri brisanju datoteke ${file.id}:`, error);
+        //     }
+        // }
+
+        await openai.vectorStores.delete(vectorStore.id);
+        console.log(`Vector store ${vectorStore.id} obrisan.`);
+
+        return null;
+    }
+
     return vectorStore;
 }
 
 // Analyze statements using OpenAI
 async function analyzeStatements(
     vectorStoreId: string,
-    statements: Statement[]
+    statements: Statement[],
+    metapodaci: string
 ): Promise<Statement[]> {
     const start = Date.now();
     const vectorIDs = [vectorStoreId];
@@ -334,7 +381,12 @@ async function analyzeStatements(
                     content: [
                         {
                             type: "input_text",
-                            text: "Izjava: " + statement.text
+                            text: "Izjava: " + statement.text,
+                        },
+
+                        {
+                            type: "input_text",
+                            text: "Metapodaci: " + metapodaci,
                         },
                     ],
                 }],
@@ -351,7 +403,7 @@ async function analyzeStatements(
     }
     const end = Date.now();
     const logText = `Analiza izjava završena. Ukupno ulaznih tokena: ${totalInputTokens}, ukupno izlaznih tokena: ${totalOutputTokens}, ukupno tokena: ${totalInputTokens + totalOutputTokens}. Vrijeme izvođenja: ${(end - start) / 1000} sekundi.`;
-    console.log(logText);
+    // console.log(logText);
 
     return statements;
 }
@@ -414,7 +466,17 @@ async function analyzeSkup(skup: SkupGroup): Promise<void> {
             analysis: undefined
         }));
 
-        const analyzedStatements = await analyzeStatements(vectorStore.id, updatedStatements);
+        const metapodaci: string = `
+        Naziv skupa: ${skup.title || "N/A"}
+        Opis skupa: ${skup.description || "N/A"}
+        Tema: ${skup.theme || "N/A"}
+        Učestalost osvježavanja: ${skup.refresh_frequency || "N/A"}
+        URL skupa: ${skup.url || "N/A"}
+        Licenca: ${skup.license_title || "N/A"}
+        Tagovi: ${skup.tags ? skup.tags.join(", ") : "N/A"}
+        `;
+
+        const analyzedStatements = await analyzeStatements(vectorStore.id, updatedStatements, metapodaci);
 
         const finalStatements = analyzedStatements.map(s => ({
             ...s,
@@ -432,7 +494,7 @@ async function analyzeSkup(skup: SkupGroup): Promise<void> {
             }
         });
 
-        console.log(`Odgovor ${comment.odgovorId} ažuriran sa score: ${score}`);
+        // console.log(`Odgovor ${comment.odgovorId} ažuriran sa score: ${score}`);
     }
 
     // Clean up za vector store
@@ -442,7 +504,7 @@ async function analyzeSkup(skup: SkupGroup): Promise<void> {
 
 async function analyzeAll(): Promise<void> {
     const totalStart = Date.now();
-    const batchSize = 20;
+    const batchSize = 2;
     let offset = 0;
     let batch: StructuredCommentDict = {};
     let totalComments = 0;
