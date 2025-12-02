@@ -31,6 +31,8 @@ paths:
     $ref: "./paths/datasets/getByPublisherId.yaml"
   /api/skupovi/izdavaci:
     $ref: "./paths/datasets/getByPublishers.yaml"
+  /api/skupovi/search:
+    $ref: "./paths/datasets/search.yaml"
   /api/skupovi/filter:
     $ref: "./paths/datasets/filter.yaml"
   /api/init:
