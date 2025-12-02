@@ -11,7 +11,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB max file just to be safe, mozemo 
 
 const prompts = {
     analiziranje: `Analiziraj koliko je sljedeća izjava istinita za skup podataka koji sam ti predao.
-    Komentar neka bude najviše jedna rečenica. Podudarnost predstavlja postotak zapisa/redaka za koji je izjava istinita.`
+    Komentar neka bude najviše jedna rečenica. Podudarnost predstavlja postotak zapisa/redaka za koji je izjava istinita.
+    Ako je podudarnost manja od 25, onda je usvojenost True inače False.`
 };
 
 const analizaSchema = z.object({
@@ -63,6 +64,27 @@ type SkupGroup = {
 };
 
 type StructuredCommentDict = Record<string, SkupGroup>;
+
+type VectorStoreResult = {
+    vectorStore: OpenAI.VectorStore;
+    fileIds: string[];
+};
+
+type VectorStoreError = {
+    error: string;
+    reason: 'no_resources' | 'all_files_too_large' | 'all_files_failed' | 'processing_failed' | 'no_valid_formats';
+};
+
+type VectorStoreResponse = VectorStoreResult | VectorStoreError;
+
+function isVectorStoreError(result: VectorStoreResponse): result is VectorStoreError {
+    return 'error' in result;
+}
+
+type FileUploadResult = {
+    fileId: string | null;
+    reason?: 'too_large' | 'invalid_url' | 'no_format' | 'unsupported_format' | 'fetch_error' | 'upload_error';
+};
 
 // Funkcija koja dohvaća n komentara koji još nemaju odgovore
 async function getStructuredComments(limit: number, offset: number = 0): Promise<StructuredCommentDict> {
@@ -197,24 +219,24 @@ function calculateScore(statements: Statement[]): number {
     return prosjek;
 }
 
-async function createFile(filePath: string, format: string | null, fileSize: number | null): Promise<string | null> {
+async function createFile(filePath: string, format: string | null, fileSize: number | null): Promise<FileUploadResult> {
     const supportedFormats = ["csv", "doc", "docx", "html", "json", "pdf", "pptx", "txt", "xlsx", "xml", "xlsm", "xslx", "xls", "kml", "geojson"];
 
     if (fileSize !== null) {
         if (fileSize > MAX_FILE_SIZE) {
             console.log(`File too large (${(fileSize / 1024 / 1024).toFixed(2)} MB), skipping. Max: ${MAX_FILE_SIZE / 1024 / 1024} MB`);
-            return null;
+            return { fileId: null, reason: 'too_large' };
         }
     }
 
     if (!filePath.startsWith("http://") && !filePath.startsWith("https://")) {
         console.log("Unsupported file path, must be a URL.");
-        return null;
+        return { fileId: null, reason: 'invalid_url' };
     }
 
     if (!format) {
         console.log("Format not specified.");
-        return null;
+        return { fileId: null, reason: 'no_format' };
     }
 
     const pathname = new URL(filePath).pathname;
@@ -227,7 +249,7 @@ async function createFile(filePath: string, format: string | null, fileSize: num
 
     if (!supportedFormats.includes(lowerFormat)) {
         console.log(`Format '${lowerFormat}' nije podržan, preskačem.`);
-        return null;
+        return { fileId: null, reason: 'unsupported_format' };
     }
 
     // Fix incorrectly written formats
@@ -243,11 +265,11 @@ async function createFile(filePath: string, format: string | null, fileSize: num
         res = await fetch(filePath);
         if (!res.ok) {
             console.log(`Cannot access file at URL: ${res.status} ${res.statusText}`);
-            return null;
+            return { fileId: null, reason: 'fetch_error' };
         }
     } catch (err) {
         console.log(`Error fetching file from URL: ${(err as Error).message}`);
-        return null;
+        return { fileId: null, reason: 'fetch_error' };
     }
 
     const buffer = await res.arrayBuffer();
@@ -255,7 +277,7 @@ async function createFile(filePath: string, format: string | null, fileSize: num
     const actualSize = buffer.byteLength;
     if (actualSize > MAX_FILE_SIZE) {
         console.log(`Downloaded file too large (${(actualSize / 1024 / 1024).toFixed(2)} MB), skipping.`);
-        return null;
+        return { fileId: null, reason: 'too_large' };
     }
 
     const file = new File([buffer], fileNameFixed);
@@ -265,14 +287,14 @@ async function createFile(filePath: string, format: string | null, fileSize: num
             file: file,
             purpose: "assistants",
         });
-        return result.id;
+        return { fileId: result.id };
     } catch (uploadErr) {
         console.log(`Error uploading file: ${(uploadErr as Error).message}`);
-        return null;
+        return { fileId: null, reason: 'upload_error' };
     }
 }
 
-// Add this helper function
+// Pricekaj da se napravi vector store
 async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number = 300000): Promise<boolean> {
     const startTime = Date.now();
     const pollInterval = 15000;
@@ -301,22 +323,57 @@ async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number 
 }
 
 // Create vector store for a dataset
-async function createVectorStore(skup: SkupGroup): Promise<OpenAI.VectorStore | null> {
+async function createVectorStore(skup: SkupGroup): Promise<VectorStoreResponse> {
 
     const resources = skup.resources?.filter(res => res.url && res.format) || [];
+
+    if (resources.length === 0) {
+        return {
+            error: "Skup podataka nema resurse za analizu.",
+            reason: 'no_resources'
+        };
+    }
+
     const datasetId = skup.skup_id;
     const fileIds: string[] = [];
+    const uploadResults: FileUploadResult[] = [];
 
     for (const resource of resources) {
         if (!resource.url || !resource.format) {
             console.log("Resource missing URL or format, preskačem.");
+            uploadResults.push({ fileId: null, reason: 'no_format' });
             continue;
         }
-        const fileId = await createFile(resource.url, resource.format, resource.size);
-        if (fileId) fileIds.push(fileId);
+
+        const result = await createFile(resource.url, resource.format, resource.size);
+        uploadResults.push(result);
+
+        if (result.fileId) {
+            fileIds.push(result.fileId);
+        }
     }
 
-    if (fileIds.length === 0) return null;
+    if (fileIds.length === 0) {
+        const tooLargeCount = uploadResults.filter(r => r.reason === 'too_large').length;
+        const unsupportedFormatCount = uploadResults.filter(r => r.reason === 'unsupported_format').length;
+
+        if (tooLargeCount === uploadResults.length) {
+            return {
+                error: `Sve datoteke premašuju maksimalnu veličinu od ${MAX_FILE_SIZE / 1024 / 1024} MB.`,
+                reason: 'all_files_too_large'
+            };
+        } else if (unsupportedFormatCount === uploadResults.length) {
+            return {
+                error: "Sve datoteke imaju nepodržane formate.",
+                reason: 'no_valid_formats'
+            };
+        } else {
+            return {
+                error: "Nijedna datoteka nije uspješno učitana. Provjerite dostupnost i format datoteka.",
+                reason: 'all_files_failed'
+            };
+        }
+    }
 
     const vectorStore = await openai.vectorStores.create({
         name: datasetId,
@@ -339,23 +396,32 @@ async function createVectorStore(skup: SkupGroup): Promise<OpenAI.VectorStore | 
     if (!isReady) {
         console.error("Vector store not ready, cleaning up...");
 
-        // const files = await openai.vectorStores.files.list(vectorStore.id);
-        // for await (const file of files.data) {
-        //     try {
-        //         await openai.vectorStores.files.delete(vectorStore.id, file.id);
-        //         console.log(`Datoteka ${file.id} obrisana iz vector store.`);
-        //     } catch (error) {
-        //         console.error(`Greška pri brisanju datoteke ${file.id}:`, error);
-        //     }
-        // }
+        try {
+            await openai.vectorStores.delete(vectorStore.id);
+            console.log(`Vector store ${vectorStore.id} obrisan.`);
+        } catch (error) {
+            console.error(`Greška pri brisanju vector store-a ${vectorStore.id}:`, error);
+        }
 
-        await openai.vectorStores.delete(vectorStore.id);
-        console.log(`Vector store ${vectorStore.id} obrisan.`);
+        for (const fileId of fileIds) {
+            try {
+                await openai.files.delete(fileId);
+                console.log(`File ${fileId} obrisan iz OpenAI storage-a.`);
+            } catch (error) {
+                if (error instanceof Error && 'status' in error && (error as any).status === 404) {
+                    console.log(`File ${fileId} već ne postoji, preskačem.`);
+                } else {
+                    console.error(`Greška pri brisanju file-a ${fileId}:`, error);
+                }
+            }
+        }
 
-        return null;
+        return {
+            error: "Datoteke nisu uspješno procesirane u vector store-u.",
+            reason: 'processing_failed'
+        };
     }
-
-    return vectorStore;
+    return { vectorStore, fileIds }
 }
 
 // Analyze statements using OpenAI
@@ -434,14 +500,16 @@ async function writeErrorToDb(comment: StructuredCommentRow, errorMessage: strin
 async function analyzeSkup(skup: SkupGroup): Promise<void> {
     console.log("Analiziram skup podataka ID:", skup.skup_id);
 
-    const vectorStore = await createVectorStore(skup);
-    if (vectorStore === null) {
-        console.log("Nema datoteka za taj skup podataka koje se mogu koristiti za analizu.");
+    const result = await createVectorStore(skup);
+    if (isVectorStoreError(result)) {
+        console.log(`Error: ${result.error}`);
         for (const comment of skup.comments) {
-            await writeErrorToDb(comment, "Nema dostupnih datoteka za analizu izjava.");
+            await writeErrorToDb(comment, result.error);
         }
         return;
     }
+
+    const { vectorStore, fileIds } = result;
 
     const filesResponse = await openai.vectorStores.files.list(vectorStore.id);
     if (!filesResponse.data || filesResponse.data.length === 0) {
@@ -497,14 +565,27 @@ async function analyzeSkup(skup: SkupGroup): Promise<void> {
         // console.log(`Odgovor ${comment.odgovorId} ažuriran sa score: ${score}`);
     }
 
-    // Clean up za vector store
     await openai.vectorStores.delete(vectorStore.id);
     console.log(`Vector store ${vectorStore.id} obrisan.`);
+
+    // Obrisi fileove
+    for (const fileId of fileIds) {
+        try {
+            await openai.files.delete(fileId);
+            console.log(`File ${fileId} obrisan iz OpenAI storage-a.`);
+        } catch (error) {
+            if (error instanceof Error && 'status' in error && (error as any).status === 404) {
+                console.log(`File ${fileId} već ne postoji, preskačem.`);
+            } else {
+                console.error(`Greška pri brisanju file-a ${fileId}:`, error);
+            }
+        }
+    }
 }
 
 async function analyzeAll(): Promise<void> {
     const totalStart = Date.now();
-    const batchSize = 2;
+    const batchSize = 20;
     let offset = 0;
     let batch: StructuredCommentDict = {};
     let totalComments = 0;
@@ -523,6 +604,7 @@ async function analyzeAll(): Promise<void> {
             for (const skupId of Object.keys(batch)) {
                 await analyzeSkup(batch[skupId]);
             }
+            // break; // za testiranje samo prve grupe
 
             offset += batchSize;
         } while (totalComments > 0);
