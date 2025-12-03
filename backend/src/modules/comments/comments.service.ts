@@ -1,8 +1,28 @@
 import prisma from "../../config/prisma";
 
-export const fetchCommentsByDatasetId = async (datasetId: string) => {
+export const fetchCommentById = async (id: number) => {
+  const comment = await prisma.komentar.findUnique({
+    where: { id },
+  });
+  return comment;
+};
+
+export const fetchLatestAnalyzedComments = async () => {
   const comments = await prisma.komentar.findMany({
-    where: { skup_id: datasetId },
+    where: {
+      odgovor: {
+        some: {
+          score: {
+            not: null
+          }
+        }
+      }
+    },
+    orderBy: { created: "desc" },
+    take: 10,
+    include: {
+      odgovor: true,
+    }
   });
   return comments;
 };

@@ -1,0 +1,42 @@
+import { Request, Response } from "express";
+import * as reponsesService from "./responses.service";
+
+
+export const getResponsesByCommentId = async (req: Request, res: Response) => {
+  const commentId = Number(req.params.commentId);
+
+  if (isNaN(commentId)) {
+    return res.status(400).json({ message: "Invalid comment ID" });
+  }
+
+  try {
+    const comments = await reponsesService.fetchResponsesByCommentId(commentId);
+
+    if (comments.length === 0) {
+      return res.status(404).json({ message: "No responses found for this comment." });
+    }
+
+    res.status(200).json(comments);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
+
+export const getResponsesById = async (req: Request, res: Response) => {
+  const responseId = Number(req.params.id);
+
+  if (isNaN(responseId)) {
+    return res.status(400).json({ message: "Invalid response ID" });
+  }
+  try {
+    const response = await reponsesService.fetchResponseById(responseId);
+
+    if (!response) {
+      return res.status(404).json({ message: "Response not found." });
+    }
+    res.status(200).json(response);
+  }
+  catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
