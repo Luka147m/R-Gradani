@@ -89,3 +89,15 @@ export const getDatasetsByTagsOrPublishers = async (req: Request, res: Response)
     res.status(500).json({ message: `${error}` });
   }
 };
+
+export const getCommentsByDatasetId = async (req: Request, res: Response) => {
+  const datasetId = req.params.id;
+
+  try {
+    const comments = await datasetsService.fetchCommentsByDatasetId(datasetId);
+    res.status(200).json(comments);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
+

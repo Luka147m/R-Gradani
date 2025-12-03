@@ -6,3 +6,10 @@ export const fetchResponsesByCommentId = async (commentId: number) => {
   });
   return responses;
 };
+
+export const fetchResponseById = async (responseId: number) => {
+  const response = await prisma.odgovor.findUnique({
+    where: { id: responseId },
+  });
+  return response;
+};

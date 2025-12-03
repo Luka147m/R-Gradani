@@ -75,3 +75,10 @@ export const fetchDatasetsByTagsOrPublishers = async (tags?: string[], publisher
 
   return datasets;
 };
+
+export const fetchCommentsByDatasetId = async (datasetId: string) => {
+  const comments = await prisma.komentar.findMany({
+    where: { skup_id: datasetId },
+  });
+  return comments;
+};

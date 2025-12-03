@@ -302,18 +302,33 @@ async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number 
     while (Date.now() - startTime < maxWaitMs) {
         const filesResponse = await openai.vectorStores.files.list(vectorStoreId);
 
-        const allCompleted = filesResponse.data.every(file => file.status === 'completed');
-        const anyFailed = filesResponse.data.some(file => file.status === 'failed');
-
-        if (anyFailed) {
-            console.error("Some files failed to process");
+        if (filesResponse.data.length === 0) {
+            console.error("No files found in vector store");
             return false;
         }
 
-        if (allCompleted && filesResponse.data.length > 0) {
-            console.log("All files processed successfully");
+        const completedFiles = filesResponse.data.filter(file => file.status === 'completed');
+        const failedFiles = filesResponse.data.filter(file => file.status === 'failed' || file.status === 'cancelled');
+        const processingFiles = filesResponse.data.filter(file =>
+            file.status !== 'completed' && file.status !== 'failed' && file.status !== 'cancelled'
+        );
+
+        console.log(`Files status - Completed: ${completedFiles.length}, Failed: ${failedFiles.length}, Processing: ${processingFiles.length}`);
+
+        // SVI fileovi su failed
+        if (failedFiles.length === filesResponse.data.length) {
+            console.error("All files failed to process");
+            return false;
+        }
+
+        // Barem jedan uspio
+        if (completedFiles.length > 0 && processingFiles.length === 0) {
+            console.log(`${completedFiles.length} file(s) processed successfully, ${failedFiles.length} failed`);
             return true;
         }
+
+        const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+        console.log(`Waiting for vector store to be ready... (${elapsedSeconds}s elapsed)`);
 
         await new Promise(resolve => setTimeout(resolve, pollInterval));
     }
@@ -391,6 +406,9 @@ async function createVectorStore(skup: SkupGroup): Promise<VectorStoreResponse> 
             console.error("Greška pri dodavanju datoteke:", error);
         }
     }
+
+    // Pričekaj malo prije provjere statusa jer vector store treba malo vremena
+    await new Promise(res => setTimeout(res, 10_000));
 
     const isReady = await waitForVectorStoreReady(vectorStore.id);
     if (!isReady) {
@@ -596,7 +614,7 @@ async function analyzeAll(): Promise<void> {
             batch = await enrichSkupInfo(batch);
 
             totalComments = Object.values(batch).reduce((acc, skup) => acc + skup.comments.length, 0);
-            console.log(`Dohvaćeno ${totalComments} komentara (offset: ${offset})`);
+            console.log(`Dohvaćeno ${totalComments} komentara`);
 
             if (totalComments === 0) {
                 break;
@@ -606,7 +624,7 @@ async function analyzeAll(): Promise<void> {
             }
             // break; // za testiranje samo prve grupe
 
-            offset += batchSize;
+            // offset += batchSize;
         } while (totalComments > 0);
 
         const totalEnd = Date.now();
@@ -621,4 +639,4 @@ async function analyzeAll(): Promise<void> {
     }
 }
 
-analyzeAll();
+// analyzeAll();

@@ -12,14 +12,14 @@ const openai = new OpenAI();
 
 const prompts = {
     strukturiranje: `Tekst koji ću ti dati je komentar na određeni skup podataka na portalu otvorenih podataka.
-     Cilj komentara je ukazati na nedostatke u tom skupu podataka te dati prijedloge za poboljšanja.
-     Strukturiraj komentar u nekoliko izjava koje će se kasnije koristiti za analizu koliko su ti prijedlozi usvojeni u skupu podataka.
-     Svaka izjava predstavlja jedan problem koji se pojavljuje u skupu podataka.
-     Neka izjave budu jasne i sažete. Smiješ preformulirati postojeću rečenicu kako bi bila sažetija, pri tome rečenica ne smije izgubiti bitne informacije.
-     Nemoj dodavati svoje prijedloge i zaključke. Nemoj dodavati nepotreba i opširna objašnjenja.
-     Svaka izjava treba sadržavati kategoriju kojoj pripada s obzirom na sadržaj.
-     Moguće kategorije: METAPODACI (npr. kvaliteta, popunjenost, točnost), KVALITETA I DOSLJEDNOST (npr. nepotpuni podatci, neusklađenost formata i standarda, višestruki formati),
-     STRUKTURA PODATAKA (npr. nedostajući stupci ili nazivi stupaca, pogrešni tipovi podataka), FORMAT PODATAKA (npr. dostupni formati datoteka, kodiranje), POVEZANOST (s drugih skupovima), AŽURIRANOST, OSTALO).`,
+        Cilj komentara je ukazati na nedostatke u tom skupu podataka te dati prijedloge za poboljšanja.
+        Strukturiraj komentar u nekoliko izjava koje će se kasnije koristiti za analizu koliko su ti prijedlozi usvojeni u skupu podataka.
+        Svaka izjava predstavlja jedan problem koji se pojavljuje u skupu podataka.
+        Neka izjave budu jasne i sažete. Smiješ preformulirati postojeću rečenicu kako bi bila sažetija, pri tome rečenica ne smije izgubiti bitne informacije.
+        Nemoj dodavati svoje prijedloge i zaključke. Nemoj dodavati nepotreba i opširna objašnjenja.
+        Svaka izjava treba sadržavati kategoriju kojoj pripada s obzirom na sadržaj.
+        Moguće kategorije: METAPODACI (npr. kvaliteta, popunjenost, točnost), KVALITETA I DOSLJEDNOST (npr. nepotpuni podatci, neusklađenost formata i standarda, višestruki formati),
+        STRUKTURA PODATAKA (npr. nedostajući stupci ili nazivi stupaca, pogrešni tipovi podataka), FORMAT PODATAKA (npr. dostupni formati datoteka, kodiranje), POVEZANOST (s drugih skupovima), AŽURIRANOST, OSTALO).`,
 }
 
 const model = "gpt-5-mini";
@@ -113,6 +113,7 @@ async function structureComment(comment: string): Promise<Statement[]> {
             console.error("Invalid API key");
         } else if (err.status === 402) {
             console.error("Insufficient funds / billing issue");
+            // process.exit(1)
         } else if (err.status === 429) {
             console.error("Rate limit exceeded, try again later");
         } else {
@@ -210,3 +211,5 @@ async function structureAll() {
 
     console.log("Strukturiranje završeno.");
 }
+
+// structureAll()
