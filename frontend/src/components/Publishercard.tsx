@@ -1,5 +1,5 @@
 import React from 'react';
-import '../HomePage.css'
+import '../style/HomePage.css'
 
 interface PublisherCardProps {
     id: string;

@@ -2,57 +2,57 @@ import { useEffect, useState } from "react";
 import { SkupPodatakaCard } from "./SkupPodatakaCard";
 import { mockInitData, type Dataset } from "../mockData";
 import { ArrowDownUp } from 'lucide-react';
+import { useSearch } from '../hooks/useSearch';
+import '../style/SearchPage.css';
 
 type SortOption = 'title-asc' | 'title-desc' | 'date-desc' | 'date-asc';
 
-interface SearchResultsProps {
-    searchTerm: string;
-    publisherIds: string[];
-    ignoreSaved?: boolean;
-}
-
-const SearchResults: React.FC<SearchResultsProps> = ({ searchTerm, publisherIds, ignoreSaved = false }) => {
+const SearchResults = () => {
+    const {
+        searchTerm,
+        selectedPublisherIds,
+        ignoreSaved,
+        ignoreReported,
+        opennessRange,
+        acceptanceRange,
+    } = useSearch();
+    
     const [results, setResults] = useState<Dataset[]>([]);
     const [sortOption, setSortOption] = useState<SortOption>('date-desc');
 
     useEffect(() => {
         const savedIds: string[] = JSON.parse(localStorage.getItem('savedDatasets') || '[]');
+        const reportedIds: string[] = JSON.parse(localStorage.getItem('reportedDatasets') || '[]');
 
         let filtered = mockInitData.result.latestDatasets.filter(d =>
             d.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-        if (publisherIds.length > 0) {
-            filtered = filtered.filter(d => publisherIds.includes(d.publisher_id));
+        if (selectedPublisherIds.length > 0) {
+            filtered = filtered.filter(d => selectedPublisherIds.includes(d.publisher_id));
         }
 
         if (ignoreSaved) {
             filtered = filtered.filter(d => !savedIds.includes(d.id));
         }
 
+        if (ignoreReported) {
+            filtered = filtered.filter(d => !reportedIds.includes(d.id));
+        }
+
         const sorted = sortResults(filtered, sortOption);
         setResults(sorted);
-    }, [searchTerm, publisherIds, sortOption, ignoreSaved]);
+    }, [searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, opennessRange, acceptanceRange]);
 
     const sortResults = (data: Dataset[], option: SortOption): Dataset[] => {
         const sorted = [...data];
-        
         switch(option) {
-            case 'title-asc':
-                return sorted.sort((a, b) => a.title.localeCompare(b.title));
-            case 'title-desc':
-                return sorted.sort((a, b) => b.title.localeCompare(a.title));
-            case 'date-desc':
-                return sorted.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
-            case 'date-asc':
-                return sorted.sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime());
-            default:
-                return sorted;
+            case 'title-asc': return sorted.sort((a, b) => a.title.localeCompare(b.title));
+            case 'title-desc': return sorted.sort((a, b) => b.title.localeCompare(a.title));
+            case 'date-desc': return sorted.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+            case 'date-asc': return sorted.sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime());
+            default: return sorted;
         }
-    };
-
-    const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSortOption(event.target.value as SortOption);
     };
 
     return (
@@ -63,9 +63,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchTerm, publisherIds,
                     <label htmlFor="sort-select"><ArrowDownUp /></label>
                     <select 
                         id="sort-select" 
-                        name="sort-select"
                         value={sortOption}
-                        onChange={handleSortChange}
+                        onChange={(e) => setSortOption(e.target.value as SortOption)}
                     >
                         <option value="title-asc">Naslovu (A-Z)</option>
                         <option value="title-desc">Naslovu (Z-A)</option>
@@ -77,11 +76,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({ searchTerm, publisherIds,
             <div className='search-result-grid'>
                 {results.length > 0 ? (
                     results.map(dataset => (
-                        <SkupPodatakaCard key={dataset.id}
+                        <SkupPodatakaCard
+                            key={dataset.id}
                             id={dataset.id}
                             naslov={dataset.title}
                             datum={dataset.created}
-                            link={dataset.url}/>
+                            link={dataset.url}
+                        />
                     ))
                 ) : (
                     <p>Nema rezultata za prikaz.</p>

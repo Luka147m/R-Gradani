@@ -1,8 +1,8 @@
 import { SkupPodatakaCard} from './SkupPodatakaCard';
-import './IzdvojeniSkupoviPodataka.css';
+import '../style/IzdvojeniSkupoviPodataka.css';
 import { BadgeAlert } from 'lucide-react';
-import '../HomePage.css'
-/* import { Heading1 } from 'lucide-react'; */
+import '../style/HomePage.css'
+
 import { mockInitData }  from '../mockData.ts';
 
 export const IzdvojeniSkupoviPodataka = () => {

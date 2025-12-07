@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { PublisherCard } from '../components/Publishercard';
 import { mockInitData } from '../mockData';
-import '../HomePage.css';
+import '../style/HomePage.css';
 
 interface Publisher {
     id: string;

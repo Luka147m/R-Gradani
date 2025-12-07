@@ -2,7 +2,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CommentCard from "../components/CommentCard";
 import {MessageCircle} from "lucide-react";
-import "../DatasetPage.css";
+import "../style/DatasetPage.css";
 import type { Reply } from "../Reply";
 
 type DatasetState = {
@@ -36,19 +36,7 @@ const DatasetPage = () => {
   console.log(created)
   useEffect(() => {
     const fetchAnalyses = async () => {
-      // try {
-      //   const response = await fetch(`/api/datasets/${id}/analyses`);
-      //   if (!response.ok) {
-      //     throw new Error('Failed to fetch analyses');
-      //   }
-      //   const data = await response.json();
-      //   setAnalyses(data);
-      // } catch (err) {
-      //   setError(err instanceof Error ? err.message : 'An error occurred');
-      // } finally {
-      //   setLoading(false);
-      // }
-      // Mock data for demonstration purposes
+    
       const mockData: Analysis[] = [
         {
           id: 1,

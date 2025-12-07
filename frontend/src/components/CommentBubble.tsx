@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {Bookmark, Flag} from 'lucide-react';
 
-import "../CommentBubble.css"
+import "../style/CommentBubble.css"
 
 interface CommentBubbleProps{
    

@@ -1,13 +1,10 @@
-import { useState, useMemo} from 'react';
-import { Building, FolderOpen, ChartPie } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Building, FolderOpen, ChartPie, Search } from 'lucide-react';
 import { Slider } from '@mui/material';
 import { mockInitData } from '../mockData';
-import '../FilterContainer.css';
-
-interface FilterContainerProps {
-    onPublisherFilterChange?: (ids: string[]) => void;
-    onIgnoreSavedChange?: (ignore: boolean) => void;
-}
+import { useSearch } from '../hooks/useSearch';
+import { useSearchParams } from 'react-router-dom';
+import '../style/FilterContainer.css';
 
 const marks = [
   { value: 1, label: '1' },
@@ -16,42 +13,89 @@ const marks = [
   { value: 4, label: '4' },
 ];
 
-const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChange, onIgnoreSavedChange }) => {
+interface FilterContainerProps {
+  localSearchTerm: string;
+}
+
+const FilterContainer = ({ localSearchTerm }: FilterContainerProps) => {
+  const [, setSearchParams] = useSearchParams();
+  const {
+    setSearchTerm,
+    selectedPublisherIds,
+    setSelectedPublisherIds,
+    publisherQuery,
+    setPublisherQuery,
+    opennessRange,
+    setOpennessRange,
+    acceptanceRange,
+    setAcceptanceRange,
+    ignoreSaved,
+    setIgnoreSaved,
+    ignoreReported,
+    setIgnoreReported,
+  } = useSearch();
+
+  
+  const [tempPublisherIds, setTempPublisherIds] = useState<string[]>(selectedPublisherIds);
+  const [tempOpennessRange, setTempOpennessRange] = useState<number[]>(opennessRange);
+  const [tempAcceptanceRange, setTempAcceptanceRange] = useState<number[]>(acceptanceRange);
+  const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
+  const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
+
+  useEffect(() => setTempPublisherIds(selectedPublisherIds), [selectedPublisherIds]);
+  useEffect(() => setTempOpennessRange(opennessRange), [opennessRange]);
+  useEffect(() => setTempAcceptanceRange(acceptanceRange), [acceptanceRange]);
+  useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
+  useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
+
   const publishers = mockInitData.result.publishers;
 
-  const [openness, setOpenness] = useState<number[]>([1, 4]);
-  const [acceptance, setAcceptance] = useState<number[]>([0, 1]);
-  const [publisherQuery, setPublisherQuery] = useState<string>('');
-
-  const [selectedPublisherIds, setSelectedPublisherIds] = useState<string[]>([]);
-  const [ignoreSaved, setIgnoreSaved] = useState(false);
-
-
-  const normalize = (str: string) => {
-    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  };
+  const normalize = (str: string) =>
+    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const filteredPublisher = useMemo(
-    () => {
-      return publishers.filter(p => 
-        normalize(p.title).includes(normalize(publisherQuery))
-      );
-    },
+    () => publishers.filter(p => normalize(p.title).includes(normalize(publisherQuery))),
     [publisherQuery, publishers]
-  )
+  );
 
   const togglePublisher = (id: string, checked: boolean) => {
-    const next = checked
-      ? [...selectedPublisherIds, id]
-      : selectedPublisherIds.filter(x => x !== id);
-    setSelectedPublisherIds(next);
-    onPublisherFilterChange?.(next);
+    setTempPublisherIds(prev =>
+      checked ? [...prev, id] : prev.filter(x => x !== id)
+    );
   };
 
-  const handleIgnoreSavedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.checked;
-    setIgnoreSaved(val);
-    onIgnoreSavedChange?.(val);
+  const handleOpennessChange = (_: Event, newValue: number | number[], activeThumb: number) => {
+    if (!Array.isArray(newValue)) return;
+    const MIN_DISTANCE = 1;
+    setTempOpennessRange(prev => {
+      if (activeThumb === 0) return [Math.min(newValue[0], prev[1] - MIN_DISTANCE), prev[1]];
+      return [prev[0], Math.max(newValue[1], prev[0] + MIN_DISTANCE)];
+    });
+  };
+
+  const handleAcceptanceChange = (_: Event, newValue: number | number[], activeThumb: number) => {
+    if (!Array.isArray(newValue)) return;
+    const MIN_DISTANCE = 0.1;
+    setTempAcceptanceRange(prev => {
+      if (activeThumb === 0) return [Math.min(newValue[0], prev[1] - MIN_DISTANCE), prev[1]];
+      return [prev[0], Math.max(newValue[1], prev[0] + MIN_DISTANCE)];
+    });
+  };
+
+  const handleApplyFilters = () => {
+
+    setSearchTerm(localSearchTerm);
+    setSelectedPublisherIds(tempPublisherIds);
+    setOpennessRange(tempOpennessRange);
+    setAcceptanceRange(tempAcceptanceRange);
+    setIgnoreSaved(tempIgnoreSaved);
+    setIgnoreReported(tempIgnoreReported);
+
+    if (localSearchTerm.trim()) {
+      setSearchParams({ q: localSearchTerm });
+    } else {
+      setSearchParams({});
+    }
   };
 
   return (
@@ -61,24 +105,24 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
         <h2>Izdavač</h2>
       </div>
       <div className="search-publisher">
-        <input 
-            type="text" 
-            placeholder="Pretraži izdavače" 
-            className="publisher-input" 
-            value={publisherQuery}
-            onChange={(e) => setPublisherQuery(e.target.value)}
-            />
+        <input
+          type="text"
+          placeholder="Pretraži izdavače"
+          className="publisher-input"
+          value={publisherQuery}
+          onChange={(e) => setPublisherQuery(e.target.value)}
+        />
       </div>
       <div className="publisher-list">
         {filteredPublisher.map(p => (
           <div key={p.id} className="publisher-item">
-            <input 
-                type="checkbox" 
-                id={`publisher-${p.id}`} 
-                className="publisher-checkbox" 
-                checked={selectedPublisherIds.includes(p.id)}
-                onChange={(e) => togglePublisher(p.id, e.target.checked)}
-                />
+            <input
+              type="checkbox"
+              id={`publisher-${p.id}`}
+              className="publisher-checkbox"
+              checked={tempPublisherIds.includes(p.id)}
+              onChange={(e) => togglePublisher(p.id, e.target.checked)}
+            />
             <label htmlFor={`publisher-${p.id}`} className="publisher-label">{p.title}</label>
           </div>
         ))}
@@ -93,13 +137,12 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
       </div>
       <div className="slider-wrapper">
         <Slider
-          value={openness}
-          getAriaLabel={() => 'Minimum distance'}
+          value={tempOpennessRange}
           min={1}
           max={4}
           step={1}
           marks={marks}
-          onChange={(_, v) => setOpenness(v as number[])}
+          onChange={handleOpennessChange}
           valueLabelDisplay="auto"
           disableSwap
           sx={{
@@ -112,8 +155,8 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
           }}
         />
         <div className="slider-values">
-          <span>Od: {openness[0]}</span>
-          <span>Do: {openness[1]}</span>
+          <span>Od: {tempOpennessRange[0]}</span>
+          <span>Do: {tempOpennessRange[1]}</span>
         </div>
       </div>
 
@@ -123,12 +166,11 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
       </div>
       <div className="slider-wrapper">
         <Slider
-          value={acceptance}
+          value={tempAcceptanceRange}
           min={0}
           max={1}
           step={0.01}
-            marks={marks}
-          onChange={(_, v) => setAcceptance(v as number[])}
+          onChange={handleAcceptanceChange}
           valueLabelDisplay="auto"
           disableSwap
           valueLabelFormat={(val) => `${Math.round((val as number) * 100)}%`}
@@ -137,13 +179,12 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
             '& .MuiSlider-track': { backgroundColor: 'cyan' },
             '& .MuiSlider-rail': { backgroundColor: 'white', opacity: 1 },
             '& .MuiSlider-thumb': { backgroundColor: 'cyan', border: '2px solid white' },
-            '& .MuiSlider-markLabel': { color: 'white', fontSize: 12 },
             '& .MuiSlider-valueLabel': { background: 'rgba(0,180,180,0.9)' }
           }}
         />
         <div className="slider-values">
-          <span>Od: {Math.round(acceptance[0] * 100)}%</span>
-          <span>Do: {Math.round(acceptance[1] * 100)}%</span>
+          <span>Od: {Math.round(tempAcceptanceRange[0] * 100)}%</span>
+          <span>Do: {Math.round(tempAcceptanceRange[1] * 100)}%</span>
         </div>
       </div>
 
@@ -153,20 +194,31 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onPublisherFilterChan
             type="checkbox"
             id="ignore-saved-datasets-checkbox"
             className="publisher-checkbox"
-            checked={ignoreSaved}
-            onChange={handleIgnoreSavedChange}
+            checked={tempIgnoreSaved}
+            onChange={(e) => setTempIgnoreSaved(e.target.checked)}
           />
           <label htmlFor="ignore-saved-datasets-checkbox" className="publisher-label">
             Ignoriraj spremljene skupove podataka
           </label>
         </div>
         <div className="publisher-item">
-          <input type="checkbox" id="ignore-reported-datasets-checkbox" className="publisher-checkbox" />
+          <input
+            type="checkbox"
+            id="ignore-reported-datasets-checkbox"
+            className="publisher-checkbox"
+            checked={tempIgnoreReported}
+            onChange={(e) => setTempIgnoreReported(e.target.checked)}
+          />
           <label htmlFor="ignore-reported-datasets-checkbox" className="publisher-label">
             Ignoriraj skupove podataka koji imaju prijavljene probleme
           </label>
         </div>
       </div>
+
+      <button className="apply-filters-button" onClick={handleApplyFilters}>
+        <Search size={18} />
+        Pretraži
+      </button>
     </div>
   );
 };

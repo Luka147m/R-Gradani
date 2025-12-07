@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CommentBubble } from './CommentBubble';
 
 import {Sparkles, TextSelect, HatGlasses} from 'lucide-react';
-import '../DatasetPage.css';
+import '../style/DatasetPage.css';
 
 import type { Reply } from '../Reply';
 

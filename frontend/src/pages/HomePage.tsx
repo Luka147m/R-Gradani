@@ -1,96 +1,113 @@
-import { useState } from 'react'
-import { Link, useNavigate } from "react-router-dom";
-import { Home, LayoutDashboard, Search } from "lucide-react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from "react-router-dom";
+import { Home, LayoutDashboard, Search, X } from "lucide-react";
 import { IzdvojeniSkupoviPodataka } from '../components/IzdvojeniSkupoviPodataka';
-import { RecentPublishers } from '../components/recentPublishersCard';
-
-import '../HomePage.css'
-
-
+import { FilterContainer } from '../components/FilterContainer';
+import { SearchResults } from '../components/SearchResults';
+import { useSearch } from '../hooks/useSearch';
+import '../style/HomePage.css'
 
 function HomePage() {
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   
-  const [selected, setSelected] = useState<"home" | "profile">("home");
+  const {
+    isSearchActivated,
+    setIsSearchActivated,
+  } = useSearch();
 
-  const handsleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const searchTerm = (document.querySelector('.search-input') as HTMLInputElement).value;
-    if(searchTerm.trim() === '') {
-        return; // Ne radi ništa ako je unos prazan
+  useEffect(() => {
+    const query = searchParams.get('q') || '';
+    if(query) {
+      setLocalSearchTerm(query);
+      setIsTransitioning(true);
+      setTimeout(() => setIsSearchActivated(true), 50);
+    } else {
+      setIsSearchActivated(false);
+      setIsTransitioning(false);
     }
-    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-  };
+  }, [searchParams, setIsSearchActivated])
 
-
-  const handlePublisherSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const searchTerm = (event.currentTarget.querySelector('.publisher-search-input') as HTMLInputElement).value;
-    if(searchTerm.trim() === '') {
-        return;
+  const handleSearchFocus = () => {
+    if(!isSearchActivated) {
+      setIsTransitioning(true);
+      setTimeout(() => setIsSearchActivated(true), 50);
     }
-    navigate(`/search/publishers?q=${encodeURIComponent(searchTerm)}`);
-  };
+  }
+
+  const handleClearSearch = () => {
+    setIsTransitioning(false);
+    setIsSearchActivated(false);
+    setLocalSearchTerm('');
+    setSearchParams({});
+  }
+
+  const handleToHome = () => {
+    setIsTransitioning(false);
+    setIsSearchActivated(false);
+    setLocalSearchTerm('');
+    setSearchParams({});
+  }
 
   return (
     <>
       <div className="home-profile-selector">
         <Link to="/">
-            <button
-            className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
-            onClick={() => setSelected("home")}
-            >
+          <button
+            className={`selector-btn ${!isSearchActivated ? "active-home" : ""}`}
+            onClick={handleToHome}
+          >
             <Home size={24} />
-            </button>
+          </button>
         </Link>
         <Link to="/profile">
           <button
-            className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
-            onClick={() => setSelected("profile")}
-            
-              
+            className={`selector-btn profile-btn`}
           >
-            <LayoutDashboard  
-              size={24} 
-              />
+            <LayoutDashboard size={24} />
           </button>
         </Link>
       </div>
 
-    
-      <div className="main-container">
-
-        
+      <div className={`main-container ${isSearchActivated ? 'search-active' : ''}`}>
         <div className='search-skupovi-div'>
           <div className='ikona-naslov-div'>
-                <Search className="ikona"/>
-                <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
+            <Search className="ikona"/>
+            <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
           </div>
-          <form className="search" onSubmit={handsleSearch}>
-              <input type="text" placeholder="Unesite naziv skupa podataka" className = "search-input search-container"/>
-              <button className="search-button" type = "submit" ><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
-          </form>
-        </div>
-        <IzdvojeniSkupoviPodataka />
-
-        {/* Search za publishere  */}
-
-        <div className='search-skupovi-div'>
-          <div className='ikona-naslov-div'>
-                <Search className="ikona"/>
-                <h1 className='search-skupovi-h1'>Pretražite izdavače</h1>
-          </div>
-          <form className="search" onSubmit={handlePublisherSearch}>
-              <input type="text" placeholder="Unesite naziv izdavača" className="publisher-search-input search-container"/>
-              <button className="search-button" type="submit">
-                <FontAwesomeIcon icon={faMagnifyingGlass} />
+          <div className="search">
+            <input 
+              type="text" 
+              placeholder="Unesite naziv skupa podataka" 
+              className="search-input search-container"
+              onFocus={handleSearchFocus}
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
+            />
+            {isSearchActivated && (
+              <button 
+                className="search-clear-button" 
+                type="button"
+                onClick={handleClearSearch}
+              >
+                <X size={20} />
               </button>
-          </form>
+            )}
+          </div>
         </div>
-
-        <RecentPublishers />
+        
+        {isSearchActivated ? (
+          <div className="search-results-container">
+            <FilterContainer localSearchTerm={localSearchTerm} />
+            <SearchResults />
+          </div>
+        ) : (
+          <div className={isTransitioning ? 'izvojeni-skupovi-exit' : ''}>
+            <IzdvojeniSkupoviPodataka />
+          </div>
+        )}
+        
       </div>
     </>
   );

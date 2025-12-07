@@ -1,9 +1,9 @@
 import { SkupPodatakaCard} from './SkupPodatakaCard';
-import './IzdvojeniSkupoviPodataka.css';
+import '../style/IzdvojeniSkupoviPodataka.css';
 import { Bookmark } from 'lucide-react';
-import '../HomePage.css'
+import '../style/HomePage.css'
 import { mockInitData }  from '../mockData.ts';
-/* import { Heading1 } from 'lucide-react'; */
+
 
 export const MarkedDatasets = () => {
 

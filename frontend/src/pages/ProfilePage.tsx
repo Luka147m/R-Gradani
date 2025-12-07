@@ -5,7 +5,7 @@ import { Home, LayoutDashboard } from "lucide-react";
 import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
 import {MarkedDatasets} from '../components/MarkedDatasets';
 
-import '../HomePage.css'
+import '../style/HomePage.css'
 
 function ProfilePage() {
   
