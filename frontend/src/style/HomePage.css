@@ -78,12 +78,42 @@ html, body {
   border-bottom-right-radius: 10px;
 }
 
-.search-clear-button {
+.search-back-button {
   position: absolute;
-  right: 12px;
+  left: 12px;
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  border-radius: 50%;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.search-back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  
+}
+
+.search-skupovi-div{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 32px;
+  padding: 0px;
+}
+
+.search-clear-button{
+  position: absolute;
+  right: 60px;
+  background: none;
+  border: none;
+  border-radius: 10px;
   width: 32px;
   height: 32px;
   display: flex;
@@ -96,16 +126,7 @@ html, body {
 
 .search-clear-button:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
-}
-
-.search-skupovi-div{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 32px;
-  padding: 0px;
+  
 }
 
 /* ----------- Home/Profile Selector Styles ----------- */

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from "react-router-dom";
-import { Home, LayoutDashboard, Search, X } from "lucide-react";
+import { Home, LayoutDashboard, Search, ArrowLeft, X } from "lucide-react";
 import { IzdvojeniSkupoviPodataka } from '../components/IzdvojeniSkupoviPodataka';
 import { FilterContainer } from '../components/FilterContainer';
 import { SearchResults } from '../components/SearchResults';
@@ -15,6 +15,7 @@ function HomePage() {
   const {
     isSearchActivated,
     setIsSearchActivated,
+    setSearchTerm, 
   } = useSearch();
 
   useEffect(() => {
@@ -23,10 +24,7 @@ function HomePage() {
       setLocalSearchTerm(query);
       setIsTransitioning(true);
       setTimeout(() => setIsSearchActivated(true), 50);
-    } else {
-      setIsSearchActivated(false);
-      setIsTransitioning(false);
-    }
+    } 
   }, [searchParams, setIsSearchActivated])
 
   const handleSearchFocus = () => {
@@ -37,16 +35,16 @@ function HomePage() {
   }
 
   const handleClearSearch = () => {
-    setIsTransitioning(false);
-    setIsSearchActivated(false);
     setLocalSearchTerm('');
-    setSearchParams({});
+    setSearchTerm(''); // Prikaži sve rezultate
+    setSearchParams({}); // Ukloni ?q= iz URL-a
   }
 
   const handleToHome = () => {
     setIsTransitioning(false);
     setIsSearchActivated(false);
     setLocalSearchTerm('');
+    setSearchTerm('');
     setSearchParams({});
   }
 
@@ -77,6 +75,15 @@ function HomePage() {
             <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
           </div>
           <div className="search">
+            {isSearchActivated && (
+              <button 
+                className="search-back-button" 
+                type="button"
+                onClick={handleToHome}
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
             <input 
               type="text" 
               placeholder="Unesite naziv skupa podataka" 
@@ -85,7 +92,7 @@ function HomePage() {
               value={localSearchTerm}
               onChange={(e) => setLocalSearchTerm(e.target.value)}
             />
-            {isSearchActivated && (
+            {localSearchTerm && (
               <button 
                 className="search-clear-button" 
                 type="button"

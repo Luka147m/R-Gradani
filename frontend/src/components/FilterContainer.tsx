@@ -84,18 +84,16 @@ const FilterContainer = ({ localSearchTerm }: FilterContainerProps) => {
 
   const handleApplyFilters = () => {
 
-    setSearchTerm(localSearchTerm);
-    setSelectedPublisherIds(tempPublisherIds);
-    setOpennessRange(tempOpennessRange);
-    setAcceptanceRange(tempAcceptanceRange);
-    setIgnoreSaved(tempIgnoreSaved);
-    setIgnoreReported(tempIgnoreReported);
-
+    
     if (localSearchTerm.trim()) {
       setSearchParams({ q: localSearchTerm });
-    } else {
-      setSearchParams({});
-    }
+      setSearchTerm(localSearchTerm);
+      setSelectedPublisherIds(tempPublisherIds);
+      setOpennessRange(tempOpennessRange);
+      setAcceptanceRange(tempAcceptanceRange);
+      setIgnoreSaved(tempIgnoreSaved);
+      setIgnoreReported(tempIgnoreReported);
+    } 
   };
 
   return (

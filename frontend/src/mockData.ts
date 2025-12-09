@@ -48,7 +48,10 @@ export const mockInitData: InitData = {
       { id: "ministarstvo-obrazovanja", title: "Ministarstvo obrazovanja" },
       { id: "grad-zagreb", title: "Grad Zagreb" },
       { id: "hzmo", title: "HZMO" },
-      { id: "fina", title: "FINA" }
+      { id: "fina", title: "FINA" },
+      { id: "ministarstvo-financija", title: "Ministarstvo financija" },
+      { id: "ministarstvo-turizma", title: "Ministarstvo turizma" },
+      { id: "dzs", title: "Državni zavod za statistiku" }
     ],
     latestDatasets: [
       {
