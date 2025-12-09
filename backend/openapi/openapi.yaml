@@ -47,6 +47,10 @@ paths:
     $ref: "./paths/comments/getLatestAnalyzed.yaml"
   /api/komentari/{id}:
     $ref: "./paths/comments/getById.yaml"
+  /api/odgovori/komentar/{commentId}:
+    $ref: "./paths/responses/getByCommentId.yaml"
+  /api/odgovori/{id}:
+    $ref: "./paths/responses/getById.yaml"
 components:
   schemas:
     SkupPodataka:

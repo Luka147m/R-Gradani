@@ -1,0 +1,31 @@
+get:
+  summary: Get a response by ID
+  description: Retrieves a single response by its unique ID.
+  tags:
+    - Responses
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ID of the response to retrieve.
+      schema:
+        type: integer
+  responses:
+    "200":
+      description: The requested response object.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/Odgovor.yaml"
+    "404":
+      description: Response not found.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

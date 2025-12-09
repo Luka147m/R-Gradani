@@ -1,0 +1,33 @@
+get:
+  summary: Get responses by comment ID
+  description: Retrieves all responses associated with a specific comment ID.
+  tags:
+    - Responses
+  parameters:
+    - name: commentId
+      in: path
+      required: true
+      description: The ID of the comment.
+      schema:
+        type: integer
+  responses:
+    "200":
+      description: A list of responses for the given comment.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/Odgovor.yaml"
+    "404":
+      description: Comment not found.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
