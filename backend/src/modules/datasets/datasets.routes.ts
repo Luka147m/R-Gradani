@@ -15,9 +15,6 @@ router.post('/izdavaci', datasetsController.getDatasetsByPublishers);
 
 router.post('/filter', datasetsController.getDatasetsByTagsOrPublishers);
 
-
-// Promjena - potrebno update openapi specifikaciju
-// Pomaknuto da ne koristi kontroler iz comments modula, nego iz datasets modula radi konflikta
 router.use('/:id/komentari', datasetsController.getCommentsByDatasetId);
 
 export default router;

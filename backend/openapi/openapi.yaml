@@ -43,6 +43,10 @@ paths:
     $ref: "./paths/publishers/getRecent.yaml"
   /api/izdavaci/search:
     $ref: "./paths/publishers/search.yaml"
+  /api/komentari/latest/analyzed:
+    $ref: "./paths/comments/getLatestAnalyzed.yaml"
+  /api/komentari/{id}:
+    $ref: "./paths/comments/getById.yaml"
 components:
   schemas:
     SkupPodataka:
