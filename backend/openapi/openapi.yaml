@@ -41,6 +41,8 @@ paths:
     $ref: "./paths/publishers/getAll.yaml"
   /api/izdavaci/nedavno:
     $ref: "./paths/publishers/getRecent.yaml"
+  /api/izdavaci/search:
+    $ref: "./paths/publishers/search.yaml"
 components:
   schemas:
     SkupPodataka:

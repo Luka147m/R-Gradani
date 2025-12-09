@@ -45,3 +45,14 @@ export const fetchRecentlyActivePublishers = async (limit: number = 3) => {
 
   return publishers;
 };
+
+export const searchForPublishers = async (searchText?: string) => {
+  return prisma.izdavac.findMany({
+    where: {
+      publisher: {
+        contains: searchText,
+        mode: 'insensitive',
+      },
+    },
+  });
+};

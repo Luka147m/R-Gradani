@@ -5,5 +5,6 @@ const router = Router({ mergeParams: true });
 
 router.get('/', publishersController.getPublishers);
 router.get("/nedavno", publishersController.getRecentlyActivePublishers);
+router.post('/search', publishersController.searchPublishers);
 
 export default router;
