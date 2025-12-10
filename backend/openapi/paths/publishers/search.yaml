@@ -1,0 +1,37 @@
+post:
+  summary: Search publishers
+  description: Searches publishers based on a search text.
+  tags:
+    - Publishers
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            searchText:
+              type: string
+              description: Text to search for in publisher names.
+              default: ""
+  responses:
+    "200":
+      description: An array of publishers matching the search criteria.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/Izdavac.yaml"
+    "400":
+      description: Invalid input.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

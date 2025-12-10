@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma";
+import { Prisma } from "@prisma/client";
 
 export const fetchDatasets = async () => {
   const datasets = await prisma.skup_podataka.findMany();
@@ -27,6 +28,44 @@ export const fetchDatasetsByIds = async (ids: string[]) => {
       id: {
         in: ids,
       },
+    },
+  });
+};
+
+export const searchDatasets = async (params: {
+  searchText?: string;
+  publisherIds?: string[];
+  ignoreMarked?: boolean;
+  markedIds?: string[];
+}) => {
+  const { searchText, publisherIds, ignoreMarked, markedIds } = params;
+
+  const andConditions: Prisma.skup_podatakaWhereInput[] = [];
+
+  if (searchText) {
+    andConditions.push({
+      OR: [
+        { title: { contains: searchText, mode: "insensitive" } },
+        { description: { contains: searchText, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (publisherIds && publisherIds.length > 0) {
+    andConditions.push({
+      publisher_id: { in: publisherIds },
+    });
+  }
+
+  if (ignoreMarked && markedIds && markedIds.length > 0) {
+    andConditions.push({
+      id: { notIn: markedIds },
+    });
+  }
+
+  return prisma.skup_podataka.findMany({
+    where: {
+      AND: andConditions,
     },
   });
 };

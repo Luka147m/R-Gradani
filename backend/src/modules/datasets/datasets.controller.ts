@@ -50,6 +50,23 @@ export const getDatasetsByIds = async (req: Request, res: Response) => {
   }
 };
 
+export const searchDatasets = async (req: Request, res: Response) => {
+  try {
+    const { searchText, publisherIds, ignoreMarked, markedIds } = req.body;
+
+    const datasets = await datasetsService.searchDatasets({
+      searchText,
+      publisherIds,
+      ignoreMarked,
+      markedIds,
+    });
+
+    res.status(200).json(datasets);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
+
 export const getDatasetsByPublisher = async (req: Request, res: Response) => {
   const { id: publisherId } = req.params;
   try {

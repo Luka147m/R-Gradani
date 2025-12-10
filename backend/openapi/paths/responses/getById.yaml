@@ -1,26 +1,24 @@
 get:
-  summary: Get comments for a dataset
-  description: Retrieves all comments associated with a specific dataset ID.
+  summary: Get a response by ID
+  description: Retrieves a single response by its unique ID.
   tags:
-    - Datasets
+    - Responses
   parameters:
     - name: id
       in: path
       required: true
-      description: The ID of the dataset.
+      description: The ID of the response to retrieve.
       schema:
-        type: string
+        type: integer
   responses:
     "200":
-      description: A list of comment messages for the dataset.
+      description: The requested response object.
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "../../components/schemas/Komentar.yaml"
+            $ref: "../../components/schemas/Odgovor.yaml"
     "404":
-      description: Dataset not found.
+      description: Response not found.
       content:
         application/json:
           schema:

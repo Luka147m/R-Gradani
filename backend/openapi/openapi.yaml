@@ -31,6 +31,8 @@ paths:
     $ref: "./paths/datasets/getByPublisherId.yaml"
   /api/skupovi/izdavaci:
     $ref: "./paths/datasets/getByPublishers.yaml"
+  /api/skupovi/search:
+    $ref: "./paths/datasets/search.yaml"
   /api/skupovi/filter:
     $ref: "./paths/datasets/filter.yaml"
   /api/init:
@@ -39,6 +41,16 @@ paths:
     $ref: "./paths/publishers/getAll.yaml"
   /api/izdavaci/nedavno:
     $ref: "./paths/publishers/getRecent.yaml"
+  /api/izdavaci/search:
+    $ref: "./paths/publishers/search.yaml"
+  /api/komentari/latest/analyzed:
+    $ref: "./paths/comments/getLatestAnalyzed.yaml"
+  /api/komentari/{id}:
+    $ref: "./paths/comments/getById.yaml"
+  /api/odgovori/komentar/{commentId}:
+    $ref: "./paths/responses/getByCommentId.yaml"
+  /api/odgovori/{id}:
+    $ref: "./paths/responses/getById.yaml"
 components:
   schemas:
     SkupPodataka:

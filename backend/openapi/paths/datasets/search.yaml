@@ -1,0 +1,51 @@
+post:
+  summary: Search datasets
+  description: Searches datasets based on multiple criteria.
+  tags:
+    - Datasets
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            searchText:
+              type: string
+              description: Text to search for in dataset titles and descriptions.
+            publisherIds:
+              type: array
+              items:
+                type: string
+              description: A list of publisher IDs to filter by.
+              default: []
+            ignoreMarked:
+              type: boolean
+              description: Flag to indicate if marked datasets should be ignored.
+            markedIds:
+              type: array
+              items:
+                type: string
+              description: A list of dataset IDs to be ignored if ignoreMarked is true.
+              default: []
+  responses:
+    "200":
+      description: An array of datasets matching the search criteria.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/SkupPodataka.yaml"
+    "400":
+      description: Invalid input.
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"
+    "500":
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yaml"

@@ -18,3 +18,13 @@ export const getRecentlyActivePublishers = async (_req: Request, res: Response) 
     res.status(500).json({ message: `${error}` });
   }
 };
+
+export const searchPublishers = async (req: Request, res: Response) => {
+  try {
+    const { searchText } = req.body;
+    const publishers = await publishersService.searchForPublishers(searchText);
+    res.status(200).json(publishers);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+};
