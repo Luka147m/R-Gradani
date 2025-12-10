@@ -4,7 +4,7 @@ import { Picture } from "./picture";
 
 
 export class Comment {
-  id!: bigint;
+  id!: string;
   user_id?: bigint | null;
   skup_id?: string | null;
   created?: Date | null;

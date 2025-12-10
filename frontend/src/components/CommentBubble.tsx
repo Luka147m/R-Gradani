@@ -7,10 +7,12 @@ import "../style/CommentBubble.css"
 interface CommentBubbleProps{
    
     content: string,
-    isFromComment: boolean
+    isFromComment: boolean,
+    usvojenost: boolean,
+    podudarnost: number
 }
 
-export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromComment }) => {
+export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromComment, usvojenost, podudarnost }) => {
 
     const [saved, setSaved] = useState(false);
     const [reported, setReported] = useState(false);
@@ -105,6 +107,8 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
 
             <div className="text-box">
                 <p dangerouslySetInnerHTML={{ __html: content }}></p>
+                <hr/>
+                <p>Usvojenost: {usvojenost ? "Yes" : "No"}, Podudarnost: {podudarnost}</p>
             </div>
             
         </div>

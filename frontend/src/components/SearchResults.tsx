@@ -79,9 +79,9 @@ const SearchResults = () => {
                         <SkupPodatakaCard
                             key={dataset.id}
                             id={dataset.id}
-                            naslov={dataset.title}
-                            datum={dataset.created}
-                            link={dataset.url}
+                            title={dataset.title}
+                            url={dataset.url}
+                            fetched_at={dataset.modified ? new Date(dataset.modified) : new Date()}
                         />
                     ))
                 ) : (

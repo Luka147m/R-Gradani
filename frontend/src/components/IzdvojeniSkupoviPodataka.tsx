@@ -2,13 +2,20 @@ import { SkupPodatakaCard} from './SkupPodatakaCard';
 import '../style/IzdvojeniSkupoviPodataka.css';
 import { BadgeAlert } from 'lucide-react';
 import '../style/HomePage.css'
+import { useState, useEffect } from 'react';
 
-import { mockInitData }  from '../mockData.ts';
+//import { mockInitData }  from '../mockData.ts';
+import {DataSet} from '../types/dataset.ts'
+import api from '../api/axios.tsx'
 
 export const IzdvojeniSkupoviPodataka = () => {
+    const [datasets, setDatasets] = useState<DataSet[]>([]);
 
-    
-    const datasets = mockInitData.result.latestDatasets;
+    useEffect(() => {
+        api.get('/skupovi/nedavno').then((response) => {
+            setDatasets(response.data);
+        });
+    }, []);
 
     return (
         <div className = "search-skupovi-div">
@@ -20,10 +27,7 @@ export const IzdvojeniSkupoviPodataka = () => {
                 {datasets.map((skupPodataka) => (
                     <SkupPodatakaCard
                         key={skupPodataka.id}
-                        id={skupPodataka.id}
-                        naslov={skupPodataka.title}
-                        datum={skupPodataka.created}
-                        link={skupPodataka.url}
+                        {...skupPodataka}
                     />
                 ))}
             </div>

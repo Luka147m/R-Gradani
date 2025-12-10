@@ -23,12 +23,12 @@ export const RecentlyVisitedDatasets = () => {
             <div className="skupovi-podataka-grid">
                 {markedDatasets.map((skupPodataka) => (
                     <SkupPodatakaCard
-                        key={skupPodataka.id}
-                        id={skupPodataka.id}
-                        naslov={skupPodataka.title}
-                        datum={skupPodataka.created}
-                        link={skupPodataka.url}
-                    />
+                            key={skupPodataka.id}
+                            id={skupPodataka.id}
+                            title={skupPodataka.title}
+                            url={skupPodataka.url}
+                            fetched_at={skupPodataka.modified ? new Date(skupPodataka.modified) : new Date()}
+                        />
                 ))}
             </div>
             

@@ -20,7 +20,6 @@ export class DataSet {
   publisher_id?: string | null;
   tags?: unknown | null; // JSON field
   fetched_at!: Date;
-
   komentar?: Comment[];
   resurs?: Resource[];
   izdavac?: Publisher | null;

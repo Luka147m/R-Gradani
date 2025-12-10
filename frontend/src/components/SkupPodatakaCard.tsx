@@ -3,17 +3,11 @@ import { Link } from "react-router-dom";
 import React from 'react';
 
 import {useState, useEffect} from 'react';
+import {DataSet} from '../types/dataset'
 
-
-
-interface SkupPodatakaCardProps {
-    id: string;
-    naslov: string;
-    datum: string;
-    link: string;
-}
-
-export const SkupPodatakaCard: React.FC<SkupPodatakaCardProps> = ({ id, naslov, datum, link }) => {
+export const SkupPodatakaCard: React.FC<DataSet> = (props) => {
+    const { id, title, url, created } = props;
+    const dataset = { title, url, created };
 
     const [isSaved, setIsSaved] = useState(false);
     useEffect(() => {
@@ -64,13 +58,13 @@ export const SkupPodatakaCard: React.FC<SkupPodatakaCardProps> = ({ id, naslov, 
                 to={`/dataset/${encodeURIComponent(id)}`} 
                 style={{ color: 'inherit', textDecoration: 'none' }}
                 onClick={updateRecentlyVisited}
-                state={{ id, name: naslov, url: link, created: datum }}>
-                <h3 onClick={updateRecentlyVisited}>{naslov}</h3>
+                state={{ id, name: dataset.title, url: dataset.url, created: dataset.created }}>
+                <h3 onClick={updateRecentlyVisited}>{dataset.title}</h3>
             </Link>
-            <p className="datum">{datum}</p>
-            <a href={link} className="link" target="_blank" rel="noreferrer">
+            <p className="datum">{dataset.created instanceof Date ? dataset.created.toLocaleDateString() : dataset.created}</p>
+            <a href={dataset.url || '#'} className="link" target="_blank" rel="noreferrer">
                 <LinkIcon size={16} />
-                {link}
+                {dataset.url}
             </a>
             <div className="save-icon-dataset">
                 <Bookmark 

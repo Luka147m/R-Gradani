@@ -1,11 +1,11 @@
-import { Comment } from "./comment";
-
 export class Reply {
   id!: number;
-  komentar_id?: bigint | null;
-  created?: Date | null;
-  message?: unknown | null;
-  score?: number | null;
-
-  komentar?: Comment | null;
+  flag?: boolean;
+  text?: string;
+  analysis?: {
+    komentar: string;
+    usvojenost: boolean;
+    podudarnost: number;
+  };
+  category?: string;
 }
