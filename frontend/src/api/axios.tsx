@@ -1,9 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.DEV
-    ? "/api"                                  // dev → Vite proxy → backend
-    : "https://r-gradani-backend.onrender.com/api", // prod → direct backend
+  baseURL: "/api",                                  // dev → Vite proxy → backend
   timeout: 10000,
 });
 
