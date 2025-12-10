@@ -13,8 +13,7 @@ const SearchResults = () => {
         selectedPublisherIds,
         ignoreSaved,
         ignoreReported,
-        opennessRange,
-        acceptanceRange,
+        dateRange,
     } = useSearch();
     
     const [results, setResults] = useState<Dataset[]>([]);
@@ -40,9 +39,20 @@ const SearchResults = () => {
             filtered = filtered.filter(d => !reportedIds.includes(d.id));
         }
 
+        
+        if (dateRange[0]) {
+            filtered = filtered.filter(d => new Date(d.created) >= new Date(dateRange[0]));
+        }
+        if (dateRange[1]) {
+            
+            const endDate = new Date(dateRange[1]);
+            endDate.setDate(endDate.getDate() + 1);
+            filtered = filtered.filter(d => new Date(d.created) < endDate);
+        }
+
         const sorted = sortResults(filtered, sortOption);
         setResults(sorted);
-    }, [searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, opennessRange, acceptanceRange]);
+    }, [searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, dateRange]);
 
     const sortResults = (data: Dataset[], option: SortOption): Dataset[] => {
         const sorted = [...data];
@@ -75,7 +85,7 @@ const SearchResults = () => {
             </div>
             <div className='search-result-grid'>
                 {results.length > 0 ? (
-                    results.map(dataset => (
+                    results.slice(0, 10).map(dataset => (
                         <SkupPodatakaCard
                             key={dataset.id}
                             id={dataset.id}

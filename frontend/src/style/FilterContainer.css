@@ -1,8 +1,18 @@
 .filter-container {
-    padding: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  height: auto;
+}
+
+
+.filter-section {
+  padding: 12px 0;
+  border-top: 1px solid #e0e0e0;
+}
+.filter-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
 }
 
 .title {
@@ -68,4 +78,46 @@
 
 .apply-filters-button:active {
   transform: translateY(0);
+}
+
+.date-range-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  margin-top: 12px;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.date-input-group label {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.date-input {
+  padding: 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #2a2a2a;
+  color: white;
+  font-size: 14px;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: cyan;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
