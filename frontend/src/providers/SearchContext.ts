@@ -11,13 +11,9 @@ interface SearchContextType {
   publisherQuery: string;
   setPublisherQuery: (query: string) => void;
   
-  opennessRange: number[];
-  setOpennessRange: (range: number[]) => void;
-  
+  dateRange: [string, string];
+  setDateRange: (range: [string, string]) => void;
 
-  acceptanceRange: number[];
-  setAcceptanceRange: (range: number[]) => void;
-  
   ignoreSaved: boolean;
   setIgnoreSaved: (ignore: boolean) => void;
   ignoreReported: boolean;

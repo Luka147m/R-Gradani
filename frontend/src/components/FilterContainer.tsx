@@ -1,17 +1,9 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Building, FolderOpen, ChartPie, Search } from 'lucide-react';
-import { Slider } from '@mui/material';
+import { Building, Calendar, Search, Settings } from 'lucide-react';
 import { mockInitData } from '../mockData';
 import { useSearch } from '../hooks/useSearch';
 import { useSearchParams } from 'react-router-dom';
 import '../style/FilterContainer.css';
-
-const marks = [
-  { value: 1, label: '1' },
-  { value: 2, label: '2' },
-  { value: 3, label: '3' },
-  { value: 4, label: '4' },
-];
 
 interface FilterContainerProps {
   localSearchTerm: string;
@@ -25,26 +17,21 @@ const FilterContainer = ({ localSearchTerm }: FilterContainerProps) => {
     setSelectedPublisherIds,
     publisherQuery,
     setPublisherQuery,
-    opennessRange,
-    setOpennessRange,
-    acceptanceRange,
-    setAcceptanceRange,
+    dateRange,
+    setDateRange,
     ignoreSaved,
     setIgnoreSaved,
     ignoreReported,
     setIgnoreReported,
   } = useSearch();
 
-  
   const [tempPublisherIds, setTempPublisherIds] = useState<string[]>(selectedPublisherIds);
-  const [tempOpennessRange, setTempOpennessRange] = useState<number[]>(opennessRange);
-  const [tempAcceptanceRange, setTempAcceptanceRange] = useState<number[]>(acceptanceRange);
+  const [tempDateRange, setTempDateRange] = useState<[string, string]>(dateRange);
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
   const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
 
   useEffect(() => setTempPublisherIds(selectedPublisherIds), [selectedPublisherIds]);
-  useEffect(() => setTempOpennessRange(opennessRange), [opennessRange]);
-  useEffect(() => setTempAcceptanceRange(acceptanceRange), [acceptanceRange]);
+  useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
 
@@ -64,159 +51,122 @@ const FilterContainer = ({ localSearchTerm }: FilterContainerProps) => {
     );
   };
 
-  const handleOpennessChange = (_: Event, newValue: number | number[], activeThumb: number) => {
-    if (!Array.isArray(newValue)) return;
-    const MIN_DISTANCE = 1;
-    setTempOpennessRange(prev => {
-      if (activeThumb === 0) return [Math.min(newValue[0], prev[1] - MIN_DISTANCE), prev[1]];
-      return [prev[0], Math.max(newValue[1], prev[0] + MIN_DISTANCE)];
-    });
-  };
-
-  const handleAcceptanceChange = (_: Event, newValue: number | number[], activeThumb: number) => {
-    if (!Array.isArray(newValue)) return;
-    const MIN_DISTANCE = 0.1;
-    setTempAcceptanceRange(prev => {
-      if (activeThumb === 0) return [Math.min(newValue[0], prev[1] - MIN_DISTANCE), prev[1]];
-      return [prev[0], Math.max(newValue[1], prev[0] + MIN_DISTANCE)];
-    });
+  const handleDateChange = (type: 'from' | 'to', value: string) => {
+    if (type === 'from') {
+      setTempDateRange([value, tempDateRange[1]]);
+    } else {
+      setTempDateRange([tempDateRange[0], value]);
+    }
   };
 
   const handleApplyFilters = () => {
-
-    
-    if (localSearchTerm.trim()) {
-      setSearchParams({ q: localSearchTerm });
-      setSearchTerm(localSearchTerm);
-      setSelectedPublisherIds(tempPublisherIds);
-      setOpennessRange(tempOpennessRange);
-      setAcceptanceRange(tempAcceptanceRange);
-      setIgnoreSaved(tempIgnoreSaved);
-      setIgnoreReported(tempIgnoreReported);
-    } 
+    setSearchParams(localSearchTerm.trim() ? { q: localSearchTerm } : {});
+    setSearchTerm(localSearchTerm);
+    setSelectedPublisherIds(tempPublisherIds);
+    setDateRange(tempDateRange);
+    setIgnoreSaved(tempIgnoreSaved);
+    setIgnoreReported(tempIgnoreReported);
   };
 
   return (
     <div className="filter-container">
-      <div className="title">
-        <Building size={20} />
-        <h2>Izdavač</h2>
+      <div className="filter-section">
+        <div className="title">
+          <Building size={20} />
+          <h2>Izdavač</h2>
+        </div>
+        <div className="search-publisher">
+          <input
+            type="text"
+            placeholder="Pretraži izdavače"
+            className="publisher-input"
+            value={publisherQuery}
+            onChange={(e) => setPublisherQuery(e.target.value)}
+          />
+        </div>
+        <div className="publisher-list">
+          {filteredPublisher.slice(0, 5).map(p => (
+            <div key={p.id} className="publisher-item">
+              <input
+                type="checkbox"
+                id={`publisher-${p.id}`}
+                className="publisher-checkbox"
+                checked={tempPublisherIds.includes(p.id)}
+                onChange={(e) => togglePublisher(p.id, e.target.checked)}
+              />
+              <label htmlFor={`publisher-${p.id}`} className="publisher-label">{p.title}</label>
+            </div>
+          ))}
+          {filteredPublisher.length === 0 && (
+            <div className="publisher-item"><em>Nema rezultata</em></div>
+          )}
+        </div>
       </div>
-      <div className="search-publisher">
-        <input
-          type="text"
-          placeholder="Pretraži izdavače"
-          className="publisher-input"
-          value={publisherQuery}
-          onChange={(e) => setPublisherQuery(e.target.value)}
-        />
+
+      <div className="filter-section">
+        <div className="title">
+          <Calendar size={20} />
+          <h2>Datum objave</h2>
+        </div>
+        <div className="date-range-wrapper">
+          <label htmlFor="date-from">Od</label>
+          <input
+            type="date"
+            id="date-from"
+            className="date-input"
+            value={tempDateRange[0]}
+            onChange={(e) => handleDateChange('from', e.target.value)}
+          />
+          <label htmlFor="date-to">do</label>
+          <input
+            type="date"
+            id="date-to"
+            className="date-input"
+            value={tempDateRange[1]}
+            onChange={(e) => handleDateChange('to', e.target.value)}
+          />
+        </div>
       </div>
-      <div className="publisher-list">
-        {filteredPublisher.map(p => (
-          <div key={p.id} className="publisher-item">
+
+      <div className="filter-section">
+        <div className="title">
+          <Settings size={20} />
+          <h2>Ostalo</h2>
+        </div>
+        <div className="ignore-checkboxes">
+          <div className="publisher-item">
             <input
               type="checkbox"
-              id={`publisher-${p.id}`}
+              id="ignore-saved-datasets-checkbox"
               className="publisher-checkbox"
-              checked={tempPublisherIds.includes(p.id)}
-              onChange={(e) => togglePublisher(p.id, e.target.checked)}
+              checked={tempIgnoreSaved}
+              onChange={(e) => setTempIgnoreSaved(e.target.checked)}
             />
-            <label htmlFor={`publisher-${p.id}`} className="publisher-label">{p.title}</label>
+            <label htmlFor="ignore-saved-datasets-checkbox" className="publisher-label">
+              Ignoriraj spremljene skupove podataka
+            </label>
           </div>
-        ))}
-        {filteredPublisher.length === 0 && (
-          <div className="publisher-item"><em>Nema rezultata</em></div>
-        )}
-      </div>
-
-      <div className="title">
-        <FolderOpen size={20} />
-        <h2>Stupanj otvorenosti</h2>
-      </div>
-      <div className="slider-wrapper">
-        <Slider
-          value={tempOpennessRange}
-          min={1}
-          max={4}
-          step={1}
-          marks={marks}
-          onChange={handleOpennessChange}
-          valueLabelDisplay="auto"
-          disableSwap
-          sx={{
-            color: 'cyan',
-            '& .MuiSlider-track': { backgroundColor: 'cyan' },
-            '& .MuiSlider-rail': { backgroundColor: 'white', opacity: 1 },
-            '& .MuiSlider-thumb': { backgroundColor: 'cyan', border: '2px solid white' },
-            '& .MuiSlider-markLabel': { color: 'white', fontSize: 12 },
-            '& .MuiSlider-valueLabel': { background: 'rgba(0,180,180,0.9)' }
-          }}
-        />
-        <div className="slider-values">
-          <span>Od: {tempOpennessRange[0]}</span>
-          <span>Do: {tempOpennessRange[1]}</span>
+          <div className="publisher-item">
+            <input
+              type="checkbox"
+              id="ignore-reported-datasets-checkbox"
+              className="publisher-checkbox"
+              checked={tempIgnoreReported}
+              onChange={(e) => setTempIgnoreReported(e.target.checked)}
+            />
+            <label htmlFor="ignore-reported-datasets-checkbox" className="publisher-label">
+              Ignoriraj skupove podataka koji imaju prijavljene probleme
+            </label>
+          </div>
         </div>
       </div>
 
-      <div className="title">
-        <ChartPie size={20} />
-        <h2>Stupanj prihvaćenosti</h2>
+      <div className="filter-section">
+        <button className="apply-filters-button" onClick={handleApplyFilters}>
+          <Search size={18} />
+          Pretraži
+        </button>
       </div>
-      <div className="slider-wrapper">
-        <Slider
-          value={tempAcceptanceRange}
-          min={0}
-          max={1}
-          step={0.01}
-          onChange={handleAcceptanceChange}
-          valueLabelDisplay="auto"
-          disableSwap
-          valueLabelFormat={(val) => `${Math.round((val as number) * 100)}%`}
-          sx={{
-            color: 'cyan',
-            '& .MuiSlider-track': { backgroundColor: 'cyan' },
-            '& .MuiSlider-rail': { backgroundColor: 'white', opacity: 1 },
-            '& .MuiSlider-thumb': { backgroundColor: 'cyan', border: '2px solid white' },
-            '& .MuiSlider-valueLabel': { background: 'rgba(0,180,180,0.9)' }
-          }}
-        />
-        <div className="slider-values">
-          <span>Od: {Math.round(tempAcceptanceRange[0] * 100)}%</span>
-          <span>Do: {Math.round(tempAcceptanceRange[1] * 100)}%</span>
-        </div>
-      </div>
-
-      <div className="ignore-checkboxes">
-        <div className="publisher-item">
-          <input
-            type="checkbox"
-            id="ignore-saved-datasets-checkbox"
-            className="publisher-checkbox"
-            checked={tempIgnoreSaved}
-            onChange={(e) => setTempIgnoreSaved(e.target.checked)}
-          />
-          <label htmlFor="ignore-saved-datasets-checkbox" className="publisher-label">
-            Ignoriraj spremljene skupove podataka
-          </label>
-        </div>
-        <div className="publisher-item">
-          <input
-            type="checkbox"
-            id="ignore-reported-datasets-checkbox"
-            className="publisher-checkbox"
-            checked={tempIgnoreReported}
-            onChange={(e) => setTempIgnoreReported(e.target.checked)}
-          />
-          <label htmlFor="ignore-reported-datasets-checkbox" className="publisher-label">
-            Ignoriraj skupove podataka koji imaju prijavljene probleme
-          </label>
-        </div>
-      </div>
-
-      <button className="apply-filters-button" onClick={handleApplyFilters}>
-        <Search size={18} />
-        Pretraži
-      </button>
     </div>
   );
 };
