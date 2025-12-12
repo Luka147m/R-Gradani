@@ -27,7 +27,7 @@ const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    if (origin === "https://r-gradani-frontend.onrender.com") {
+    if (origin === "https://r-gradani.onrender.com") {
       return callback(null, true);
     }
 
