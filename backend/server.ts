@@ -8,6 +8,7 @@ import initRouter from "./src/modules/init/init.routes";
 import publishersRouter from "./src/modules/publishers/publishers.routes";
 import responsesRouter from "./src/modules/responses/responses.routes";
 import commentsRouter from "./src/modules/comments/comments.routes";
+import cors, { CorsOptions } from "cors";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -15,6 +16,27 @@ import commentsRouter from "./src/modules/comments/comments.routes";
 
 const app = express();
 const port: number = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (/^http:\/\/localhost(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    if (origin === "https://r-gradani-frontend.onrender.com") {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
