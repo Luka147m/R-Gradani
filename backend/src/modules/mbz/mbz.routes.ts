@@ -31,11 +31,11 @@ const handleMulterError = (err: any, req: Request, res: Response, next: NextFunc
 
 // Disableano dok ne bude dodana nekakva zastita na ovu rutu
 
-// mbzRouter.post(
-//     '/',
-//     upload.single('file'),
-//     handleMulterError,
-//     uploadMbz
-// );
+mbzRouter.post(
+    '/',
+    upload.single('file'),
+    handleMulterError,
+    uploadMbz
+);
 
 export default mbzRouter;
