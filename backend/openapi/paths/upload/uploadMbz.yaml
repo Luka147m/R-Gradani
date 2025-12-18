@@ -1,0 +1,103 @@
+post:
+  tags:
+    - Upload
+  summary: Upload and import MBZ file
+  description: |
+    Upload a Moodle Backup (MBZ) file containing forum discussions with dataset references.
+    The system will extract the data, fetch dataset information from data.gov.hr API,
+    and import everything into the database.
+
+    **Process:**
+    1. Validates file is .mbz format and under 100MB
+    2. Extracts forum discussions from the backup
+    3. Identifies dataset URLs in discussion posts
+    4. Fetches dataset metadata from data.gov.hr CKAN API
+    5. Imports publishers, datasets, resources, and comments into database
+    6. Returns statistics about created/updated records
+
+  operationId: uploadMbz
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - file
+          properties:
+            file:
+              type: string
+              format: binary
+              description: MBZ (Moodle Backup) file to upload
+        encoding:
+          file:
+            contentType: application/zip
+  responses:
+    '200':
+      description: Import successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: 'Import successful'
+
+    '400':
+      description: Bad request - Invalid file or MBZ structure
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+          examples:
+            wrongFileType:
+              value:
+                success: false
+                error: 'Only .mbz files are allowed'
+            fileTooLarge:
+              value:
+                success: false
+                error: 'File size exceeds 100MB limit'
+            noFile:
+              value:
+                success: false
+                error: 'File missing'
+            invalidStructure:
+              value:
+                success: false
+                error: 'Activities directory not found. Invalid MBZ structure.'
+            noForumFolder:
+              value:
+                success: false
+                error: 'No forum folder found inside activities/. Invalid MBZ structure.'
+            missingForumXml:
+              value:
+                success: false
+                error: 'forum.xml not found in forum directory. Invalid MBZ structure.'
+            corruptedXml:
+              value:
+                success: false
+                error: 'Failed to parse forum.xml. Invalid XML format.'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: 'Import failed. Please check server logs for details.'
