@@ -16,6 +16,8 @@ post:
     6. Returns statistics about created/updated records
 
   operationId: uploadMbz
+  security:
+    - BearerAuth: []
   requestBody:
     required: true
     content:
