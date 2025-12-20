@@ -3,6 +3,10 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
+const required = (key: string): never => {
+  throw new Error(`FATAL ERROR: Required environment variable "${key}" is not set.`);
+};
+
 export const env = {
   PORT: process.env.PORT ? Number(process.env.PORT) : 3000,
 
@@ -13,4 +17,6 @@ export const env = {
   DB_NAME: process.env.DB_NAME,
 
   OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? '',
+
+  ADMIN_API_KEY: process.env.ADMIN_API_KEY || required("ADMIN_API_KEY"),
 };

@@ -56,6 +56,11 @@ paths:
   /api/upload:
     $ref: './paths/upload/uploadMbz.yaml'
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API-KEY
   schemas:
     SkupPodataka:
       $ref: './components/schemas/SkupPodataka.yaml'
