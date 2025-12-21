@@ -2,17 +2,23 @@ import { SkupPodatakaCard} from './SkupPodatakaCard';
 import '../style/IzdvojeniSkupoviPodataka.css';
 import { History } from 'lucide-react';
 import '../style/HomePage.css'
-import { mockInitData }  from '../mockData.ts';
-/* import { Heading1 } from 'lucide-react'; */
+import { DataSet } from '../types/dataset';
+import { useEffect, useState } from 'react';
+import api from '../api/axios.tsx'
 
 export const RecentlyVisitedDatasets = () => {
-
+    const [recentlyVisitedDatasets, setRecentlyVisitedDatasets] = useState<DataSet[]>([]);
     
+    useEffect(() => {
+        const fetchRecentlyVisitedDatasets = async () => {
+            const arr = JSON.parse(localStorage.getItem('recentlyVisitedDatasets') || '[]');
+            if (arr.length === 0) return;
+            const response = await api.post('/skupovi/ids', { ids: arr });
+            setRecentlyVisitedDatasets(response.data);
+        };
+        fetchRecentlyVisitedDatasets();
+    }, []);
 
-    const datasets = mockInitData.result.latestDatasets;
-
-    const arr = JSON.parse(localStorage.getItem('recentlyVisitedDatasets') || '[]');
-    const markedDatasets = datasets.filter(skup => arr.includes(skup.id));
 
     return (
         <div className = "search-skupovi-div">
@@ -21,14 +27,11 @@ export const RecentlyVisitedDatasets = () => {
                 <h1 className='search-skupovi-h1'>Nedavno posjećeni skupovi podataka</h1>
             </div>
             <div className="skupovi-podataka-grid">
-                {markedDatasets.map((skupPodataka) => (
+                {recentlyVisitedDatasets.map((skupPodataka) => (
                     <SkupPodatakaCard
-                            key={skupPodataka.id}
-                            id={skupPodataka.id}
-                            title={skupPodataka.title}
-                            url={skupPodataka.url}
-                            fetched_at={skupPodataka.modified ? new Date(skupPodataka.modified) : new Date()}
-                        />
+                        key={skupPodataka.id}
+                        {...skupPodataka}
+                    />
                 ))}
             </div>
             

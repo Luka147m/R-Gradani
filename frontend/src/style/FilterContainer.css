@@ -121,3 +121,31 @@
   border-color: cyan;
   box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
+
+.show-more-less-btn {
+  padding: 8px 12px 8px 12px;
+  margin-top: 24px;
+  background: #b983ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.select-all-btn{
+  padding: 4px 8px 4px 8px;
+  background: #6f42c1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}

@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { SkupPodatakaCard } from "./SkupPodatakaCard";
-import { mockInitData, type Dataset } from "../mockData";
 import { ArrowDownUp } from 'lucide-react';
 import { useSearch } from '../hooks/useSearch';
 import '../style/SearchPage.css';
+import { DataSet } from "../types/dataset";
+import api from '../api/axios.tsx'
 
 type SortOption = 'title-asc' | 'title-desc' | 'date-desc' | 'date-asc';
 
-const SearchResults = () => {
+type SearchResultsProps = {
+  allResults: DataSet[];
+  setAllResults: React.Dispatch<React.SetStateAction<DataSet[]>>;
+};
+
+const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
     const {
         searchTerm,
         selectedPublisherIds,
@@ -16,19 +22,27 @@ const SearchResults = () => {
         dateRange,
     } = useSearch();
     
-    const [results, setResults] = useState<Dataset[]>([]);
     const [sortOption, setSortOption] = useState<SortOption>('date-desc');
+    const [showAllDatasets, setShowAllDatasets] = useState(false);
+    const [filteredResults, setFilteredResults] = useState<DataSet[]>([]);
+
+
+    useEffect(() => {
+        api.get('/skupovi/nedavno').then((response) => {
+            setAllResults(response.data);        
+        });
+    }, [setAllResults]);
 
     useEffect(() => {
         const savedIds: string[] = JSON.parse(localStorage.getItem('savedDatasets') || '[]');
         const reportedIds: string[] = JSON.parse(localStorage.getItem('reportedDatasets') || '[]');
 
-        let filtered = mockInitData.result.latestDatasets.filter(d =>
-            d.title.toLowerCase().includes(searchTerm.toLowerCase())
+        let filtered = allResults.filter(d =>
+            (d.title ?? '').toLowerCase().includes(searchTerm.toLowerCase())
         );
 
         if (selectedPublisherIds.length > 0) {
-            filtered = filtered.filter(d => selectedPublisherIds.includes(d.publisher_id));
+            filtered = filtered.filter(d => selectedPublisherIds.includes(d.publisher_id ?? ''));
         }
 
         if (ignoreSaved) {
@@ -41,26 +55,25 @@ const SearchResults = () => {
 
         
         if (dateRange[0]) {
-            filtered = filtered.filter(d => new Date(d.created) >= new Date(dateRange[0]));
+            filtered = filtered.filter(d => new Date(d.created ?? 0) >= new Date(dateRange[0]));
         }
         if (dateRange[1]) {
             
             const endDate = new Date(dateRange[1]);
             endDate.setDate(endDate.getDate() + 1);
-            filtered = filtered.filter(d => new Date(d.created) < endDate);
+            filtered = filtered.filter(d => new Date(d.created ?? 0) < endDate);
         }
 
-        const sorted = sortResults(filtered, sortOption);
-        setResults(sorted);
-    }, [searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, dateRange]);
+        setFilteredResults(sortResults(filtered, sortOption));
+    }, [allResults, searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, dateRange]);
 
-    const sortResults = (data: Dataset[], option: SortOption): Dataset[] => {
+    const sortResults = (data: DataSet[], option: SortOption): DataSet[] => {
         const sorted = [...data];
         switch(option) {
-            case 'title-asc': return sorted.sort((a, b) => a.title.localeCompare(b.title));
-            case 'title-desc': return sorted.sort((a, b) => b.title.localeCompare(a.title));
-            case 'date-desc': return sorted.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
-            case 'date-asc': return sorted.sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime());
+            case 'title-asc': return sorted.sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''));
+            case 'title-desc': return sorted.sort((a, b) => (b.title ?? '').localeCompare(a.title ?? ''));
+            case 'date-desc': return sorted.sort((a, b) => new Date(b.created ?? 0).getTime() - new Date(a.created ?? 0).getTime());
+            case 'date-asc': return sorted.sort((a, b) => new Date(a.created ?? 0).getTime() - new Date(b.created ?? 0).getTime());
             default: return sorted;
         }
     };
@@ -68,7 +81,7 @@ const SearchResults = () => {
     return (
         <div className="search-results">
             <div className="title-and-sort">
-                <h2>{results.length} {results.length === 1 ? 'rezultat' : 'rezultata'} pretrage</h2>
+                <h2>{filteredResults.length} {filteredResults.length === 1 ? 'rezultat' : 'rezultata'} pretrage</h2>
                 <div className="sort-options">
                     <label htmlFor="sort-select"><ArrowDownUp /></label>
                     <select 
@@ -84,20 +97,34 @@ const SearchResults = () => {
                 </div>
             </div>
             <div className='search-result-grid'>
-                {results.length > 0 ? (
-                    results.slice(0, 10).map(dataset => (
+                {filteredResults.slice(0, 10).map(p => (
+                    <SkupPodatakaCard
+                        key={p.id}
+                        {...p}
+                    />
+                ))}
+                {showAllDatasets &&
+                    filteredResults.slice(10).map(p => (
                         <SkupPodatakaCard
-                            key={dataset.id}
-                            id={dataset.id}
-                            title={dataset.title}
-                            url={dataset.url}
-                            fetched_at={dataset.modified ? new Date(dataset.modified) : new Date()}
+                            key={p.id}
+                            {...p}
                         />
                     ))
-                ) : (
-                    <p>Nema rezultata za prikaz.</p>
+                }
+                
+                {filteredResults.length === 0 && (
+                    <div ><em>Nema rezultata za prikaz</em></div>
                 )}
             </div>
+            {filteredResults.length > 10 && (
+                <button
+                    type="button"
+                    className="show-more-less-btn"
+                    onClick={() => setShowAllDatasets(prev => !prev)}
+                >
+                    {showAllDatasets ? 'Prikaži manje' : 'Prikaži više'}
+                </button>
+            )}
         </div>
     );
 };

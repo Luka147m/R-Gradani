@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Home, LayoutDashboard, Search, ArrowLeft, X } from "lucide-react";
 import { IzdvojeniSkupoviPodataka } from '../components/IzdvojeniSkupoviPodataka';
 import { FilterContainer } from '../components/FilterContainer';
 import { SearchResults } from '../components/SearchResults';
 import { useSearch } from '../hooks/useSearch';
 import '../style/HomePage.css'
-import type { DataSet } from '../types/dataset';
 
-function HomePage() {
+function AdvancedFilterPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localSearchTerm, setLocalSearchTerm] = useState('');
-  const [allResults, setAllResults] = useState<DataSet[]>([]);
   
   const {
     isSearchActivated,
@@ -29,12 +28,12 @@ function HomePage() {
     } 
   }, [searchParams, setIsSearchActivated])
 
-  const handleSearchFocus = () => {
-    if(!isSearchActivated) {
-      setIsTransitioning(true);
-      setTimeout(() => setIsSearchActivated(true), 50);
-    }
-  }
+//   const handleSearchFocus = () => {
+//     if(!isSearchActivated) {
+//       setIsTransitioning(true);
+//       setTimeout(() => setIsSearchActivated(true), 50);
+//     }
+//   }
 
   const handleClearSearch = () => {
     setLocalSearchTerm('');
@@ -49,6 +48,11 @@ function HomePage() {
     setSearchTerm('');
     setSearchParams({});
   }
+
+  const handleAdvFilter = () => {
+    setLocalSearchTerm(localSearchTerm);
+    navigate('/search');
+  };
 
   return (
     <>
@@ -90,7 +94,7 @@ function HomePage() {
               type="text" 
               placeholder="Unesite naziv skupa podataka" 
               className="search-input search-container"
-              onFocus={handleSearchFocus}
+              onFocus={handleAdvFilter}
               value={localSearchTerm}
               onChange={(e) => setLocalSearchTerm(e.target.value)}
             />
@@ -108,14 +112,8 @@ function HomePage() {
         
         {isSearchActivated ? (
           <div className="search-results-container">
-            <FilterContainer
-              localSearchTerm={localSearchTerm}
-              setAllResults={setAllResults}
-            />
-            <SearchResults 
-              allResults={allResults} 
-              setAllResults={setAllResults}  
-            />
+            <FilterContainer localSearchTerm={localSearchTerm} />
+            <SearchResults />
           </div>
         ) : (
           <div className={isTransitioning ? 'izvojeni-skupovi-exit' : ''}>
@@ -128,4 +126,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default AdvancedFilterPage;

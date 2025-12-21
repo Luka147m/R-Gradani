@@ -107,8 +107,12 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
 
             <div className="text-box">
                 <p dangerouslySetInnerHTML={{ __html: content }}></p>
-                <hr/>
-                <p>Usvojenost: {usvojenost ? "Yes" : "No"}, Podudarnost: {podudarnost}</p>
+                {isFromComment ? null : (
+                    <div className="icons-bottom-left">
+                        <hr/>
+                        <p>Usvojenost: {usvojenost ? "Yes" : "No"}, Podudarnost: {podudarnost}%</p>
+                    </div>
+                )}
             </div>
             
         </div>
