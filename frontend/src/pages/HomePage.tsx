@@ -108,14 +108,13 @@ function HomePage() {
         
         {isSearchActivated ? (
           <div className="search-results-container">
-            <FilterContainer
-              localSearchTerm={localSearchTerm}
+            <FilterContainer 
+              localSearchTerm={localSearchTerm} 
               setAllResults={setAllResults}
             />
             <SearchResults 
-              allResults={allResults} 
-              setAllResults={setAllResults}  
-            />
+              allResults={allResults}
+              setAllResults={setAllResults} />
           </div>
         ) : (
           <div className={isTransitioning ? 'izvojeni-skupovi-exit' : ''}>

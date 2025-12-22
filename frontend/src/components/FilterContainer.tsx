@@ -1,20 +1,28 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Building, Calendar, Search, Settings } from 'lucide-react';
+
 import { useSearch } from '../hooks/useSearch';
 import { useSearchParams } from 'react-router-dom';
-import '../style/FilterContainer.css';
 import { Publisher } from '../types/publisher';
+
+
 import api from '../api/axios.tsx'
+
+
 import type { DataSet } from '../types/dataset';
+import '../style/FilterContainer.css';
+
 
 
 type FilterContainerProps = {
+
   localSearchTerm: string;
   setAllResults: React.Dispatch<React.SetStateAction<DataSet[]>>;
+
+
 };
 
-const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProps) => {
-  const [, setSearchParams] = useSearchParams();
+const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProps) => {  const [, setSearchParams] = useSearchParams();
   const {
     setSearchTerm,
     selectedPublisherIds,
@@ -42,26 +50,29 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
   const [publishers, setPublishers] = useState<Publisher[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
 
-
   useEffect(() => {
       api.get('/izdavaci').then((response) => {
           setPublishers(response.data);        
       });
+
+
   }, []);
 
-  
-  
   const normalize = (str: string) =>
     str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  
+
   const filteredPublisher = useMemo(
     () => publishers.filter(p => normalize(p.publisher ?? '').includes(normalize(publisherQuery))),
     [publisherQuery, publishers]
   );
-  
+
   const visiblePublishers = showAllPublishers
     ? filteredPublisher
     : filteredPublisher.slice(0, 5);
+
+
+
+
 
   const visiblePublisherIds = visiblePublishers.map(p => p.id);
 
@@ -78,6 +89,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
       }
     });
   };
+
 
   const togglePublisher = (id: string, checked: boolean) => {
     setTempPublisherIds(prev =>
@@ -105,7 +117,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
     setDateRange(tempDateRange);
     setIgnoreSaved(tempIgnoreSaved);
     setIgnoreReported(tempIgnoreReported);
-    
+
     const visiblePublishers = showAllPublishers
       ? filteredPublisher
       : filteredPublisher.slice(0, 5);
@@ -113,9 +125,9 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
     const checkedVisiblePublisherIds = visiblePublishers
       .filter(p => tempPublisherIds.includes(p.id))
       .map(p => p.id);
-    
+
     const response = await api.post('/skupovi/filter', { publisherIds: checkedVisiblePublisherIds });
-    setAllResults(response.data);    
+    setAllResults(response.data); 
   };
 
   return (
@@ -147,12 +159,13 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
               <input
                 type="checkbox"
                 id={`publisher-${p.id}`}
+                className="publisher-checkbox"
                 checked={tempPublisherIds.includes(p.id)}
                 onChange={e => togglePublisher(p.id, e.target.checked)}
               />
               <label htmlFor={`publisher-${p.id}`}>
                 {p.publisher}
-              </label>
+              </label>            
             </div>
           ))}
 

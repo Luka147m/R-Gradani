@@ -106,6 +106,7 @@ html, body {
   align-items: center;
   margin: 32px;
   padding: 0px;
+  width: auto;
 }
 
 .search-clear-button{
@@ -346,6 +347,16 @@ html, body {
   .publisher-card {
     min-height: 100px;
   }
+  .main-container{
+    width: 100%;
+  }
+  .ikona{
+    display: none;
+  }
+
+  .search-skupovi-h1{
+    font-size: 1.5em;
+  }
 }
 
 /* animacija */
@@ -402,12 +413,67 @@ html, body {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
 
-/* Fade out za IzdvojeniSkupoviPodataka */
+
 .izvojeni-skupovi-exit {
   animation: fadeOut 0.3s ease-in-out forwards;
 }
+.sidebar{
+  height: 100%;
+  border: 1px solid #333;
+  min-width: 35%;
+
+}
 
 
+.profile-page-container{
+  display: flex;
+  flex-direction: row;
+}
+
+
+@media (max-width: 1000px){
+  .profile-page-container{
+    flex-direction: column;
+    
+  }
+}
+
+.request-card {
+  
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #e3e6eb;
+  border-radius: 10px;
+  margin:10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.request-card h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.request-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.request-list li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.muted {
+  color: #7a869a;
+  margin: 0;
+}
+
+.comment-bubble-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 
 

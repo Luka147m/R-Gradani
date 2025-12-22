@@ -1,10 +1,10 @@
-import { SkupPodatakaCard} from './SkupPodatakaCard';
+import { DatasetCard } from './DatasetCard.tsx';
 import '../style/IzdvojeniSkupoviPodataka.css';
 import { BadgeAlert } from 'lucide-react';
 import '../style/HomePage.css'
 import { useState, useEffect } from 'react';
 
-//import { mockInitData }  from '../mockData.ts';
+
 import {DataSet} from '../types/dataset.ts'
 import api from '../api/axios.tsx'
 
@@ -21,11 +21,11 @@ export const IzdvojeniSkupoviPodataka = () => {
         <div className = "search-skupovi-div">
             <div className='ikona-naslov-div'>
                 <BadgeAlert className='ikona' />
-                <h1 className='search-skupovi-h1'>Nedavno obrađeni skupovi podataka</h1>
+                <h1 className='search-skupovi-h1'>Skupovi podataka</h1>
             </div>
             <div className="skupovi-podataka-grid">
                 {datasets.map((skupPodataka) => (
-                    <SkupPodatakaCard
+                    <DatasetCard
                         key={skupPodataka.id}
                         {...skupPodataka}
                     />

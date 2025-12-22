@@ -19,6 +19,16 @@
   gap: 16px;
 }
 
+.marked-datasets {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (max-width: 1000px) {
+  .skupovi-podataka-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 
 .skup-podataka-card {
   position: relative;
@@ -27,7 +37,8 @@
   color: white;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid white;
-  aspect-ratio: 3 / 1;
+  min-height: 100px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

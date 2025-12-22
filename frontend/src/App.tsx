@@ -14,6 +14,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/dataset/:id" element={<DatasetPage />} />
           <Route path="/search" element={<AdvancedFilterPage />} />
+          
         </Routes>
       </Router>
     </SearchProvider>

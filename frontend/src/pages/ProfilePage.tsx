@@ -1,65 +1,116 @@
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from "react-router-dom";
 import { Home, LayoutDashboard } from "lucide-react";
 import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
-import {MarkedDatasets} from '../components/MarkedDatasets';
-
+import { MarkedDatasets } from '../components/MarkedDatasets';
+import {  CommentBubble } from '../components/CommentBubble.tsx';
 import '../style/HomePage.css'
 
-function ProfilePage() {
-  
-    const [selected, setSelected] = useState<"home" | "profile">("profile");
+interface RequestData {
+  content: string;
+  isFromComment: boolean;
+  usvojenost: boolean;
+  podudarnost: number;
+}
 
-    const savedRequests = JSON.parse(localStorage.getItem('savedRequests') || '[]');
-    const reportedRequests = JSON.parse(localStorage.getItem('reportedRequests') || '[]');
+function ProfilePage() {
+  const [selected, setSelected] = useState<"home" | "profile">("profile");
+  const [savedRequests, setSavedRequests] = useState<RequestData[]>([]);
+  const [reportedRequests, setReportedRequests] = useState<RequestData[]>([]);
+
+  // seed + load
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('savedRequests') || '[]');
+    const reported = JSON.parse(localStorage.getItem('reportedRequests') || '[]');
+
+      if(Array.isArray(saved)){
+      setSavedRequests(saved);
+      
+    } else {
+      setSavedRequests([]);
+    }
+
+    if(Array.isArray(reported)){
+      setReportedRequests(reported);
+    } else {
+      setReportedRequests([]);
+    }
+    
+
+  
+    
+    
+  }, []);
 
   return (
     <>
-
       <div className="home-profile-selector">
         <Link to="/">
-            <button
+          <button
             className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
             onClick={() => setSelected("home")}
-            >
+          >
             <Home size={24} />
-            </button>
+          </button>
         </Link>
         <Link to="/profile">
           <button
             className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
             onClick={() => setSelected("profile")}
-            
-              
           >
-            <LayoutDashboard  
-              size={24} 
-              />
+            <LayoutDashboard size={24} />
           </button>
         </Link>
       </div>
-      <div className="main-container">
-        
-        <RecentlyVisitedDatasets />
-        <MarkedDatasets />
 
-        <label htmlFor="savedRequests">Saved Requests</label>
-        <textarea
-            id="savedRequests"
-            value={`-${savedRequests.join('\n\n-')}`}
-            readOnly
-            style={{ width: '100%', height: '200px', marginTop: '10px' }}
-        />
+      <div className="main-container profile-page-container">
+        <div className="sidebar">
+          <MarkedDatasets />
+        </div>
 
-        <label htmlFor="reportedRequests">Reported Requests</label>
-        <textarea
-            id="reportedRequests"
-            value={`-${reportedRequests.join('\n\n-')}`}
-            readOnly
-            style={{ width: '100%', height: '200px', marginTop: '10px' }}
-        />
-        
+        <div className="main-side">
+          <RecentlyVisitedDatasets />
+
+          <div className="request-card">
+            <h2>Spremljeni zahtjevi</h2>
+            {savedRequests.length === 0 ? (
+              <p className="muted">Nema spremljenih zahtjeva.</p>
+            ) : (
+              <div className="comment-bubble-list">
+                {savedRequests.map((req, idx) => (
+                  <CommentBubble
+                    key={`saved-${idx}`}
+                    content={req.content}
+                    isFromComment={true}
+                    usvojenost={req.usvojenost}
+                    podudarnost={req.podudarnost}
+                    isProfilePage={true}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="request-card">
+            <h2>Prijavljeni zahtjevi</h2>
+            {reportedRequests.length === 0 ? (
+              <p className="muted">Nema prijavljenih zahtjeva.</p>
+            ) : (
+              <div className="comment-bubble-list">
+                {reportedRequests.map((req, idx) => (
+                  <CommentBubble
+                    key={`reported-${idx}`}
+                    content={req.content}
+                    isFromComment={true}
+                    usvojenost={req.usvojenost}
+                    podudarnost={req.podudarnost}
+                    isProfilePage={true}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

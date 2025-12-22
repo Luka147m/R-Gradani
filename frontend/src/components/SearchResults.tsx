@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { SkupPodatakaCard } from "./SkupPodatakaCard";
+import { DatasetCard } from "./DatasetCard";
 import { ArrowDownUp } from 'lucide-react';
 import { useSearch } from '../hooks/useSearch';
 import '../style/SearchPage.css';
-import { DataSet } from "../types/dataset";
-import api from '../api/axios.tsx'
+import type { DataSet } from "../types/dataset";
+import api from "../api/axios.tsx";
 
 type SortOption = 'title-asc' | 'title-desc' | 'date-desc' | 'date-asc';
 
@@ -26,10 +26,9 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
     const [showAllDatasets, setShowAllDatasets] = useState(false);
     const [filteredResults, setFilteredResults] = useState<DataSet[]>([]);
 
-
     useEffect(() => {
         api.get('/skupovi/nedavno').then((response) => {
-            setAllResults(response.data);        
+            setAllResults(response.data);
         });
     }, [setAllResults]);
 
@@ -37,13 +36,12 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
         const savedIds: string[] = JSON.parse(localStorage.getItem('savedDatasets') || '[]');
         const reportedIds: string[] = JSON.parse(localStorage.getItem('reportedDatasets') || '[]');
 
-        let filtered = allResults.filter(d =>
-            (d.title ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+        let filtered = allResults.filter(d => 
+            (d.title ?? '').toLowerCase().includes(searchTerm.toLowerCase()) 
         );
 
         if (selectedPublisherIds.length > 0) {
-            filtered = filtered.filter(d => selectedPublisherIds.includes(d.publisher_id ?? ''));
-        }
+            filtered = filtered.filter(d => selectedPublisherIds.includes(d.publisher_id ?? ''));        }
 
         if (ignoreSaved) {
             filtered = filtered.filter(d => !savedIds.includes(d.id));
@@ -66,7 +64,6 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
 
         setFilteredResults(sortResults(filtered, sortOption));
     }, [allResults, searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, dateRange]);
-
     const sortResults = (data: DataSet[], option: SortOption): DataSet[] => {
         const sorted = [...data];
         switch(option) {
@@ -97,21 +94,14 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
                 </div>
             </div>
             <div className='search-result-grid'>
-                {filteredResults.slice(0, 10).map(p => (
-                    <SkupPodatakaCard
-                        key={p.id}
-                        {...p}
-                    />
-                ))}
-                {showAllDatasets &&
-                    filteredResults.slice(10).map(p => (
-                        <SkupPodatakaCard
-                            key={p.id}
-                            {...p}
+                {filteredResults.slice(0, 10).map(dataset => (
+                        <DatasetCard
+                            key={dataset.id}
+                            {...dataset}
                         />
                     ))
                 }
-                
+
                 {filteredResults.length === 0 && (
                     <div ><em>Nema rezultata za prikaz</em></div>
                 )}

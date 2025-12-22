@@ -5,7 +5,8 @@ import React from 'react';
 import {useState, useEffect} from 'react';
 import {DataSet} from '../types/dataset'
 
-export const SkupPodatakaCard: React.FC<DataSet> = (props) => {
+
+export const DatasetCard: React.FC<DataSet> = (props) => {
     const { id, title, url, created } = props;
     const dataset = { title, url, created };
 
@@ -59,7 +60,9 @@ export const SkupPodatakaCard: React.FC<DataSet> = (props) => {
                 style={{ color: 'inherit', textDecoration: 'none' }}
                 onClick={updateRecentlyVisited}
                 state={{ id, name: dataset.title, url: dataset.url, created: dataset.created }}>
-                <h3 onClick={updateRecentlyVisited}>{dataset.title}</h3>
+                <h3 
+                    onClick={updateRecentlyVisited}
+                    style={{width: "88%"}}>{dataset.title}</h3>
             </Link>
             <p className="datum">{dataset.created instanceof Date ? dataset.created.toLocaleDateString() : dataset.created}</p>
             <a href={dataset.url || '#'} className="link" target="_blank" rel="noreferrer">
