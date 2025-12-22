@@ -105,7 +105,16 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
                 {filteredResults.length === 0 && (
                     <div ><em>Nema rezultata za prikaz</em></div>
                 )}
-            </div>
+                {showAllDatasets &&
+                    filteredResults.slice(10).map(p => (
+                        <DatasetCard
+                            key={p.id}
+                            {...p}
+                        />
+                    ))
+                }
+
+                </div>
             {filteredResults.length > 10 && (
                 <button
                     type="button"
