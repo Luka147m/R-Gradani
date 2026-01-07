@@ -120,24 +120,32 @@ async function insertKomentar(discussions: Discussion[]) {
     console.log('Inserting comments...');
 
     for (const disc of discussions) {
-        await prisma.komentar.upsert({
-            where: { id: BigInt(disc.id) },
-            update: {
-                user_id: BigInt(disc.user_id),
-                skup_id: disc.skup_id,
-                created: disc.created,
-                subject: disc.subject,
-                message: disc.message
-            },
-            create: {
-                id: BigInt(disc.id),
-                user_id: BigInt(disc.user_id),
-                skup_id: disc.skup_id,
-                created: disc.created,
-                subject: disc.subject,
-                message: disc.message
-            }
+        const existing = await prisma.komentar.findFirst({
+            where: { import_id: disc.id ? BigInt(disc.id) : undefined },
         });
+
+        if (existing) {
+            await prisma.komentar.update({
+                where: { id: existing.id },
+                data: {
+                    subject: disc.subject,
+                    message: disc.message,
+                },
+            });
+        } else {
+            await prisma.komentar.create({
+                data: {
+                    import_source: 'mbz',
+                    import_id: BigInt(disc.id),
+                    user_id: BigInt(disc.user_id),
+                    skup_id: disc.skup_id,
+                    created: disc.created,
+                    subject: disc.subject,
+                    message: disc.message,
+                },
+            });
+        }
+
     }
 
     console.log(`Inserted ${discussions.length} comments`);

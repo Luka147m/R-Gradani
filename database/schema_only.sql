@@ -2,12 +2,15 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.0
--- Dumped by pg_dump version 16.0
+\restrict QU4V3h2EUeQYwKJJvANzsTQpYseebeO7rC5WFKdEnwqPSce764wf1qQsyF4Zj7M
+
+-- Dumped from database version 17.7
+-- Dumped by pg_dump version 17.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -43,11 +46,48 @@ CREATE TABLE public.komentar (
     skup_id text,
     created timestamp without time zone,
     subject text,
-    message text
+    message text,
+    import_id bigint,
+    import_source text NOT NULL
 );
 
 
 ALTER TABLE public.komentar OWNER TO postgres;
+
+--
+-- Name: komentar_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.komentar_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.komentar_id_seq OWNER TO postgres;
+
+--
+-- Name: komentar_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.komentar_id_seq OWNED BY public.komentar.id;
+
+
+--
+-- Name: komentar_import_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.komentar_import_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.komentar_import_id_seq OWNER TO postgres;
 
 --
 -- Name: odgovor; Type: TABLE; Schema: public; Owner: postgres
@@ -151,6 +191,13 @@ CREATE TABLE public.slika (
 ALTER TABLE public.slika OWNER TO postgres;
 
 --
+-- Name: komentar id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.komentar ALTER COLUMN id SET DEFAULT nextval('public.komentar_id_seq'::regclass);
+
+
+--
 -- Name: odgovor id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -206,10 +253,25 @@ ALTER TABLE ONLY public.slika
 
 
 --
+-- Name: komentar unique_alternative_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.komentar
+    ADD CONSTRAINT unique_alternative_key UNIQUE (import_id);
+
+
+--
 -- Name: idx_skup_tags; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX idx_skup_tags ON public.skup_podataka USING gin (tags);
+
+
+--
+-- Name: komentar_import_unique; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX komentar_import_unique ON public.komentar USING btree (import_source, import_id) WHERE (import_id IS NOT NULL);
 
 
 --
@@ -255,4 +317,6 @@ ALTER TABLE ONLY public.slika
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict QU4V3h2EUeQYwKJJvANzsTQpYseebeO7rC5WFKdEnwqPSce764wf1qQsyF4Zj7M
 

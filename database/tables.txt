@@ -71,3 +71,5 @@ psql -h localhost -p 5432 -U postgres -d r-gradani
 pg_dump -U postgres -h localhost -p 5432 -s -f r-gradani-schema.sql r-gradani
 
 pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f r-gradani.backup r-gradani
+
+-- dodana 2 atributa u komentar za pomoc priliku importa

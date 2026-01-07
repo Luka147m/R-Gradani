@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as commentsService from "./comments.service";
+import { create } from "domain";
 
 export const getCommentById = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -28,3 +29,12 @@ export const getLatestAnalyzedComments = async (req: Request, res: Response) => 
     res.status(500).json({ message: `${error}` });
   }
 };
+
+export const createComment = async (req: Request, res: Response) => {
+  try {
+    const newComment = await commentsService.createComment(req.body);
+    res.status(201).json(newComment);
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
+  }
+}

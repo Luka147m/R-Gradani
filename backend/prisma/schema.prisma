@@ -15,12 +15,14 @@ model izdavac {
 }
 
 model komentar {
-  id            BigInt         @id
+  id            BigInt         @id @default(autoincrement())
   user_id       BigInt?
   skup_id       String?
   created       DateTime?      @db.Timestamp(6)
   subject       String?
   message       String?
+  import_id     BigInt?        @unique(map: "unique_alternative_key")
+  import_source String
   skup_podataka skup_podataka? @relation(fields: [skup_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   odgovor       odgovor[]
   slika         slika[]
