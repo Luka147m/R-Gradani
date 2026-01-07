@@ -32,9 +32,19 @@ export const getLatestAnalyzedComments = async (req: Request, res: Response) => 
 
 export const createComment = async (req: Request, res: Response) => {
   try {
-    const newComment = await commentsService.createComment(req.body);
+    const { subject, text, skupId } = req.body;
+
+    if (!subject || !text || !skupId) {
+      return res.status(400).json({
+        message: "Missing required fields: subject, text, and skupId are required.",
+      });
+    }
+
+    const newComment = await commentsService.createComment({ subject, text, skupId });
+
     res.status(201).json(newComment);
   } catch (error) {
-    res.status(500).json({ message: `${error}` });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};

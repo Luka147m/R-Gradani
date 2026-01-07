@@ -49,6 +49,8 @@ paths:
     $ref: './paths/comments/getLatestAnalyzed.yaml'
   /api/komentari/{id}:
     $ref: './paths/comments/getById.yaml'
+  /api/komentari:
+    $ref: './paths/comments/create.yaml'
   /api/odgovori/komentar/{commentId}:
     $ref: './paths/responses/getByCommentId.yaml'
   /api/odgovori/{id}:
