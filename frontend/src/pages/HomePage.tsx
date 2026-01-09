@@ -7,6 +7,7 @@ import { SearchResults } from '../components/SearchResults';
 import { useSearch } from '../hooks/useSearch';
 import '../style/HomePage.css'
 import type { DataSet } from '../types/dataset';
+import ApiButton from '../components/ApiButton';
 
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,8 +51,14 @@ function HomePage() {
     setSearchParams({});
   }
 
+
+  const handleToDocs = () => {
+    window.open('https://r-gradani-backend.onrender.com/docs/', '_blank');
+  }
+
   return (
     <>
+      {!isSearchActivated && <ApiButton apiCall={handleToDocs} className="docs-button">Dokumentacija</ApiButton>}
       <div className="home-profile-selector">
         <Link to="/">
           <button
@@ -68,6 +75,9 @@ function HomePage() {
             <LayoutDashboard size={24} />
           </button>
         </Link>
+
+        
+        
       </div>
 
       <div className={`main-container ${isSearchActivated ? 'search-active' : ''}`}>

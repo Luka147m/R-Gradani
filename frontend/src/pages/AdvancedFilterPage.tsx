@@ -6,12 +6,14 @@ import { FilterContainer } from '../components/FilterContainer';
 import { SearchResults } from '../components/SearchResults';
 import { useSearch } from '../hooks/useSearch';
 import '../style/HomePage.css'
+import type { DataSet } from '../types/dataset';
 
 function AdvancedFilterPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localSearchTerm, setLocalSearchTerm] = useState('');
+  const [allResults, setAllResults] = useState<DataSet[]>([]);
   
   const {
     isSearchActivated,
@@ -112,8 +114,14 @@ function AdvancedFilterPage() {
         
         {isSearchActivated ? (
           <div className="search-results-container">
-            <FilterContainer localSearchTerm={localSearchTerm} />
-            <SearchResults />
+            <FilterContainer 
+              localSearchTerm={localSearchTerm} 
+              setAllResults={setAllResults}
+            />
+            <SearchResults 
+              allResults={allResults}
+              setAllResults={setAllResults}
+            />
           </div>
         ) : (
           <div className={isTransitioning ? 'izvojeni-skupovi-exit' : ''}>

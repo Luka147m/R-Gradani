@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import "./Button.css";
+import "../style/Button.css";
 
 type ApiButtonProps = {
-  apiCall: () => Promise<unknown>;
+  apiCall: () => Promise<unknown> | void;
   children: React.ReactNode;
   className?: string;
 };
 
-const ApiButton: React.FC<ApiButtonProps> = ({ apiCall, children, className = "" }) => {
+const ApiButton: React.FC<ApiButtonProps> = ({ apiCall, children, className = ""}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +26,7 @@ const ApiButton: React.FC<ApiButtonProps> = ({ apiCall, children, className = ""
 
   return (
     <div className="api-button-wrapper">
-      <button onClick={handleClick} disabled={loading} className={`btn ${className}`}>
+      <button onClick={handleClick} disabled={loading} className={`api-button ${className}`}>
         {loading ? "Loading..." : children}
       </button>
       {error && <div className="error">{error}</div>}

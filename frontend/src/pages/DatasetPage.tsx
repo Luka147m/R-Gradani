@@ -1,6 +1,7 @@
 import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CommentCard from "../components/CommentCard";
+import ApiButton from "../components/ApiButton";
 import {MessageCircle} from "lucide-react";
 import "../style/DatasetPage.css";
 //import type { Reply } from "../Reply";
@@ -68,11 +69,24 @@ const DatasetPage = () => {
 
   }, [comments]);
 
+
+  const datasetRefresh = () => {
+    const pageRefresh = async () => {
+      // try {
+      //   await api.post(`/skupovi/${id}/osvjezi`);
+      // } catch (err) {
+      //   const message = err instanceof Error ? err.message : "Something went wrong";
+      //   setError(message);
+      // }
+    }
+    return pageRefresh();
+  }
+
   return (
     <div className="main-container">
       <h1 className="dataset-title">{name}</h1>
       <a href={url}><h3 className="dataset-url">{url}</h3></a>
-      
+      <ApiButton apiCall={datasetRefresh} className="api-button">Osvježi</ApiButton>
       <label className="pregled-komentara-lable">
         <MessageCircle size={24} /> 
         <h2>Pregled komentara</h2>
