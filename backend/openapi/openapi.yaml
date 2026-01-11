@@ -37,6 +37,8 @@ paths:
     $ref: './paths/datasets/search.yaml'
   /api/skupovi/filter:
     $ref: './paths/datasets/filter.yaml'
+  /api/skupovi/{id}/refresh:
+    $ref: './paths/datasets/refresh.yaml'
   /api/init:
     $ref: './paths/init.yaml'
   /api/izdavaci:

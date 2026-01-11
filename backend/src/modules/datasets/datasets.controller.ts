@@ -118,3 +118,16 @@ export const getCommentsByDatasetId = async (req: Request, res: Response) => {
   }
 };
 
+export const refreshDatasetData = async (req: Request, res: Response) => {
+  try {
+    const ok = await datasetsService.refreshDatasetData(req.params.id);
+
+    if (!ok) {
+      return res.sendStatus(404);
+    }
+
+    return res.sendStatus(204);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};

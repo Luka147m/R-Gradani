@@ -17,4 +17,6 @@ router.post('/filter', datasetsController.getDatasetsByTagsOrPublishers);
 
 router.use('/:id/komentari', datasetsController.getCommentsByDatasetId);
 
+router.post('/:id/refresh', datasetsController.refreshDatasetData);
+
 export default router;

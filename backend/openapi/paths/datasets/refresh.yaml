@@ -1,0 +1,19 @@
+post:
+  summary: Refresh a dataset by ID
+  description: Triggers a refresh of the dataset with the given ID. The API will fetch the latest data from the external source and update the database.
+  tags:
+    - Datasets
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: The unique identifier of the dataset to refresh. Example id - "703e1cf4-61d6-4ea9-869a-098a4d184636".
+  responses:
+    '204':
+      description: Dataset refreshed successfully. No content is returned.
+    '404':
+      description: Dataset with the given ID not found.
+    '500':
+      description: Internal server error occurred while refreshing the dataset.
