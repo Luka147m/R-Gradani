@@ -1,0 +1,129 @@
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Home, LayoutDashboard, Search, ArrowLeft, X } from "lucide-react";
+import { IzdvojeniSkupoviPodataka } from '../components/IzdvojeniSkupoviPodataka';
+import { FilterContainer } from '../components/FilterContainer';
+import { SearchResults } from '../components/SearchResults';
+import { useSearch } from '../hooks/useSearch';
+import '../style/HomePage.css'
+
+function AdvancedFilterPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
+  
+  const {
+    isSearchActivated,
+    setIsSearchActivated,
+    setSearchTerm, 
+  } = useSearch();
+
+  useEffect(() => {
+    const query = searchParams.get('q') || '';
+    if(query) {
+      setLocalSearchTerm(query);
+      setIsTransitioning(true);
+      setTimeout(() => setIsSearchActivated(true), 50);
+    } 
+  }, [searchParams, setIsSearchActivated])
+
+//   const handleSearchFocus = () => {
+//     if(!isSearchActivated) {
+//       setIsTransitioning(true);
+//       setTimeout(() => setIsSearchActivated(true), 50);
+//     }
+//   }
+
+  const handleClearSearch = () => {
+    setLocalSearchTerm('');
+    setSearchTerm(''); // Prikaži sve rezultate
+    setSearchParams({}); // Ukloni ?q= iz URL-a
+  }
+
+  const handleToHome = () => {
+    setIsTransitioning(false);
+    setIsSearchActivated(false);
+    setLocalSearchTerm('');
+    setSearchTerm('');
+    setSearchParams({});
+  }
+
+  const handleAdvFilter = () => {
+    setLocalSearchTerm(localSearchTerm);
+    navigate('/search');
+  };
+
+  return (
+    <>
+      <div className="home-profile-selector">
+        <Link to="/">
+          <button
+            className={`selector-btn ${!isSearchActivated ? "active-home" : ""}`}
+            onClick={handleToHome}
+          >
+            <Home size={24} />
+          </button>
+        </Link>
+        <Link to="/profile">
+          <button
+            className={`selector-btn profile-btn`}
+          >
+            <LayoutDashboard size={24} />
+          </button>
+        </Link>
+      </div>
+
+      <div className={`main-container ${isSearchActivated ? 'search-active' : ''}`}>
+        <div className='search-skupovi-div'>
+          <div className='ikona-naslov-div'>
+            <Search className="ikona"/>
+            <h1 className='search-skupovi-h1'>Pretražite skupove podataka</h1>
+          </div>
+          <div className="search">
+            {isSearchActivated && (
+              <button 
+                className="search-back-button" 
+                type="button"
+                onClick={handleToHome}
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
+            <input 
+              type="text" 
+              placeholder="Unesite naziv skupa podataka" 
+              className="search-input search-container"
+              onFocus={handleAdvFilter}
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
+            />
+            {localSearchTerm && (
+              <button 
+                className="search-clear-button" 
+                type="button"
+                onClick={handleClearSearch}
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {isSearchActivated ? (
+          <div className="search-results-container">
+            <FilterContainer localSearchTerm={localSearchTerm} />
+            <SearchResults />
+          </div>
+        ) : (
+          <div className={isTransitioning ? 'izvojeni-skupovi-exit' : ''}>
+            <IzdvojeniSkupoviPodataka />
+          </div>
+        )}
+        
+      </div>
+    </>
+  );
+}
+
+export default AdvancedFilterPage;

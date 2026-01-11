@@ -1,0 +1,123 @@
+.izdvojeni-skupovi-podataka {
+  padding: 10px;
+  color: white;
+}
+
+.izdvojeni-skupovi-podataka h1 {
+  font-size: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skupovi-podataka-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.marked-datasets {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (max-width: 1000px) {
+  .skupovi-podataka-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+.skup-podataka-card {
+  position: relative;
+  background-color: #bb86fc;
+  padding: 14px 16px;
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid white;
+  min-height: 100px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.analiza-card:hover,
+.skup-podataka-card:hover,
+.skup-podatka-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.save-icon-dataset {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: white;
+  cursor: pointer;
+  background-color: black;
+  border-radius: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.analiza-card h3,
+.skup-podataka-card h3,
+.skup-podatka-card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.analiza-card h3:hover,
+.skup-podataka-card h3:hover,
+.skup-podatka-card h3:hover{
+  cursor: pointer;
+
+}
+
+.analiza-card .datum,
+.skup-podataka-card .datum,
+.skup-podatka-card .datum {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 3px;
+}
+
+.analiza-card a,
+.skup-podataka-card a,
+.skup-podatka-card a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.analiza-card a:hover,
+.skup-podataka-card a:hover,
+.skup-podatka-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 750px) {
+  .skupovi-podataka-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .main-container {
+    padding: 0px;
+  }
+  .skupovi-podataka-grid {
+    gap: 12px;
+    width: 100%;
+  }
+}
