@@ -72,12 +72,10 @@ const DatasetPage = () => {
 
   const datasetRefresh = () => {
     const pageRefresh = async () => {
-      try {
-        await api.post(`/skupovi/${id}/refresh`);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Something went wrong";
-        setError(message);
-      }
+      await api.post(`/skupovi/${id}/refresh`);
+      
+      const response = await api.get(`/skupovi/${id}/komentari`);
+      setComments(response.data);
     }
     return pageRefresh();
   }
