@@ -4,11 +4,11 @@ import '../style/IzdvojeniSkupoviPodataka.css';
 import { Bookmark } from 'lucide-react';
 import '../style/HomePage.css'
 import api from '../api/axios.tsx'
-import type { DataSet } from '../types/dataset.ts';
+import type { getDatasetDTO } from '../DTOs/getDatasetDTO.ts';
 import ApiButton from './ApiButton.tsx';
 
 export const MarkedDatasets = () => {
-    const [markedDatasets, setMarkedDatasets] = useState<DataSet[]>([]);
+    const [markedDatasets, setMarkedDatasets] = useState<getDatasetDTO[]>([]);
     const [importIsSelected, setImportIsSelected] = useState<boolean>(false);
     const [file, setFile] = useState<File | null>(null);
 

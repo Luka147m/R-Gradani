@@ -5,16 +5,10 @@ import ApiButton from "../components/ApiButton";
 import {MessageCircle} from "lucide-react";
 import "../style/DatasetPage.css";
 //import type { Reply } from "../Reply";
-import { Comment } from "../types/comment"
-import { FetchedReplies } from "../types/fetchedReplies";
+import { getCommentRepliesDTO } from "../DTOs/getCommentRepliesDTO.ts";
+import { getCommentDTO } from "../DTOs/getCommentDTO.ts";
+import { DatasetState } from "../DTOs/datasetStateDTO.ts";
 import api from "../api/axios"
-
-type DatasetState = {
-  id?: string;
-  name?: string;
-  url?: string;
-  created?: string;
-};
 
 const DatasetPage = () => {
   const [error, setError] = useState<string | null>(null);
@@ -29,14 +23,14 @@ const DatasetPage = () => {
   const created = state.created ?? params.created;
   console.log(created)
 
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<getCommentDTO[]>([]);
   useEffect(() => {
       api.get(`/skupovi/${id}/komentari`).then((response) => {
           setComments(response.data);
       });
   }, [id]);
 
-  const [replies, setReplies] = useState<FetchedReplies[]>([]);
+  const [replies, setReplies] = useState<getCommentRepliesDTO[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -51,10 +45,10 @@ const DatasetPage = () => {
         const results = await Promise.all(answerPromises);
 
         // Extract data from each response
-        const allAnswers: FetchedReplies[] = results.flatMap(
+        const allAnswers: getCommentRepliesDTO[] = results.flatMap(
           (res) => res.data
         );
-        console.log(allAnswers);
+
         setReplies(allAnswers);
       } catch (err) {
         console.error("Failed to fetch answers:", err);

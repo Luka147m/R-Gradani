@@ -3,14 +3,14 @@ import { DatasetCard } from "./DatasetCard";
 import { ArrowDownUp } from 'lucide-react';
 import { useSearch } from '../hooks/useSearch';
 import '../style/SearchPage.css';
-import type { DataSet } from "../types/dataset";
+import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import api from "../api/axios.tsx";
 
 type SortOption = 'title-asc' | 'title-desc' | 'date-desc' | 'date-asc';
 
 type SearchResultsProps = {
-  allResults: DataSet[];
-  setAllResults: React.Dispatch<React.SetStateAction<DataSet[]>>;
+  allResults: getDatasetDTO[];
+  setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
 };
 
 const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
@@ -24,7 +24,7 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
     
     const [sortOption, setSortOption] = useState<SortOption>('date-desc');
     const [showAllDatasets, setShowAllDatasets] = useState(false);
-    const [filteredResults, setFilteredResults] = useState<DataSet[]>([]);
+    const [filteredResults, setFilteredResults] = useState<getDatasetDTO[]>([]);
 
     useEffect(() => {
         api.get('/skupovi/nedavno').then((response) => {
@@ -64,7 +64,7 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
 
         setFilteredResults(sortResults(filtered, sortOption));
     }, [allResults, searchTerm, selectedPublisherIds, sortOption, ignoreSaved, ignoreReported, dateRange]);
-    const sortResults = (data: DataSet[], option: SortOption): DataSet[] => {
+    const sortResults = (data: getDatasetDTO[], option: SortOption): getDatasetDTO[] => {
         const sorted = [...data];
         switch(option) {
             case 'title-asc': return sorted.sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''));

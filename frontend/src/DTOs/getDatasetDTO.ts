@@ -1,4 +1,4 @@
-export class DataSet {
+export class getDatasetDTO {
   id!: string;
   title?: string | null;
   refresh_frequency?: string | null;

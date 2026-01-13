@@ -3,13 +3,13 @@ import { Building, Calendar, Search, Settings } from 'lucide-react';
 
 import { useSearch } from '../hooks/useSearch';
 import { useSearchParams } from 'react-router-dom';
-import { Publisher } from '../types/publisher';
+import { getPublisherDTO } from '../DTOs/getPublisherDTO.ts';
 
 
 import api from '../api/axios.tsx'
 
 
-import type { DataSet } from '../types/dataset';
+import type { getDatasetDTO } from '../DTOs/getDatasetDTO.ts';
 import '../style/FilterContainer.css';
 
 
@@ -17,7 +17,7 @@ import '../style/FilterContainer.css';
 type FilterContainerProps = {
 
   localSearchTerm: string;
-  setAllResults: React.Dispatch<React.SetStateAction<DataSet[]>>;
+  setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
 
 
 };
@@ -47,7 +47,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
 
-  const [publishers, setPublishers] = useState<Publisher[]>([]);
+  const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
 
   useEffect(() => {
