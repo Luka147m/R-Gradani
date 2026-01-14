@@ -12,10 +12,14 @@ import api from "../api/axios"
 
 const DatasetPage = () => {
   const [error, setError] = useState<string | null>(null);
+  const [isAddingComement, setIsAddingComment] = useState(false);
+  const [newCommentTitle, setNewCommentTitle] = useState("");
+  const [newCommentText, setNewCommentText] = useState("");
   console.log(error, setError)
   const params = useParams();
   const location = useLocation();
   const state = (location.state || {}) as DatasetState;
+  
   
   const id = state.id ?? params.id;
   const name = state.name ?? params.name;
@@ -74,6 +78,27 @@ const DatasetPage = () => {
     return pageRefresh();
   }
 
+  const submitAddComment = () => {
+    const addComment = async () => {
+      if (newCommentTitle.trim() === "" || newCommentText.trim() === "") {
+        alert("Naslov i tekst komentara ne smiju biti prazni.");
+        return;
+      }
+      api.post(`/komentari`, {
+        title: newCommentTitle,
+        message: newCommentText,
+        skup_id: id
+      });
+      
+      setIsAddingComment(false);
+      const response = await api.get(`/skupovi/${id}/komentari`);
+      setComments(response.data);
+    }
+    return addComment();
+  }
+  
+
+
   return (
     <div className="main-container">
       <h1 className="dataset-title">{name}</h1>
@@ -83,6 +108,36 @@ const DatasetPage = () => {
         <MessageCircle size={24} /> 
         <h2>Pregled komentara</h2>
       </label>
+      <ApiButton 
+        apiCall={() => setIsAddingComment(true)} 
+        className="add-comment-button">
+        Dodaj komentar
+      </ApiButton>
+      {isAddingComement && (
+        <div className="add-comment-overlay">
+          <div className="add-comment-card">
+            <button 
+              className="close-button"
+              onClick={() => setIsAddingComment(false)}>
+              ✕
+            </button>
+            <h2 style={{ fontSize: "2em" }}>Dodavanje komentara</h2>
+            <input 
+              type="text" 
+              placeholder="Naslov komentara..."
+              className="comment-input"
+              onChange={(e) => setNewCommentTitle(e.target.value)}
+            />
+            <textarea 
+              placeholder="Unesite komentar..."
+              className="comment-textarea"
+              onChange={(e) => setNewCommentText(e.target.value)}
+            />
+            <ApiButton className="submit-button" apiCall={submitAddComment}>Pošalji</ApiButton>
+          </div>
+
+        </div>
+      )}
 
       <div className="comments">
         {loading && <p>Loading analyses...</p>}

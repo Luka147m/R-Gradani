@@ -126,3 +126,66 @@
   margin: 32px;
   padding: 0px;
 }
+
+/* ----------- Add Comment Overlay Styles ----------- */
+
+.add-comment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    background-color: rgba(0, 0, 0, 0.9); /* Darker background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.add-comment-card {
+    background-color: #1e1e1e; /* Dark background for the card */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.comment-input, .comment-textarea {
+    background-color: #a7a7a7; /* Light gray background */
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.comment-textarea {
+    resize: vertical;
+    height: 200px;
+}
+
+.submit-button {
+    background-color: #ffffff; /* White button */
+    color: #000000; /* Black text */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #f0f0f0; /* Light gray on hover */
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    align-self: flex-end;
+    color: #a7a7a7; 
+}
