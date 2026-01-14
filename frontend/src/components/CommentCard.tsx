@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CommentBubble } from './CommentBubble';
 
-import {Sparkles, TextSelect, HatGlasses} from 'lucide-react';
+import {Sparkles, TextSelect, MessageCircleDashed } from 'lucide-react';
 import '../style/DatasetPage.css';
 
 import { FetchedReplies } from '../types/fetchedReplies';
@@ -27,7 +27,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, cr
         return (
             <div className="analysis-card">
                 <div className="user-info">
-                    <HatGlasses />
+                    <MessageCircleDashed />
                     {user_id}
                 </div>
                 <div className="comments-flex">
@@ -41,7 +41,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ user_id, subject, message, cr
     return (
         <div className="analysis-card">
             <div className="user-info">
-                <HatGlasses />
+                <MessageCircleDashed />
                 {user_id}
             </div>
             <div className="AI-normal-selector">
