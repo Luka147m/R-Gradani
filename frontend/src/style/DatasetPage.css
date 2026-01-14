@@ -115,6 +115,14 @@
 
 }
 
+.home-redirect-icon{
+  color: #BB86FC;
+}
+
+.home-redirect-icon:hover{
+  opacity:80%;
+}
+
 /* ----------- Main Container Styles ----------- */
 
 .search-home-profile-div{

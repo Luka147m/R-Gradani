@@ -1,14 +1,15 @@
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, Link} from "react-router-dom";
 import { useState, useEffect } from "react";
 import CommentCard from "../components/CommentCard";
 import ApiButton from "../components/ApiButton";
-import {MessageCircle} from "lucide-react";
+import {MessageCircle, HomeIcon} from "lucide-react";
 import "../style/DatasetPage.css";
 //import type { Reply } from "../Reply";
 import { getCommentRepliesDTO } from "../DTOs/getCommentRepliesDTO.ts";
 import { getCommentDTO } from "../DTOs/getCommentDTO.ts";
 import { DatasetState } from "../DTOs/datasetStateDTO.ts";
-import api from "../api/axios"
+import api from "../api/axios";
+
 
 const DatasetPage = () => {
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +102,7 @@ const DatasetPage = () => {
 
   return (
     <div className="main-container">
+      <Link to="/"><HomeIcon size={24} className="home-redirect-icon" /></Link>
       <h1 className="dataset-title">{name}</h1>
       <a href={url}><h3 className="dataset-url">{url}</h3></a>
       <ApiButton apiCall={datasetRefresh} className="api-button">Osvježi</ApiButton>

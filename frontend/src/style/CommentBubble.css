@@ -20,13 +20,14 @@
 }
 
 .left{
-    background-color: white;
+    background: #24282F;
+    color: #E0E0E0;
+    border: 1px solid #3A3F47;
 }
 
 
 .right{
-    background-color: #BB86FC;
-    color: black;
+    background-color: rgb(255, 255, 255);
     margin-left: auto;
 }
 p{
@@ -58,4 +59,150 @@ p{
     fill: #CF6679;
     stroke: none;
 
+}
+
+.status-success {
+    background-color: #e9f8f0;
+}
+
+.status-warning {
+    background-color: #fff6e5;
+}
+
+.status-error {
+    background-color: #fdecea;
+}
+
+.usvojenost-status-box {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+}
+
+.status-success.usvojenost-status-box {
+    background: #2ecc71;
+}
+
+.status-warning.usvojenost-status-box {
+    background: #f39c12;
+}
+
+.status-error.usvojenost-status-box {
+    background: #e74c3c;
+}
+
+.podudarnost-wrapper {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.podudarnost-bar {
+    width: 100%;
+    height: 8px;
+    background: #bababa;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.podudarnost-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.status-success .progress-fill { background: #00C853; }
+.status-warning .progress-fill { background: #FF9100; }
+.status-error   .progress-fill { background: #D50000; }
+
+.podudarnost-success,
+.status-success .podudarnost-fill {
+    background: #00bc48;
+}
+
+.podudarnost-warning,
+.status-warning .podudarnost-fill {
+    background: #C77800;
+}
+
+.podudarnost-error,
+.status-error .podudarnost-fill {
+    background: #B3261E;
+}
+
+.comment {
+    position: relative;
+}
+
+.usvojenost-status-strip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.status-success.usvojenost-status-strip {
+    background-color: #2ecc71;
+}
+
+.status-warning.usvojenost-status-strip {
+    background-color: #f39c12;
+}
+
+.status-error.usvojenost-status-strip {
+    background-color: #e74c3c;
+}
+
+.right .text-box {
+    padding-left: 14px;
+}
+
+
+.podudarnost-tooltip {
+    position: relative;
+}
+
+.podudarnost-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #1f2228;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    z-index: 20;
+}
+
+.podudarnost-tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1f2228 transparent transparent transparent;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.podudarnost-tooltip:hover::after,
+.podudarnost-tooltip:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }

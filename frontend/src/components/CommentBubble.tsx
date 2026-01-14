@@ -81,8 +81,23 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
         }
     }
 
+    const getStatusConfig = () => {
+        if (usvojenost || podudarnost > 85) {
+            return {label: "Usvojeno", className: "status-success"};
+        }
+        if (podudarnost > 60) {
+            return {label: "Djelomično usvojeno", className: "status-warning"};
+        }
+        return {label: "Nije usvojeno", className: "status-error"};
+    };
+
+    const status = getStatusConfig();
+
     return (
         <div className={`comment ${isProfilePage ? 'comment-profile' : ''} ${isFromComment ? "left" : "right"}`}>
+            {!isFromComment && (
+                <div className={`usvojenost-status-strip ${status.className}`} />
+            )}
             {isFromComment ? (
                 <div className="icons-top-right">
                     <Bookmark 
@@ -100,6 +115,12 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
                 </div>
             ) : null}
 
+            {!isFromComment && (
+                <div className={`usvojenost-status-box ${status.className}`}>
+                    {status.label}
+                </div>
+            )}
+
             <div className="text-box">
                 <p dangerouslySetInnerHTML={{ __html: content }}></p>
                 {isFromComment ? null : (
@@ -108,10 +129,19 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
 
 
                         <hr/>
-
-
-                        <p>Usvojenost: {usvojenost ? "Yes" : "No"}, Podudarnost: {podudarnost}%</p>
-
+                        <div className="podudarnost-wrapper">
+                            <div
+                                className="podudarnost-tooltip"
+                                data-tooltip={`Podudarnost: ${podudarnost}%`}
+                            >
+                                <div className="podudarnost-bar">
+                                    <div
+                                        className={`podudarnost-fill ${status.className}`}
+                                        style={{ width: `${podudarnost}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 )}</div>
