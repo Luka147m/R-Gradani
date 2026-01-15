@@ -132,7 +132,7 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
                         <div className="podudarnost-wrapper">
                             <div
                                 className="podudarnost-tooltip"
-                                data-tooltip={`Istinitost originalnog komentara: ${podudarnost}%`}
+                                data-tooltip={`Istinitost originalne izjave: ${podudarnost}%`}
                             >
                                 <div className="podudarnost-bar">
                                     <div
