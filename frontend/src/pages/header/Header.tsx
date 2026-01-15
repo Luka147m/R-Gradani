@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import IconText from "../../components/IconText";
-import { ExternalLink, Home, LayoutDashboard, MoveLeft } from "lucide-react";
+import { ExternalLink, Home, LayoutDashboard, MoveLeft, ChartBarStacked } from "lucide-react";
 import { colors } from "../../style/global/colors";
 
 import "../../style/Header.css";
@@ -35,6 +35,17 @@ const ProfileItem: React.FC<HeaderItemProps> = ({ selected }) => (
   ></IconText>
 );
 
+const StatisticsItem: React.FC<HeaderItemProps> = ({ selected }) => (
+  <IconText
+    icon={ChartBarStacked}
+    text="Statistika"
+    selected={selected}
+    fillColor={colors.stats}
+    style={iconStyle}
+    iconSize={22}
+  ></IconText>
+);
+
 interface HeaderLink {
   path: string;
   component: React.FC<HeaderItemProps>;
@@ -48,6 +59,7 @@ const Header: React.FC = () => {
   const [headerItems, setHeaderItems] = useState<HeaderLink[]>([
     { path: "/", component: HomeItem, selected: false },
     { path: "/profile", component: ProfileItem, selected: false },
+    { path: "/statistics", component: StatisticsItem, selected: false },
   ]);
 
   useEffect(() => {
@@ -90,7 +102,7 @@ const Header: React.FC = () => {
         </nav>
       </div>
       <div className="last">
-        <a href="https://r-gradani-backend.onrender.com/" className="link">
+        <a href="https://r-gradani-backend.onrender.com/docs" className="link">
           <IconText
             icon={ExternalLink}
             text="API dokumentacija"

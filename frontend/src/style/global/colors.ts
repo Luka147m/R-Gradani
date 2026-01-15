@@ -8,4 +8,5 @@ export const colors = {
   error: "#d62828",
   warning: "#ffb703",
   correct: "#2a9d8f",
+  stats: "#ff8042",
 };
