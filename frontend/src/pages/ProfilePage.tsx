@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Home, LayoutDashboard } from "lucide-react";
-import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
-import { MarkedDatasets } from '../components/MarkedDatasets';
-import {  CommentBubble } from '../components/CommentBubble.tsx';
-import '../style/HomePage.css'
+import { RecentlyVisitedDatasets } from "../components/ReacentlyVisitedDatasets";
+import { MarkedDatasets } from "../components/MarkedDatasets";
+import { CommentBubble } from "../components/CommentBubble.tsx";
+import "../style/HomePage.css";
 
 interface RequestData {
   content: string;
@@ -20,31 +20,27 @@ function ProfilePage() {
 
   // seed + load
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedRequests') || '[]');
-    const reported = JSON.parse(localStorage.getItem('reportedRequests') || '[]');
+    const saved = JSON.parse(localStorage.getItem("savedRequests") || "[]");
+    const reported = JSON.parse(
+      localStorage.getItem("reportedRequests") || "[]"
+    );
 
-      if(Array.isArray(saved)){
+    if (Array.isArray(saved)) {
       setSavedRequests(saved);
-      
     } else {
       setSavedRequests([]);
     }
 
-    if(Array.isArray(reported)){
+    if (Array.isArray(reported)) {
       setReportedRequests(reported);
     } else {
       setReportedRequests([]);
     }
-    
-
-  
-    
-    
   }, []);
 
   return (
     <>
-      <div className="home-profile-selector">
+      {/* <div className="home-profile-selector">
         <Link to="/">
           <button
             className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
@@ -61,7 +57,7 @@ function ProfilePage() {
             <LayoutDashboard size={24} />
           </button>
         </Link>
-      </div>
+      </div> */}
 
       <div className="main-container profile-page-container">
         <div className="sidebar">
