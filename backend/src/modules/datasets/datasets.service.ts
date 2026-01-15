@@ -14,6 +14,39 @@ export const fetchDatasetById = async (id: string) => {
   return dataset;
 };
 
+export const fetchDatasetAndResourcesById = async (id: string) => {
+  const dataset = await prisma.skup_podataka.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      refresh_frequency: true,
+      theme: true,
+      description: true,
+      url: true,
+      license_title: true,
+      tags: true,
+      resurs: {
+          select: {
+              id: true,
+              name: true,
+              format: true,
+              mimetype: true,
+              size: true,
+              url: true
+          }
+      }
+    }
+  }); 
+
+  const datasetWithResources = {
+    ...dataset,
+    resources: dataset?.resurs || []
+  };
+
+  return datasetWithResources;
+};
+
 export const fetchLatestFetchedDatasets = async (limit: number) => {
   return prisma.skup_podataka.findMany({
     orderBy: {

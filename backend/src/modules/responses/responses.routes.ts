@@ -6,4 +6,6 @@ const router = Router({ mergeParams: true });
 router.get('/komentar/:commentId', responsesController.getResponsesByCommentId);
 router.get('/:id', responsesController.getResponsesById);
 
+router.post('/:responseId/analyze', responsesController.analyzeResponse);
+
 export default router;
