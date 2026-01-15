@@ -26,7 +26,7 @@
 }
 
 .publisher-list {
-  padding-top: 0.5rem;
+  padding-block: 0.5rem;
   /* background-color: red; */
   display: flex;
   flex-direction: column;
@@ -69,8 +69,8 @@
   width: 100%;
   padding: 12px;
   margin-top: 24px;
-  background: #b983ff;
-  color: white;
+  background: var(--secondary);
+  color: black;
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -151,8 +151,8 @@
 
 .select-all-btn {
   padding: 4px 8px 4px 8px;
-  background: #6f42c1;
-  color: white;
+  background: var(--secondary);
+  color: black;
   border: none;
   border-radius: 8px;
   font-weight: 600;
