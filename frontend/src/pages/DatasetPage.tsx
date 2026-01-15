@@ -101,6 +101,7 @@ const DatasetPage = () => {
 
       <IconText
         icon={Database}
+        iconSize={30}
         text={name || ""}
         className="dataset-title"
       ></IconText>

@@ -20,6 +20,7 @@ const HomeItem: React.FC<HeaderItemProps> = ({ selected }) => (
     selected={selected}
     fillColor={colors.primary}
     style={iconStyle}
+    iconSize={22}
   ></IconText>
 );
 
@@ -30,6 +31,7 @@ const ProfileItem: React.FC<HeaderItemProps> = ({ selected }) => (
     selected={selected}
     fillColor={colors.secondary}
     style={iconStyle}
+    iconSize={22}
   ></IconText>
 );
 
@@ -70,6 +72,7 @@ const Header: React.FC = () => {
               icon={MoveLeft}
               text="natrag"
               className="path_history"
+              iconSize={20}
             ></IconText>
           </Link>
         )}
@@ -88,7 +91,11 @@ const Header: React.FC = () => {
       </div>
       <div className="last">
         <a href="https://r-gradani-backend.onrender.com/" className="link">
-          <IconText icon={ExternalLink} text="API dokumentacija"></IconText>
+          <IconText
+            icon={ExternalLink}
+            text="API dokumentacija"
+            iconSize={20}
+          ></IconText>
         </a>
       </div>
     </header>
