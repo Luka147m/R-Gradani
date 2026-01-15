@@ -9,6 +9,7 @@ import publishersRouter from "./src/modules/publishers/publishers.routes";
 import responsesRouter from "./src/modules/responses/responses.routes";
 import commentsRouter from "./src/modules/comments/comments.routes";
 import mbzRouter from "./src/modules/mbz/mbz.routes";
+import statsRouter from "./src/modules/stats/stats.routes";
 import cors, { CorsOptions } from "cors";
 
 (BigInt.prototype as any).toJSON = function () {
@@ -51,6 +52,7 @@ app.use("/api/init", initRouter);
 app.use("/api/odgovori", responsesRouter);
 app.use("/api/komentari", commentsRouter);
 app.use("/api/upload", mbzRouter);
+app.use("/api/stats", statsRouter);
 
 const startServer = async () => {
   await connectDB();
