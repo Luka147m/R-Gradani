@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, ArrowLeft, X } from "lucide-react";
 import { IzdvojeniSkupoviPodataka } from "../components/IzdvojeniSkupoviPodataka";
@@ -7,6 +7,7 @@ import { SearchResults } from "../components/SearchResults";
 import { useSearch } from "../hooks/useSearch";
 import "../style/HomePage.css";
 import type { DataSet } from "../types/dataset";
+import api from "../api/axios.tsx";
 
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,6 +26,37 @@ function HomePage() {
       setTimeout(() => setIsSearchActivated(true), 50);
     }
   }, [searchParams, setIsSearchActivated]);
+
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (localSearchTerm.trim() && isSearchActivated) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      searchTimeoutRef.current = setTimeout(() => {
+        api.post("/skupovi/search", { searchText: localSearchTerm }).then((response) => {
+          setAllResults(response.data);
+        }).catch((error) => {
+          console.error("Search error:", error);
+          setAllResults([]);
+        });
+      }, 500); // 500ms debounce - da ne spamamo svaki put kad korisnik kuca
+    } else {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = null;
+      }
+    }
+  }, [localSearchTerm, isSearchActivated]);
 
   const handleSearchFocus = () => {
     if (!isSearchActivated) {

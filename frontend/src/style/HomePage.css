@@ -38,6 +38,7 @@ body {
   align-items: center;
   width: 60%;
   position: relative;
+  gap: 12px;
 }
 
 .search-container {
@@ -50,6 +51,7 @@ body {
   display: flex;
   flex-direction: row;
   border-radius: 10px;
+  padding-right: 44px;
 }
 
 .search-container::placeholder {
@@ -74,7 +76,7 @@ body {
 }
 
 .search-back-button {
-  position: absolute;
+  position: static;
   left: 12px;
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -106,7 +108,7 @@ body {
 
 .search-clear-button {
   position: absolute;
-  right: 60px;
+  right: 12px;
   background: none;
   border: none;
   border-radius: 10px;
@@ -117,7 +119,7 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: white;
+  color: #ff0000;
 }
 
 .search-clear-button:hover {
@@ -381,7 +383,7 @@ body {
 } */
 
 .main-container.search-active::before {
-  content: "";
+  content: '';
   position: fixed;
   top: 0;
   left: 0;
