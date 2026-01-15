@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Home, LayoutDashboard } from "lucide-react";
+
 import { RecentlyVisitedDatasets } from "../components/ReacentlyVisitedDatasets";
 import { MarkedDatasets } from "../components/MarkedDatasets";
 import { CommentBubble } from "../components/CommentBubble.tsx";
@@ -14,7 +13,6 @@ interface RequestData {
 }
 
 function ProfilePage() {
-  const [selected, setSelected] = useState<"home" | "profile">("profile");
   const [savedRequests, setSavedRequests] = useState<RequestData[]>([]);
   const [reportedRequests, setReportedRequests] = useState<RequestData[]>([]);
 
@@ -40,25 +38,6 @@ function ProfilePage() {
 
   return (
     <>
-      {/* <div className="home-profile-selector">
-        <Link to="/">
-          <button
-            className={`selector-btn ${selected === "home" ? "active-home" : ""}`}
-            onClick={() => setSelected("home")}
-          >
-            <Home size={24} />
-          </button>
-        </Link>
-        <Link to="/profile">
-          <button
-            className={`selector-btn profile-btn ${selected === "profile" ? "active-profile" : ""}`}
-            onClick={() => setSelected("profile")}
-          >
-            <LayoutDashboard size={24} />
-          </button>
-        </Link>
-      </div> */}
-
       <div className="main-container profile-page-container">
         <div className="sidebar">
           <MarkedDatasets />
