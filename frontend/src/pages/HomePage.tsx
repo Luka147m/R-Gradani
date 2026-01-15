@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { Home, LayoutDashboard, Search, ArrowLeft, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Search, ArrowLeft, X } from "lucide-react";
 import { IzdvojeniSkupoviPodataka } from "../components/IzdvojeniSkupoviPodataka";
 import { FilterContainer } from "../components/FilterContainer";
 import { SearchResults } from "../components/SearchResults";
@@ -49,24 +49,6 @@ function HomePage() {
 
   return (
     <>
-      {/* <div className="home-profile-selector">
-        <Link to="/">
-          <button
-            className={`selector-btn ${
-              !isSearchActivated ? "active-home" : ""
-            }`}
-            onClick={handleToHome}
-          >
-            <Home size={24} />
-          </button>
-        </Link>
-        <Link to="/profile">
-          <button className={`selector-btn profile-btn`}>
-            <LayoutDashboard size={24} />
-          </button>
-        </Link>
-      </div> */}
-
       <div
         className={`main-container ${isSearchActivated ? "search-active" : ""}`}
       >

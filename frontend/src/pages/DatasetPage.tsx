@@ -1,8 +1,8 @@
-import { useParams, useLocation, Link } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CommentCard from "../components/CommentCard";
 import ApiButton from "../components/ApiButton";
-import { MessageCircle, HomeIcon, Database, RefreshCw } from "lucide-react";
+import { Database, RefreshCw } from "lucide-react";
 import "../style/DatasetPage.css";
 //import type { Reply } from "../Reply";
 import { getCommentRepliesDTO } from "../DTOs/getCommentRepliesDTO.ts";
