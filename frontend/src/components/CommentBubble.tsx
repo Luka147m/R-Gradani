@@ -82,10 +82,10 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
     }
 
     const getStatusConfig = () => {
-        if (usvojenost || podudarnost > 85) {
+        if (podudarnost <= 25) {
             return {label: "Usvojeno", className: "status-success"};
         }
-        if (podudarnost > 60) {
+        if (podudarnost <= 60) {
             return {label: "Djelomično usvojeno", className: "status-warning"};
         }
         return {label: "Nije usvojeno", className: "status-error"};
@@ -132,7 +132,7 @@ export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromCom
                         <div className="podudarnost-wrapper">
                             <div
                                 className="podudarnost-tooltip"
-                                data-tooltip={`Podudarnost: ${podudarnost}%`}
+                                data-tooltip={`Istinitost originalnog komentara: ${podudarnost}%`}
                             >
                                 <div className="podudarnost-bar">
                                     <div
