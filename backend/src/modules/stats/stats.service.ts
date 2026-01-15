@@ -107,7 +107,7 @@ export const fetchData = async () => {
     const flattenedTopSkup = topSkupPodataka.map(d => ({
         id: d.id,
         title: d.title,
-        komentarCount: d._count.komentar,
+        count: d._count.komentar,
     }));
 
     // --------------------------------------Odgovori-------------------------------------
