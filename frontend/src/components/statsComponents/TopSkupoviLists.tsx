@@ -42,7 +42,7 @@ const TopSkupoviLists: React.FC<TopSkupoviListsProps> = ({ skupovi_podataka, max
       </div>
 
       <div className="list-container">
-        <h3>Top Skupovi Podataka</h3>
+        <h3>Top skupovi podataka</h3>
         <ol>
           {sliceItems(skupovi_podataka.topSkupPodataka).map((skup) => (
               <li key={skup.id}>
