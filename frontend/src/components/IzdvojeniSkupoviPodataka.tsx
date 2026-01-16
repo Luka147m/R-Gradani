@@ -5,11 +5,11 @@ import '../style/HomePage.css'
 import { useState, useEffect } from 'react';
 
 
-import {DataSet} from '../types/dataset.ts'
+import {getDatasetDTO} from '../DTOs/getDatasetDTO.ts'
 import api from '../api/axios.tsx'
 
 export const IzdvojeniSkupoviPodataka = () => {
-    const [datasets, setDatasets] = useState<DataSet[]>([]);
+    const [datasets, setDatasets] = useState<getDatasetDTO[]>([]);
 
     useEffect(() => {
         api.get('/skupovi/nedavno').then((response) => {

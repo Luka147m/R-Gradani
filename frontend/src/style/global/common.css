@@ -1,0 +1,11 @@
+.link {
+  all: unset;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="text"]::placeholder {
+  background-color: var(--text-box);
+  color: var(--text-light);
+}

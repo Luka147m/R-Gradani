@@ -4,14 +4,14 @@ import { History } from 'lucide-react';
 import '../style/HomePage.css'
 import { useState, useEffect } from 'react';
 import api from '../api/axios.tsx'
-import type { DataSet } from '../types/dataset.ts';
+import type { getDatasetDTO } from '../DTOs/getDatasetDTO.ts';
 /* import { Heading1 } from 'lucide-react'; */
 
 export const RecentlyVisitedDatasets = () => {
 
     
 
-    const [recentlyVisitedDatasets, setRecentlyVisitedDatasets] = useState<DataSet[]>([]);
+    const [recentlyVisitedDatasets, setRecentlyVisitedDatasets] = useState<getDatasetDTO[]>([]);
     useEffect(() => {
         const fetchRecentlyVisitedDatasets = async () => {
             const arr = JSON.parse(localStorage.getItem('recentlyVisitedDatasets') || '[]');

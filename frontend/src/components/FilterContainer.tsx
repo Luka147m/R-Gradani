@@ -1,28 +1,25 @@
-import { useMemo, useState, useEffect } from 'react';
-import { Building, Calendar, Search, Settings } from 'lucide-react';
+import { useMemo, useState, useEffect } from "react";
+import { Building, Calendar, Search, Settings } from "lucide-react";
 
-import { useSearch } from '../hooks/useSearch';
-import { useSearchParams } from 'react-router-dom';
-import { Publisher } from '../types/publisher';
+import { useSearch } from "../hooks/useSearch";
+import { useSearchParams } from "react-router-dom";
+import { getPublisherDTO } from "../DTOs/getPublisherDTO.ts";
 
+import api from "../api/axios.tsx";
 
-import api from '../api/axios.tsx'
-
-
-import type { DataSet } from '../types/dataset';
-import '../style/FilterContainer.css';
-
-
+import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
+import "../style/FilterContainer.css";
 
 type FilterContainerProps = {
-
   localSearchTerm: string;
-  setAllResults: React.Dispatch<React.SetStateAction<DataSet[]>>;
-
-
+  setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
 };
 
-const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProps) => {  const [, setSearchParams] = useSearchParams();
+const FilterContainer = ({
+  localSearchTerm,
+  setAllResults,
+}: FilterContainerProps) => {
+  const [, setSearchParams] = useSearchParams();
   const {
     setSearchTerm,
     selectedPublisherIds,
@@ -37,32 +34,42 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
     setIgnoreReported,
   } = useSearch();
 
-  const [tempPublisherIds, setTempPublisherIds] = useState<string[]>(selectedPublisherIds);
-  const [tempDateRange, setTempDateRange] = useState<[string, string]>(dateRange);
+  const [tempPublisherIds, setTempPublisherIds] =
+    useState<string[]>(selectedPublisherIds);
+  const [tempDateRange, setTempDateRange] =
+    useState<[string, string]>(dateRange);
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
-  const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
+  const [tempIgnoreReported, setTempIgnoreReported] =
+    useState<boolean>(ignoreReported);
 
-  useEffect(() => setTempPublisherIds(selectedPublisherIds), [selectedPublisherIds]);
+  useEffect(
+    () => setTempPublisherIds(selectedPublisherIds),
+    [selectedPublisherIds]
+  );
   useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
 
-  const [publishers, setPublishers] = useState<Publisher[]>([]);
+  const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
 
   useEffect(() => {
-      api.get('/izdavaci').then((response) => {
-          setPublishers(response.data);        
-      });
-
-
+    api.get("/izdavaci").then((response) => {
+      setPublishers(response.data);
+    });
   }, []);
 
   const normalize = (str: string) =>
-    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
   const filteredPublisher = useMemo(
-    () => publishers.filter(p => normalize(p.publisher ?? '').includes(normalize(publisherQuery))),
+    () =>
+      publishers.filter((p) =>
+        normalize(p.publisher ?? "").includes(normalize(publisherQuery))
+      ),
     [publisherQuery, publishers]
   );
 
@@ -70,40 +77,35 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
     ? filteredPublisher
     : filteredPublisher.slice(0, 5);
 
+  const visiblePublisherIds = visiblePublishers.map((p) => p.id);
 
-
-
-
-  const visiblePublisherIds = visiblePublishers.map(p => p.id);
-
-  const areAllVisibleChecked = visiblePublisherIds.every(id =>
+  const areAllVisibleChecked = visiblePublisherIds.every((id) =>
     tempPublisherIds.includes(id)
   );
 
   const toggleVisiblePublishers = () => {
-    setTempPublisherIds(prev => {
+    setTempPublisherIds((prev) => {
       if (areAllVisibleChecked) {
-        return prev.filter(id => !visiblePublisherIds.includes(id));
+        return prev.filter((id) => !visiblePublisherIds.includes(id));
       } else {
         return Array.from(new Set([...prev, ...visiblePublisherIds]));
       }
     });
   };
 
-
   const togglePublisher = (id: string, checked: boolean) => {
-    setTempPublisherIds(prev =>
-      checked ? [...prev, id] : prev.filter(x => x !== id)
+    setTempPublisherIds((prev) =>
+      checked ? [...prev, id] : prev.filter((x) => x !== id)
     );
   };
 
   useEffect(() => {
-    const allIds = filteredPublisher.map(p => p.id);
+    const allIds = filteredPublisher.map((p) => p.id);
     setTempPublisherIds(allIds);
   }, [filteredPublisher]);
 
-  const handleDateChange = (type: 'from' | 'to', value: string) => {
-    if (type === 'from') {
+  const handleDateChange = (type: "from" | "to", value: string) => {
+    if (type === "from") {
       setTempDateRange([value, tempDateRange[1]]);
     } else {
       setTempDateRange([tempDateRange[0], value]);
@@ -123,11 +125,13 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
       : filteredPublisher.slice(0, 5);
 
     const checkedVisiblePublisherIds = visiblePublishers
-      .filter(p => tempPublisherIds.includes(p.id))
-      .map(p => p.id);
+      .filter((p) => tempPublisherIds.includes(p.id))
+      .map((p) => p.id);
 
-    const response = await api.post('/skupovi/filter', { publisherIds: checkedVisiblePublisherIds });
-    setAllResults(response.data); 
+    const response = await api.post("/skupovi/filter", {
+      publisherIds: checkedVisiblePublisherIds,
+    });
+    setAllResults(response.data);
   };
 
   return (
@@ -141,7 +145,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
             className="select-all-btn"
             onClick={toggleVisiblePublishers}
           >
-            {areAllVisibleChecked ? 'Isključi sve' : 'Označi sve'}
+            {areAllVisibleChecked ? "Isključi sve" : "Označi sve"}
           </button>
         </div>
         <div className="search-publisher">
@@ -154,33 +158,32 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
           />
         </div>
         <div className="publisher-list">
-          {visiblePublishers.map(p => (
+          {filteredPublisher.length > 5 && (
+            <button
+              type="button"
+              className="select-all-btn"
+              onClick={() => setShowAllPublishers((prev) => !prev)}
+            >
+              {showAllPublishers ? "Prikaži manje" : "Prikaži više"}
+            </button>
+          )}
+          {visiblePublishers.map((p) => (
             <div key={p.id} className="publisher-item">
               <input
                 type="checkbox"
                 id={`publisher-${p.id}`}
                 className="publisher-checkbox"
                 checked={tempPublisherIds.includes(p.id)}
-                onChange={e => togglePublisher(p.id, e.target.checked)}
+                onChange={(e) => togglePublisher(p.id, e.target.checked)}
               />
-              <label htmlFor={`publisher-${p.id}`}>
-                {p.publisher}
-              </label>            
+              <label htmlFor={`publisher-${p.id}`}>{p.publisher}</label>
             </div>
           ))}
 
-          {filteredPublisher.length > 5 && (
-            <button
-              type="button"
-              className="show-more-less-btn"
-              onClick={() => setShowAllPublishers(prev => !prev)}
-            >
-              {showAllPublishers ? 'Prikaži manje' : 'Prikaži više'}
-            </button>
-          )}
-
           {filteredPublisher.length === 0 && (
-            <div className="publisher-item"><em>Nema rezultata</em></div>
+            <div className="publisher-item">
+              <em>Nema rezultata</em>
+            </div>
           )}
         </div>
       </div>
@@ -197,7 +200,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
             id="date-from"
             className="date-input"
             value={tempDateRange[0]}
-            onChange={(e) => handleDateChange('from', e.target.value)}
+            onChange={(e) => handleDateChange("from", e.target.value)}
           />
           <label htmlFor="date-to">do</label>
           <input
@@ -205,7 +208,7 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
             id="date-to"
             className="date-input"
             value={tempDateRange[1]}
-            onChange={(e) => handleDateChange('to', e.target.value)}
+            onChange={(e) => handleDateChange("to", e.target.value)}
           />
         </div>
       </div>
@@ -224,7 +227,10 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
               checked={tempIgnoreSaved}
               onChange={(e) => setTempIgnoreSaved(e.target.checked)}
             />
-            <label htmlFor="ignore-saved-datasets-checkbox" className="publisher-label">
+            <label
+              htmlFor="ignore-saved-datasets-checkbox"
+              className="publisher-label"
+            >
               Ignoriraj spremljene skupove podataka
             </label>
           </div>
@@ -236,7 +242,10 @@ const FilterContainer = ({ localSearchTerm, setAllResults }: FilterContainerProp
               checked={tempIgnoreReported}
               onChange={(e) => setTempIgnoreReported(e.target.checked)}
             />
-            <label htmlFor="ignore-reported-datasets-checkbox" className="publisher-label">
+            <label
+              htmlFor="ignore-reported-datasets-checkbox"
+              className="publisher-label"
+            >
               Ignoriraj skupove podataka koji imaju prijavljene probleme
             </label>
           </div>
