@@ -2,10 +2,12 @@ import prisma from "../../config/prisma";
 import path from 'path';
 import { extractData } from "./mbz.data";
 import type { Dataset, Publisher, Discussion, Resource } from "./mbz.data";
+import { logToJob } from './mbz.logs';
 import fs from 'fs'
 
-async function insertIzdavac(publishers: Record<string, Publisher>) {
-    console.log('Inserting publishers...');
+async function insertIzdavac(publishers: Record<string, Publisher>, jobId: string) {
+    // console.log('Inserting publishers...');
+    logToJob(jobId, 'info', 'Inserting publishers...');
     const publisherArray = Object.values(publishers);
 
     for (const pub of publisherArray) {
@@ -23,15 +25,18 @@ async function insertIzdavac(publishers: Record<string, Publisher>) {
         });
     }
 
-    console.log(`Inserted ${publisherArray.length} publishers`);
+    // console.log(`Inserted ${publisherArray.length} publishers`);
+    logToJob(jobId, 'info', `Inserted ${publisherArray.length} publishers`);
 }
 
-async function insertSkupPodataka(datasets: Record<string, Dataset>) {
-    console.log('Inserting datasets...');
+async function insertSkupPodataka(datasets: Record<string, Dataset>, jobId: string) {
+    // console.log('Inserting datasets...');
+    logToJob(jobId, 'info', 'Inserting datasets...');
     const datasetArray = Object.values(datasets);
     const now = new Date();
 
-    for (const ds of datasetArray) {
+    for (let i = 0; i < datasetArray.length; i++) {
+        const ds = datasetArray[i];
         await prisma.skup_podataka.upsert({
             where: { id: ds.id },
             update: {
@@ -72,15 +77,22 @@ async function insertSkupPodataka(datasets: Record<string, Dataset>) {
                 fetched_at: now
             }
         });
+
+        if ((i + 1) % 10 === 0) {
+            logToJob(jobId, 'debug', `Processed ${i + 1}/${datasetArray.length} datasets`);
+        }
     }
 
-    console.log(`Inserted ${datasetArray.length} datasets`);
+    // console.log(`Inserted ${datasetArray.length} datasets`);
+    logToJob(jobId, 'info', `Inserted ${datasetArray.length} datasets`);
 }
 
-async function insertResurs(resources: Resource[]) {
-    console.log('Inserting resources...');
+async function insertResurs(resources: Resource[], jobId: string) {
+    // console.log('Inserting resources...');
+    logToJob(jobId, 'info', 'Inserting resources...');
 
-    for (const res of resources) {
+    for (let i = 0; i < resources.length; i++) {
+        const res = resources[i];
         await prisma.resurs.upsert({
             where: { id: res.id },
             update: {
@@ -111,15 +123,22 @@ async function insertResurs(resources: Resource[]) {
                 url: res.url
             }
         });
+
+        if ((i + 1) % 50 === 0) {
+            logToJob(jobId, 'debug', `Processed ${i + 1}/${resources.length} resources`);
+        }
     }
 
-    console.log(`Inserted ${resources.length} resources`);
+    // console.log(`Inserted ${resources.length} resources`);
+    logToJob(jobId, 'info', `Inserted ${resources.length} resources`);
 }
 
-async function insertKomentar(discussions: Discussion[]) {
-    console.log('Inserting comments...');
+async function insertKomentar(discussions: Discussion[], jobId: string) {
+    // console.log('Inserting comments...');
+    logToJob(jobId, 'info', 'Inserting comments...');
 
-    for (const disc of discussions) {
+    for (let i = 0; i < discussions.length; i++) {
+        const disc = discussions[i];
         const existing = await prisma.komentar.findFirst({
             where: { import_id: disc.id ? BigInt(disc.id) : undefined },
         });
@@ -146,35 +165,44 @@ async function insertKomentar(discussions: Discussion[]) {
             });
         }
 
+        if ((i + 1) % 50 === 0) {
+            logToJob(jobId, 'debug', `Processed ${i + 1}/${discussions.length} comments`);
+        }
+
     }
 
-    console.log(`Inserted ${discussions.length} comments`);
+    // console.log(`Inserted ${discussions.length} comments`);
+    logToJob(jobId, 'info', `Inserted ${discussions.length} comments`);
 }
 
-async function importToDatabase(dir: string) {
+async function importToDatabase(dir: string, jobId: string) {
     try {
-        console.log('Starting data extraction...');
+        // console.log('Starting data extraction...');
+        logToJob(jobId, 'info', 'Starting data extraction...');
         const result = await extractData(path.join(dir, 'activities'));
 
-        console.log('\n=== Extraction Summary ===');
-        console.log('Datasets:', Object.keys(result.all_datasets).length);
-        console.log('Publishers:', Object.keys(result.all_publishers).length);
-        console.log('Discussions:', result.all_discussions.length);
-        console.log('Resources:', result.all_resources.length);
-        console.log('=========================\n');
+        logToJob(jobId, 'info', `Found ${Object.keys(result.all_datasets).length} datasets, ${Object.keys(result.all_publishers).length} publishers, ${result.all_discussions.length} discussions, ${result.all_resources.length} resources`);
 
-        await insertIzdavac(result.all_publishers);
+        // console.log('\n=== Extraction Summary ===');
+        // console.log('Datasets:', Object.keys(result.all_datasets).length);
+        // console.log('Publishers:', Object.keys(result.all_publishers).length);
+        // console.log('Discussions:', result.all_discussions.length);
+        // console.log('Resources:', result.all_resources.length);
+        // console.log('=========================\n');
 
-        await insertSkupPodataka(result.all_datasets);
+        await insertIzdavac(result.all_publishers, jobId);
 
-        await insertResurs(result.all_resources);
+        await insertSkupPodataka(result.all_datasets, jobId);
 
-        await insertKomentar(result.all_discussions);
+        await insertResurs(result.all_resources, jobId);
 
-        console.log('\nDatabase import completed successfully!');
+        await insertKomentar(result.all_discussions, jobId);
+
+        // console.log('\nDatabase import completed successfully!');
+        logToJob(jobId, 'info', 'Database import completed successfully!');
 
     } catch (error) {
-        console.error('Error during database import:', error);
+        logToJob(jobId, 'error', `Error during database import: ${error instanceof Error ? error.message : 'Unknown error'}`);
         throw error;
     } finally {
         await prisma.$disconnect();

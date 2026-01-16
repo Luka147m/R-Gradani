@@ -34,21 +34,33 @@ function StatisticsPage() {
       <div className='pie-charts-container'>
         
         {/* Komentari */}
-        <CommentPieChart
-          total={stats.komentar.total} 
-          obradenih={stats.komentar.obradenih} 
-        />
+        {stats.komentar.total > 0 ? (
+          <CommentPieChart
+            total={stats.komentar.total} 
+            obradenih={stats.komentar.obradenih} 
+          />
+        ) : (
+          <p>Nema podataka o komentarima!</p>
+        )}
 
         {/* Analiza dio */}
-        <ResponsesPieChart 
-          count={stats.odgovori.count} 
-          failed={stats.odgovori.failed} 
-        />
+        {stats.odgovori.count > 0 ? (
+          <ResponsesPieChart 
+            count={stats.odgovori.count} 
+            failed={stats.odgovori.failed} 
+          />
+        ) : (
+          <p>Nema analiza u sustavu!</p>
+        )}
 
-        <EntryPieChart 
-          total={stats.odgovori.izjave.total} 
-          usvojeno={stats.odgovori.izjave.usvojeni} 
-        />
+        {stats.odgovori.izjave.total > 0 ? (
+          <EntryPieChart 
+            total={stats.odgovori.izjave.total} 
+            usvojeno={stats.odgovori.izjave.usvojeni} 
+          />
+        ) : (
+          <p>Nema izjava u sustavu!</p>
+        )}
       </div>
       
       <div className='score-stats-section'>
@@ -73,7 +85,11 @@ function StatisticsPage() {
         </span>
       </h3>
 
-      <ScoreHistogram data={stats.odgovori.scoreHistogram} />
+      {stats.odgovori.scoreHistogram.length > 0 ? (
+        <ScoreHistogram data={stats.odgovori.scoreHistogram} />
+      ) : (
+        <p>Nema podataka za histogram!</p>
+      )}
       </div>
 
       {/* Izjave */}
@@ -83,8 +99,12 @@ function StatisticsPage() {
       <p>Tijekom analize umjetnoj inteligenciji je predano nekoliko kategorija problema te joj je zadan zadatak da svaku izjavu sortira u neku od kategorija.
         Sljedeći graf je rezultat te kategorizacije i prikazuje koliko je koja grupa problema usvojena/neusvojena odnosno to možemo 
         interpretirati kao koliko je koja kategorija popravljena ili nije popravljenja.
-      </p>
-      <CategoryReport categoryReport={stats.odgovori.categoryReport} maxItems={10} />
+      </p><br/>
+      {stats.odgovori.categoryReport.length > 0 ? (
+        <CategoryReport categoryReport={stats.odgovori.categoryReport} maxItems={10} />
+      ) : (
+        <div><p>Nema izjava u sustavu!</p><br/></div>
+      )}
 
       <p>*Podudarnost predstavlja postotak zapisa/redaka za koji je izjava istinita.
          Ako je podudarnost manja od 25, onda je usvojenost True inače False.</p>
@@ -95,11 +115,19 @@ function StatisticsPage() {
         <h2 className='general-info-title'>Generalne informacije o skupovima podataka/izdavačima</h2>
         {/* Skupovi podataka */}
         <h3>Skupovi podataka</h3>
-        <TopSkupoviLists skupovi_podataka={stats.skupovi_podataka} maxItems={10} />
+        {stats.skupovi_podataka.topSkupPodataka.length > 0 ? (
+          <TopSkupoviLists skupovi_podataka={stats.skupovi_podataka} maxItems={10} />
+        ) : (
+          <p>Nema podataka o skupovima podataka!</p>
+        )}
 
         {/* Izdavaci */}
         <h3>Top izdavači po broju skupova podataka</h3>
-        <TopIzdavaciDatasetsList izdavaci={stats.izdavaci} maxItems={20} />
+        {stats.izdavaci.length > 0 ? (
+          <TopIzdavaciDatasetsList izdavaci={stats.izdavaci} maxItems={20} />
+        ) : (
+          <p>Nema podataka o izdavačima!</p>
+        )}
       </div>
 
 
