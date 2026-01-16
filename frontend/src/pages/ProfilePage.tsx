@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { RecentlyVisitedDatasets } from "../components/ReacentlyVisitedDatasets";
 import { MarkedDatasets } from "../components/MarkedDatasets";
 import { CommentBubble } from "../components/CommentBubble.tsx";
+import { ImportContainer } from "../components/ImportContainer.tsx";
 import "../style/HomePage.css";
 
 interface RequestData {
@@ -39,6 +40,12 @@ function ProfilePage() {
   return (
     <>
       <div className="main-container profile-page-container">
+        
+        <div>
+          <h2>Uvoz .mbz datoteke</h2>
+          <ImportContainer />
+        </div>
+
         <div className="sidebar">
           <MarkedDatasets />
         </div>
