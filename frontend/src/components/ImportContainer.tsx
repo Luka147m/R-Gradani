@@ -33,6 +33,7 @@ export const ImportContainer = () => {
     }
   }, [logs]);
 
+  // Odmaknuti ovo za finalnu local verziju, jer nece biti auth na backu
   const token = 'LZ4/Q8sjKPy63PNoQm3fRvImBCC5CGm8aUAgPxy1y/c=';
 
   const importComments = () => {
