@@ -20,10 +20,18 @@ export const ImportContainer = () => {
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const logsContainerRef = useRef<HTMLDivElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastTimestampRef = useRef<string | null>(null);
   const pollingIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop =
+        logsContainerRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   const token = 'LZ4/Q8sjKPy63PNoQm3fRvImBCC5CGm8aUAgPxy1y/c=';
 
@@ -62,13 +70,14 @@ export const ImportContainer = () => {
     setUploadProgress(0);
 
     try {
+      // Bearer token na kraju odmaknuti?
       const response = await api.post('/upload', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         onUploadProgress: (progressEvent) => {
           const percent = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total || 1)
+            (progressEvent.loaded * 100) / (progressEvent.total || 1),
           );
           setUploadProgress(percent);
           console.log(`Upload: ${percent}%`);
@@ -115,7 +124,7 @@ export const ImportContainer = () => {
             (log: LogEntry) =>
               log.message.includes('completed successfully') ||
               log.message.includes('Import completed') ||
-              log.level === 'error'
+              log.level === 'error',
           );
 
           if (isComplete) {
@@ -169,7 +178,6 @@ export const ImportContainer = () => {
       {importIsSelected && (
         <div className="overlay">
           <div className="import-modal">
-
             {!isImporting && (
               <button
                 className="import-modal-close-button"
@@ -180,11 +188,12 @@ export const ImportContainer = () => {
             )}
 
             <h2>Uvoz .mbz arhive</h2>
+            <p>Klikom na gumb odaberite .mbz datoteku za upload</p>
 
             {!isImporting ? (
               <>
                 <input
-                className='file-input'
+                  className="file-input"
                   type="file"
                   accept=".mbz"
                   ref={fileInputRef}
@@ -197,7 +206,7 @@ export const ImportContainer = () => {
                 </ApiButton>
               </>
             ) : (
-              <div className='log-btn-wrapper'>
+              <div className="log-btn-wrapper">
                 {uploadProgress < 100 ? (
                   <div>
                     <p>Prijenos datoteke: {uploadProgress}%</p>
@@ -214,7 +223,7 @@ export const ImportContainer = () => {
                   </div>
                 ) : (
                   <div>
-                    <div className="logs-container">
+                    <div className="logs-container" ref={logsContainerRef}>
                       {logs.length === 0 ? (
                         <p style={{ color: '#6b7280' }}>Čekanje na logove...</p>
                       ) : (
