@@ -1,0 +1,26 @@
+get:
+  tags:
+    - Statistics
+  summary: Get application statistics
+  description: |
+    Returns aggregated statistics about the system data.
+    This endpoint is read-only and does not modify any data.
+  operationId: getStats
+  responses:
+    '200':
+      description: Statistics retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: 'Failed to fetch statistics'
