@@ -14,6 +14,7 @@ function HomePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localSearchTerm, setLocalSearchTerm] = useState("");
   const [allResults, setAllResults] = useState<DataSet[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const { isSearchActivated, setIsSearchActivated, setSearchTerm } =
     useSearch();
@@ -58,6 +59,35 @@ function HomePage() {
     }
   }, [localSearchTerm, isSearchActivated]);
 
+
+  const performSearch = async (term: string) => {
+    try {
+      if (!term.trim()) {
+        const resp = await api.get("/skupovi");
+        setAllResults(resp.data);
+      } else {
+        const resp = await api.post("/skupovi/search", { searchText: term });
+        setAllResults(resp.data);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setAllResults([]);
+    } finally {
+      setHasSearched(true);
+    }
+  };
+
+
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      // potvrdi pretragu
+      setSearchParams(localSearchTerm ? { q: localSearchTerm } : {});
+      setSearchTerm(localSearchTerm);
+      performSearch(localSearchTerm);
+    }
+  };
+
   const handleSearchFocus = () => {
     if (!isSearchActivated) {
       setIsTransitioning(true);
@@ -67,8 +97,10 @@ function HomePage() {
 
   const handleClearSearch = () => {
     setLocalSearchTerm("");
-    setSearchTerm(""); // Prikaži sve rezultate
-    setSearchParams({}); // Ukloni ?q= iz URL-a
+    setSearchTerm(""); 
+    setSearchParams({}); 
+    setAllResults([]);
+    setHasSearched(false);
   };
 
   const handleToHome = () => {
@@ -77,6 +109,8 @@ function HomePage() {
     setLocalSearchTerm("");
     setSearchTerm("");
     setSearchParams({});
+    setAllResults([]);
+    setHasSearched(false);
   };
 
   return (
@@ -105,7 +139,12 @@ function HomePage() {
               className="search-input search-container"
               onFocus={handleSearchFocus}
               value={localSearchTerm}
-              onChange={(e) => setLocalSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setLocalSearchTerm(e.target.value);
+                setAllResults([]);
+                setHasSearched(false);
+                }}
+              onKeyDown={handleKeyDown}
             />
             {localSearchTerm && (
               <button
@@ -125,11 +164,15 @@ function HomePage() {
               localSearchTerm={localSearchTerm}
               setAllResults={setAllResults}
             />
+
             <SearchResults
               allResults={allResults}
               setAllResults={setAllResults}
+              hasSearched={hasSearched}
             />
-          </div>
+            
+            
+            </div>
         ) : (
           <div className={isTransitioning ? "izvojeni-skupovi-exit" : ""}>
             <IzdvojeniSkupoviPodataka />

@@ -11,9 +11,10 @@ type SortOption = "title-asc" | "title-desc" | "date-desc" | "date-asc";
 type SearchResultsProps = {
   allResults: getDatasetDTO[];
   setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
+  hasSearched?: boolean;
 };
 
-const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
+const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResultsProps) => {
   const {
     searchTerm,
     selectedPublisherIds,
@@ -110,7 +111,18 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
     }
   };
 
+  if (!hasSearched) {
+    return (
+      <div className="search-results">
+        <div className="title-and-sort">
+          <h2>Pritisni Enter za prikaz rezultata pretrage</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="search-results">
       <div className="title-and-sort">
         <h2>
