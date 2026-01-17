@@ -59,6 +59,10 @@ paths:
     $ref: './paths/responses/getById.yaml'
   /api/upload:
     $ref: './paths/upload/uploadMbz.yaml'
+  /api/upload/logs/{jobId}:
+    $ref: './paths/upload/getMbz.yaml'
+  /api/stats:
+    $ref: './paths/stats/stats.yaml'
 components:
   securitySchemes:
     BearerAuth:

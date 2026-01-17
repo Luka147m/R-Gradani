@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict wmCazalyvisZrJAn56YK2ZxzNCb9WSWiIdZ0rjJa3mvfkfcqlQfvYdssay7EQ9o
+\restrict MPWeR2tkgQ32qAf6aMu1yomlZSSCimhFjeLs0vNwFitSzjcdBlOpDqusMTraZwt
 
 -- Dumped from database version 17.7 (Debian 17.7-3.pgdg12+1)
 -- Dumped by pg_dump version 17.7
@@ -162,7 +162,8 @@ CREATE TABLE public.skup_podataka (
     license_id text,
     publisher_id text,
     tags jsonb,
-    fetched_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    fetched_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    last_analysis timestamp without time zone
 );
 
 
@@ -307,5 +308,5 @@ ALTER TABLE ONLY public.slika
 -- PostgreSQL database dump complete
 --
 
-\unrestrict wmCazalyvisZrJAn56YK2ZxzNCb9WSWiIdZ0rjJa3mvfkfcqlQfvYdssay7EQ9o
+\unrestrict MPWeR2tkgQ32qAf6aMu1yomlZSSCimhFjeLs0vNwFitSzjcdBlOpDqusMTraZwt
 

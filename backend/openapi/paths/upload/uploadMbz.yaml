@@ -5,7 +5,7 @@ post:
   description: |
     Upload a Moodle Backup (MBZ) file containing forum discussions with dataset references.
     The system will extract the data, fetch dataset information from data.gov.hr API,
-    and import everything into the database.
+    and import everything into the database asynchronously.
 
     **Process:**
     1. Validates file is .mbz format and under 100MB
@@ -13,7 +13,7 @@ post:
     3. Identifies dataset URLs in discussion posts
     4. Fetches dataset metadata from data.gov.hr CKAN API
     5. Imports publishers, datasets, resources, and comments into database
-    6. Returns statistics about created/updated records
+    6. Returns a job ID to track progress
 
   operationId: uploadMbz
   security:
@@ -35,8 +35,8 @@ post:
           file:
             contentType: application/zip
   responses:
-    '200':
-      description: Import successful
+    '202':
+      description: Import started
       content:
         application/json:
           schema:
@@ -47,10 +47,12 @@ post:
                 example: true
               message:
                 type: string
-                example: 'Import successful'
-
+                example: 'Import started'
+              jobId:
+                type: string
+                example: '550e8400-e29b-41d4-a716-446655440000'
     '400':
-      description: Bad request - Invalid file or MBZ structure
+      description: Bad request - Invalid file
       content:
         application/json:
           schema:
@@ -62,34 +64,10 @@ post:
               error:
                 type: string
           examples:
-            wrongFileType:
-              value:
-                success: false
-                error: 'Only .mbz files are allowed'
-            fileTooLarge:
-              value:
-                success: false
-                error: 'File size exceeds 100MB limit'
             noFile:
               value:
                 success: false
                 error: 'File missing'
-            invalidStructure:
-              value:
-                success: false
-                error: 'Activities directory not found. Invalid MBZ structure.'
-            noForumFolder:
-              value:
-                success: false
-                error: 'No forum folder found inside activities/. Invalid MBZ structure.'
-            missingForumXml:
-              value:
-                success: false
-                error: 'forum.xml not found in forum directory. Invalid MBZ structure.'
-            corruptedXml:
-              value:
-                success: false
-                error: 'Failed to parse forum.xml. Invalid XML format.'
     '500':
       description: Internal server error
       content:

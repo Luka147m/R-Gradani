@@ -1,0 +1,82 @@
+get:
+  tags:
+    - Upload
+  summary: Get logs for a specific MBZ import job
+  description: |
+    Retrieves logs for the MBZ import job identified by `jobId`.
+    Optionally, only logs since a given timestamp can be retrieved using the `since` query parameter.
+  operationId: getJobLogs
+  security:
+    - BearerAuth: []
+  parameters:
+    - name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The ID of the import job
+    - name: since
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+      description: Optional ISO timestamp to filter logs since this date/time
+  responses:
+    '200':
+      description: Logs retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              logs:
+                type: array
+                items:
+                  type: string
+                example:
+                  - 'Starting import...'
+                  - 'Extracted 5 forum posts'
+                  - 'Imported 3 datasets'
+    '400':
+      description: Invalid request (e.g., malformed job ID)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: 'Invalid job ID'
+    '404':
+      description: Job not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: 'Job not found'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: 'Failed to retrieve logs'
