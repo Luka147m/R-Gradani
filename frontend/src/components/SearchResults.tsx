@@ -34,19 +34,19 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
 
   useEffect(() => {
     const savedIds: string[] = JSON.parse(
-      localStorage.getItem("savedDatasets") || "[]"
+      localStorage.getItem("savedDatasets") || "[]",
     );
     const reportedIds: string[] = JSON.parse(
-      localStorage.getItem("reportedDatasets") || "[]"
+      localStorage.getItem("reportedDatasets") || "[]",
     );
 
     let filtered = allResults.filter((d) =>
-      (d.title ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+      (d.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     if (selectedPublisherIds.length > 0) {
       filtered = filtered.filter((d) =>
-        selectedPublisherIds.includes(d.publisher_id ?? "")
+        selectedPublisherIds.includes(d.publisher_id ?? ""),
       );
     }
 
@@ -60,7 +60,7 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
 
     if (dateRange[0]) {
       filtered = filtered.filter(
-        (d) => new Date(d.created ?? 0) >= new Date(dateRange[0])
+        (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
       );
     }
     if (dateRange[1]) {
@@ -81,29 +81,29 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
   ]);
   const sortResults = (
     data: getDatasetDTO[],
-    option: SortOption
+    option: SortOption,
   ): getDatasetDTO[] => {
     const sorted = [...data];
     switch (option) {
       case "title-asc":
         return sorted.sort((a, b) =>
-          (a.title ?? "").localeCompare(b.title ?? "")
+          (a.title ?? "").localeCompare(b.title ?? ""),
         );
       case "title-desc":
         return sorted.sort((a, b) =>
-          (b.title ?? "").localeCompare(a.title ?? "")
+          (b.title ?? "").localeCompare(a.title ?? ""),
         );
       case "date-desc":
         return sorted.sort(
           (a, b) =>
             new Date(b.created ?? 0).getTime() -
-            new Date(a.created ?? 0).getTime()
+            new Date(a.created ?? 0).getTime(),
         );
       case "date-asc":
         return sorted.sort(
           (a, b) =>
             new Date(a.created ?? 0).getTime() -
-            new Date(b.created ?? 0).getTime()
+            new Date(b.created ?? 0).getTime(),
         );
       default:
         return sorted;
