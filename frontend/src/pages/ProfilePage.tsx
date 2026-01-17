@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
-import { MarkedDatasets } from '../components/MarkedDatasets';
-import { CommentBubble } from '../components/CommentBubble.tsx';
-import { ImportContainer } from '../components/ImportContainer.tsx';
-import '../style/HomePage.css';
+import { RecentlyVisitedDatasets } from "../components/ReacentlyVisitedDatasets";
+import { MarkedDatasets } from "../components/MarkedDatasets";
+import { CommentBubble } from "../components/CommentBubble.tsx";
+import { ImportContainer } from "../components/ImportContainer.tsx";
+import "../style/HomePage.css";
 
 interface RequestData {
   content: string;
@@ -19,9 +19,9 @@ function ProfilePage() {
 
   // seed + load
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedRequests') || '[]');
+    const saved = JSON.parse(localStorage.getItem("savedRequests") || "[]");
     const reported = JSON.parse(
-      localStorage.getItem('reportedRequests') || '[]',
+      localStorage.getItem("reportedRequests") || "[]",
     );
 
     if (Array.isArray(saved)) {
@@ -45,14 +45,6 @@ function ProfilePage() {
             <h2>Uvoz .mbz datoteke</h2>
             <ImportContainer />
           </div>
-
-          <p>Placeholder za komponentu za unos single komentara?</p>
-          <p>Placeholder za komponentu za pokretanje analiza?</p>
-          <p>Placeholder za komponentu za postavljanje openai kljuca?</p>
-          <p>
-            Napraviti ove neke administrativne stvari kao svoja sekcija? cog
-            icon? potrebno css popraviti
-          </p>
         </div>
 
         <div className="sidebar">

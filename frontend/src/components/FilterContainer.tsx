@@ -44,7 +44,7 @@ const FilterContainer = ({
 
   useEffect(
     () => setTempPublisherIds(selectedPublisherIds),
-    [selectedPublisherIds]
+    [selectedPublisherIds],
   );
   useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
@@ -68,9 +68,9 @@ const FilterContainer = ({
   const filteredPublisher = useMemo(
     () =>
       publishers.filter((p) =>
-        normalize(p.publisher ?? "").includes(normalize(publisherQuery))
+        normalize(p.publisher ?? "").includes(normalize(publisherQuery)),
       ),
-    [publisherQuery, publishers]
+    [publisherQuery, publishers],
   );
 
   const visiblePublishers = showAllPublishers
@@ -80,7 +80,7 @@ const FilterContainer = ({
   const visiblePublisherIds = visiblePublishers.map((p) => p.id);
 
   const areAllVisibleChecked = visiblePublisherIds.every((id) =>
-    tempPublisherIds.includes(id)
+    tempPublisherIds.includes(id),
   );
 
   const toggleVisiblePublishers = () => {
@@ -95,7 +95,7 @@ const FilterContainer = ({
 
   const togglePublisher = (id: string, checked: boolean) => {
     setTempPublisherIds((prev) =>
-      checked ? [...prev, id] : prev.filter((x) => x !== id)
+      checked ? [...prev, id] : prev.filter((x) => x !== id),
     );
   };
 
