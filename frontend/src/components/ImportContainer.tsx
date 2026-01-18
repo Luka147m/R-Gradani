@@ -10,6 +10,7 @@ interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
   jobId: string;
+  index: number;
 }
 
 interface JobStatusResponse {
@@ -30,13 +31,15 @@ export const ImportContainer = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
-  const [jobStatus, setJobStatus] = useState<'running' | 'completed' | 'failed'>('running');
+  const [jobStatus, setJobStatus] = useState<
+    'running' | 'completed' | 'failed'
+  >('running');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastTimestampRef = useRef<string | null>(null);
+  const lastIndexRef = useRef<number>(-1);
   const pollingIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export const ImportContainer = () => {
     setJobStatus('running');
     setErrorMessage(null);
     setUploadProgress(0);
-    lastTimestampRef.current = null;
+    lastIndexRef.current = -1;
   };
 
   const checkFileType = (fileInt: File | null) => {
@@ -114,12 +117,13 @@ export const ImportContainer = () => {
     const pollJobStatus = async () => {
       try {
         const params = new URLSearchParams();
-        if (lastTimestampRef.current) {
-          params.append('since', lastTimestampRef.current);
+        if (lastIndexRef.current >= 0) {
+          params.append('sinceIndex', lastIndexRef.current.toString());
         }
 
         const response = await api.get<JobStatusResponse>(
-          `/upload/logs/${jobId}?${params}`);
+          `/upload/logs/${jobId}?${params}`,
+        );
 
         if (!response.data.success) {
           console.error('Job not found');
@@ -133,17 +137,23 @@ export const ImportContainer = () => {
         }
 
         if (response.data.logs.length > 0) {
-          setLogs((prev) => [...prev, ...response.data.logs]);
+          setLogs((prev) => {
+            const existingIndices = new Set(prev.map((log) => log.index));
+            const newLogs = response.data.logs.filter(
+              (log) => !existingIndices.has(log.index),
+            );
+            return [...prev, ...newLogs];
+          });
 
           const lastLog = response.data.logs[response.data.logs.length - 1];
-          lastTimestampRef.current = lastLog.timestamp;
+          lastIndexRef.current = lastLog.index;
         }
 
         setJobStatus(response.data.status);
 
         if (response.data.isComplete) {
           setIsCompleted(true);
-          
+
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
@@ -160,7 +170,7 @@ export const ImportContainer = () => {
 
     // Svake sekunde
     pollingIntervalRef.current = window.setInterval(pollJobStatus, 1000);
-    
+
     pollJobStatus();
 
     return () => {
@@ -169,7 +179,6 @@ export const ImportContainer = () => {
         pollingIntervalRef.current = null;
       }
     };
-
   }, [jobId]);
 
   const getLogColor = (level: string) => {
@@ -243,19 +252,29 @@ export const ImportContainer = () => {
                 ) : (
                   <div>
                     {isCompleted && (
-                      <div className = 'status' style={{ 
-                        backgroundColor: jobStatus === 'completed' ? '#dcfce7' : '#fee2e2',
-                        color: jobStatus === 'completed' ? '#166534' : '#991b1b',
-                      }}>
-                        {jobStatus === 'completed' ? 'Uvoz završen uspješno!' : 'Uvoz neuspješan'}
+                      <div
+                        className="status"
+                        style={{
+                          backgroundColor:
+                            jobStatus === 'completed' ? '#dcfce7' : '#fee2e2',
+                          color:
+                            jobStatus === 'completed' ? '#166534' : '#991b1b',
+                        }}
+                      >
+                        {jobStatus === 'completed'
+                          ? 'Uvoz završen uspješno!'
+                          : 'Uvoz neuspješan'}
                       </div>
                     )}
 
                     {errorMessage && (
-                      <div className = 'status' style={{
-                        backgroundColor: '#fef2f2',
-                        color: '#991b1b',
-                      }}>
+                      <div
+                        className="status"
+                        style={{
+                          backgroundColor: '#fef2f2',
+                          color: '#991b1b',
+                        }}
+                      >
                         Greška: {errorMessage}
                       </div>
                     )}

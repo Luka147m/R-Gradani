@@ -3,10 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import prisma from "../../config/prisma";
-
-if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not set in environment variables");
-}
+import { logToJob } from "../helper/logger";
 
 const openai = new OpenAI();
 
@@ -98,7 +95,7 @@ async function structureComment(comment: string): Promise<Statement[]> {
         const response = await openai.responses.create({
             model,
             instructions: prompts.strukturiranje,
-            input: [{ role: "user", content: comment }],
+            input: [{ role: "user", content: cleanComment(comment) }],
             text: { format: zodTextFormat(izjaveSchema, "event") },
         });
 
@@ -108,27 +105,29 @@ async function structureComment(comment: string): Promise<Statement[]> {
         const responseObj = JSON.parse(response.output_text);
         const parsed = izjaveSchema.parse(responseObj);
         return parsed.statements;
+
     } catch (err: any) {
         if (err.status === 401) {
-            console.error("Invalid API key");
+            throw new Error("Invalid API key - cannot continue");
         } else if (err.status === 402) {
-            console.error("Insufficient funds / billing issue");
-            // process.exit(1)
+            throw new Error("Insufficient funds - cannot continue");
         } else if (err.status === 429) {
             console.error("Rate limit exceeded, try again later");
+            return [];
         } else {
             console.error("Unknown error:", err.message);
+            return [];
         }
-        return [];
     }
 }
 
 // Funkcija koja procesira n komentara bez odgovora
-async function structureNComments(limit: number, offset: number = 0) {
-    console.log("Počinjem strukturiranje komentara...");
+async function structureNComments(limit: number, offset: number = 0, jobId: string) {
+    logToJob(jobId, 'info', 'Počinjem strukturiranje komentara...')
 
     const commentsRows = await getComments(limit, offset);
-    console.log(`Pronađeno ${commentsRows.length} komentara za procesiranje`);
+    logToJob(jobId, 'info', `Pronađeno ${commentsRows.length} komentara za procesiranje`)
+
     // console.log(commentsRows[0])
 
     let totalComments = commentsRows.length;
@@ -140,7 +139,7 @@ async function structureNComments(limit: number, offset: number = 0) {
         try {
             // console.log(`Procesiram komentar ${comment.comment_id}`);
             if (!comment.message) {
-                console.log(`Komentar ${comment.id}: Prazna poruka`);
+                logToJob(jobId, 'debug', `Komentar ${comment.id}: Prazna poruka`)
                 failedComments++;
                 continue;
             }
@@ -149,7 +148,8 @@ async function structureNComments(limit: number, offset: number = 0) {
             const statements = await structureComment(comment.message);
 
             if (statements.length === 0) {
-                console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
+                // console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
+                logToJob(jobId, 'debug', `Komentar ${comment.id}: Nema strukturiranih izjava`)
                 failedComments++;
                 continue;
             }
@@ -177,39 +177,51 @@ async function structureNComments(limit: number, offset: number = 0) {
             // Provjeriti moze li se pauza smanjiti
 
         } catch (error: any) {
+            if (error.message?.includes("cannot continue")) {
+                logToJob(jobId, 'error', `Kritična greška: ${error.message}`)
+                throw error;
+            }
+
             failedComments++;
+            logToJob(jobId, 'warn', `Greška kod komentara ${comment.id}:`)
             console.error(`Greška kod komentara ${comment.id}:`, error.message);
             continue;
         }
     }
 
     // Finalni izvještaj
-    console.log("\n" + "=".repeat(60));
-    console.log("FINALNI IZVJEŠTAJ");
-    console.log("=".repeat(60));
-    console.log(`Uspješno procesirano: ${processedComments}/${totalComments}`);
-    console.log(`Neuspješno: ${failedComments}/${totalComments}`);
-    console.log(`Stopa uspjeha: ${((processedComments / totalComments) * 100).toFixed(1)}%`);
-    console.log("=".repeat(60));
+    // console.log("\n" + "=".repeat(60));
+    // console.log("FINALNI IZVJEŠTAJ");
+    // console.log("=".repeat(60));
+    // console.log(`Uspješno procesirano: ${processedComments}/${totalComments}`);
+    // console.log(`Neuspješno: ${failedComments}/${totalComments}`);
+    // console.log(`Stopa uspjeha: ${((processedComments / totalComments) * 100).toFixed(1)}%`);
+    // console.log("=".repeat(60));
+
+    logToJob(jobId, 'info', `Uspješno strukturirano: ${processedComments}/${totalComments}`)
+    logToJob(jobId, 'info', `Neuspješno: ${failedComments}/${totalComments}`)
 }
 
 // Strukturira sve komentare koji dosad nisu bili strukturirani
-async function structureAll() {
+export async function structureAll(jobId: string) {
 
     const batchSize = 20;
     let totalProcessed = 0;
 
-    while (true) {
-        const commentsRows = await getComments(batchSize);
-        if (commentsRows.length === 0) break;
+    try {
+        while (true) {
+            const commentsRows = await getComments(batchSize);
+            if (commentsRows.length === 0) break;
 
-        await structureNComments(batchSize);
+            await structureNComments(batchSize, 0, jobId);
 
-        totalProcessed += commentsRows.length;
-        console.log(`Ukupno procesirano: ${totalProcessed}`);
+            totalProcessed += commentsRows.length;
+            logToJob(jobId, 'info', `Ukupno strukturirano: ${totalProcessed}`)
+        }
+
+        logToJob(jobId, 'info', 'Strukturiranje završeno.')
+    } catch (error: any) {
+        logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
+        throw error;
     }
-
-    console.log("Strukturiranje završeno.");
 }
-
-// structureAll()

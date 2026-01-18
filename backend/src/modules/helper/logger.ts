@@ -3,6 +3,7 @@ interface LogEntry {
     level: 'info' | 'warn' | 'error' | 'debug';
     message: string;
     jobId: string;
+    index: number;
 }
 
 interface JobStatus {
@@ -17,12 +18,14 @@ class LogStore {
     private jobStatuses: Map<string, JobStatus> = new Map();
     private maxLogsPerJob = 100;
     private logTTL = 600000;
+    private logIndexCounters: Map<string, number> = new Map();
 
     startJob(jobId: string) {
         this.jobStatuses.set(jobId, {
             status: 'running',
             startedAt: new Date()
         });
+        this.logIndexCounters.set(jobId, 0);
     }
 
     completeJob(jobId: string, success: boolean, error?: string) {
@@ -36,9 +39,9 @@ class LogStore {
         }
     }
 
-    getJobInfo(jobId: string, since?: Date) {
+    getJobInfo(jobId: string, sinceIndex?: number) {
         const status = this.jobStatuses.get(jobId);
-        const logs = this.getLogs(jobId, since);
+        const logs = this.getLogs(jobId, sinceIndex);
 
         if (!status) {
             return null;
@@ -56,12 +59,16 @@ class LogStore {
             this.logs.set(jobId, []);
         }
 
+        const currentIndex = this.logIndexCounters.get(jobId) || 0;
+        this.logIndexCounters.set(jobId, currentIndex + 1);
+
         const jobLogs = this.logs.get(jobId)!;
         jobLogs.push({
             timestamp: new Date(),
             level,
             message,
-            jobId
+            jobId,
+            index: currentIndex
         });
 
         if (jobLogs.length > this.maxLogsPerJob) {
@@ -69,11 +76,11 @@ class LogStore {
         }
     }
 
-    getLogs(jobId: string, since?: Date): LogEntry[] {
+    getLogs(jobId: string, sinceIndex?: number): LogEntry[] {
         const jobLogs = this.logs.get(jobId) || [];
 
-        if (since) {
-            return jobLogs.filter(log => log.timestamp > since);
+        if (sinceIndex !== undefined) {
+            return jobLogs.filter(log => log.index > sinceIndex);
         }
 
         return jobLogs;
@@ -82,6 +89,7 @@ class LogStore {
     clearLogs(jobId: string) {
         this.logs.delete(jobId);
         this.jobStatuses.delete(jobId);
+        this.logIndexCounters.delete(jobId);
     }
 
     cleanup() {
@@ -93,6 +101,7 @@ class LogStore {
             if (now - lastLog.timestamp.getTime() > this.logTTL) {
                 this.logs.delete(jobId);
                 this.jobStatuses.delete(jobId)
+                this.logIndexCounters.delete(jobId);
             }
         }
     }

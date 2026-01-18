@@ -12,6 +12,7 @@ interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
   jobId: string;
+  index: number;
 }
 
 interface JobStatusResponse {
@@ -35,7 +36,7 @@ export const AnalyzeContainer = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
-  const lastTimestampRef = useRef<string | null>(null);
+  const lastIndexRef = useRef<number>(-1);
   const pollingIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export const AnalyzeContainer = () => {
     setIsWorking(false);
     setJobStatus('running');
     setErrorMessage(null);
-    lastTimestampRef.current = null;
+    lastIndexRef.current = -1;
   };
 
   const submitResponse = async () => {
@@ -61,7 +62,7 @@ export const AnalyzeContainer = () => {
     setErrorMessage(null);
 
     try {
-      const response = await api.post('/upload');
+      const response = await api.post('/odgovori/analyze');
 
       if (response.data.success && response.data.jobId) {
         setJobId(response.data.jobId);
@@ -83,12 +84,12 @@ export const AnalyzeContainer = () => {
     const pollJobStatus = async () => {
       try {
         const params = new URLSearchParams();
-        if (lastTimestampRef.current) {
-          params.append('since', lastTimestampRef.current);
+        if (lastIndexRef.current >= 0) {
+          params.append('sinceIndex', lastIndexRef.current.toString());
         }
 
         const response = await api.get<JobStatusResponse>(
-          `/upload/logs/${jobId}?${params}`);
+          `/odgovori/logs/${jobId}?${params}`);
 
         if (!response.data.success) {
           console.error('Job not found');
@@ -102,10 +103,13 @@ export const AnalyzeContainer = () => {
         }
 
         if (response.data.logs.length > 0) {
-          setLogs((prev) => [...prev, ...response.data.logs]);
-
-          const lastLog = response.data.logs[response.data.logs.length - 1];
-          lastTimestampRef.current = lastLog.timestamp;
+          setLogs((prev) => {
+            const existingIndices = new Set(prev.map((log) => log.index));
+            const newLogs = response.data.logs.filter(
+              (log) => !existingIndices.has(log.index),
+            );
+            return [...prev, ...newLogs];
+          });
         }
 
         setJobStatus(response.data.status);
