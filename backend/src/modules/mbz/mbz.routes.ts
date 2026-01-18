@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { upload } from "../../config/upload";
-import { uploadMbz, getJobLogs } from "./mbz.controller";
+import { uploadMbz, getJobStatus } from "./mbz.controller";
 import multer from "multer";
 import { requireApiKey } from "../middleware/auth";
 
@@ -30,8 +30,7 @@ const handleMulterError = (err: any, req: Request, res: Response, next: NextFunc
   next();
 };
 
-// Poslije odmaknuti requireApiKey za lokalno pokretanje
-mbzRouter.post("/", requireApiKey, upload.single("file"), handleMulterError, uploadMbz);
-mbzRouter.get("/logs/:jobId", requireApiKey, getJobLogs);
+mbzRouter.post("/", upload.single("file"), handleMulterError, uploadMbz);
+mbzRouter.get("/logs/:jobId", getJobStatus);
 
 export default mbzRouter;

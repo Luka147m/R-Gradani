@@ -25,14 +25,22 @@ export async function uploadMbz(req: Request, res: Response) {
     });
 }
 
-export async function getJobLogs(req: Request, res: Response) {
+export async function getJobStatus(req: Request, res: Response) {
     const { jobId } = req.params;
     const since = req.query.since ? new Date(req.query.since as string) : undefined;
 
-    const logs = logStore.getLogs(jobId, since);
+    const jobInfo = logStore.getJobInfo(jobId, since);
+
+    if (!jobInfo) {
+        return res.status(404).json({
+            success: false,
+            message: 'Job not found'
+        });
+    }
 
     res.status(200).json({
         success: true,
-        logs
+        jobId,
+        ...jobInfo
     });
 }
