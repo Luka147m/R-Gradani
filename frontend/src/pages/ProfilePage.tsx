@@ -4,6 +4,8 @@ import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets'
 import { MarkedDatasets } from '../components/MarkedDatasets';
 import { CommentBubble } from '../components/CommentBubble.tsx';
 import { ImportContainer } from '../components/ImportContainer.tsx';
+import { AnalyzeContainer } from '../components/AnalyzeContainer.tsx';
+import { Wrench } from 'lucide-react';
 import '../style/HomePage.css';
 
 interface RequestData {
@@ -41,18 +43,26 @@ function ProfilePage() {
     <>
       <div className="main-container profile-page-container">
         <div className="sidebar">
-          <div>
+          <div className="ikona-naslov-div">
+            <Wrench className="ikona" />
+            <h1 className="search-skupovi-h1">Postavke</h1>
+          </div>
+
+          {/*Privremeno ukran css od ispod kopmonenti"*/}
+
+          <div className="search-skupovi-div">
+          <div className="request-card">
             <h2>Uvoz .mbz datoteke</h2>
             <ImportContainer />
           </div>
 
-          <p>Placeholder za komponentu za unos single komentara?</p>
-          <p>Placeholder za komponentu za pokretanje analiza?</p>
-          <p>Placeholder za komponentu za postavljanje openai kljuca?</p>
-          <p>
-            Napraviti ove neke administrativne stvari kao svoja sekcija? cog
-            icon? potrebno css popraviti
-          </p>
+          <div className="request-card">
+            <h2>Pokreni analizu</h2>
+            <AnalyzeContainer />
+            <p>Pokreće analizu nad svim dostupnim podacima</p>
+          </div>
+          </div>
+
         </div>
 
         <div className="sidebar">
