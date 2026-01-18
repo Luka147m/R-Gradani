@@ -6,7 +6,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 
 import * as reponsesRepository from '../responses/responses.repository';
 import { fetchDatasetAndResourcesById } from '../datasets/datasets.service';
-import * as AnalysisTypes  from '../responses/analysis.types';
+import * as AnalysisTypes from '../responses/analysis.types';
 import { Statement } from './analysis.types';
 
 
@@ -22,28 +22,28 @@ const prompts = {
 };
 
 export const getResponsesByCommentId = async (commentId: number) => {
-  if (!commentId || commentId <= 0) {
-    throw new Error('Nevaljan komentar ID');
-  }
-  const responses = await reponsesRepository.fetchResponsesByCommentId(commentId);
-  return responses;
+    if (!commentId || commentId <= 0) {
+        throw new Error('Nevaljan komentar ID');
+    }
+    const responses = await reponsesRepository.fetchResponsesByCommentId(commentId);
+    return responses;
 };
 
 export const getResponseById = async (responseId: number) => {
-  if (!responseId || responseId <= 0) {
-    throw new Error('Nevaljan odgovor ID');
-  }
-  const response = await reponsesRepository.fetchResponseById(responseId);
-  if (!response) {
-    throw new Error('Odgovor nije pronađen');
-  }
-  return response;
+    if (!responseId || responseId <= 0) {
+        throw new Error('Nevaljan odgovor ID');
+    }
+    const response = await reponsesRepository.fetchResponseById(responseId);
+    if (!response) {
+        throw new Error('Odgovor nije pronađen');
+    }
+    return response;
 };
 
 export const analyzeResponse = async (responseId: number, datasetId: string) => {
 
     //console.log("Pozvana je ruta za analiziranje");
-  
+
     // dohvacanje odgovora iz baze
     const response = await reponsesRepository.fetchResponseById(responseId);
     console.log(response);
@@ -64,7 +64,7 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
     //console.log(dataset.id);
 
     // napravi SkupGroup
-    const skup : AnalysisTypes.SkupGroup = {
+    const skup: AnalysisTypes.SkupGroup = {
         skup_id: dataset.id ?? '',
         title: dataset.title ?? null,
         refresh_frequency: dataset.refresh_frequency ?? null,
@@ -72,9 +72,9 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
         description: dataset.theme ?? null,
         url: dataset.url ?? null,
         license_title: dataset.license_title ?? null,
-        tags:Array.isArray(dataset.tags) ? (dataset.tags as string[]) : null,
+        tags: Array.isArray(dataset.tags) ? (dataset.tags as string[]) : null,
         resources: dataset.resurs ?? null,
-        comments: [], 
+        comments: [],
     };
 
     // posao vezan uz vector store
@@ -87,7 +87,7 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
         }
         return { success: false, message: "Analiza nije ažurirana", reason: result.error };
 
-        
+
     }
     const { vectorStore, fileIds } = result;
 
@@ -102,19 +102,19 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
     }
 
     // priprema za analizriranje izjava
-   let message;
+    let message;
     try {
-    message = typeof response.message === 'string' 
-        ? JSON.parse(response.message) 
-        : response.message;
+        message = typeof response.message === 'string'
+            ? JSON.parse(response.message)
+            : response.message;
     } catch (error) {
         console.log(`Nevaljan JSON u response ${responseId}:`, error);
-        return { success: false, message: "Analiza nije ažurirana", reason: `Nevaljan JSON u response ${responseId}:`};
+        return { success: false, message: "Analiza nije ažurirana", reason: `Nevaljan JSON u response ${responseId}:` };
     }
 
     if (message.error) {
         console.log(`Response ${responseId} se ne moze analizirati`, message.error);
-        return { success: false, message: "Analiza nije ažurirana", reason: message.error};
+        return { success: false, message: "Analiza nije ažurirana", reason: message.error };
 
     }
 
@@ -123,13 +123,13 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
     // ...
 
     if (message.izjave && Array.isArray(message.izjave)) {
-        message.izjave.forEach( (izjava:Statement) => {
+        message.izjave.forEach((izjava: Statement) => {
             // flag??
             izjava.analysis = undefined;
         })
     }
 
-     const metapodaci: string = `
+    const metapodaci: string = `
         Naziv skupa: ${skup.title || "N/A"}
         Opis skupa: ${skup.description || "N/A"}
         Tema: ${skup.theme || "N/A"}
@@ -138,7 +138,7 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
         Licenca: ${skup.license_title || "N/A"}
         Tagovi: ${skup.tags ? skup.tags.join(", ") : "N/A"}
         `;
-    
+
     // pozivanje analize
     const analyzedStatements = await analyzeStatements(
         vectorStore.id,
@@ -153,7 +153,7 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
 
     const jsonObj = { izjave: analyzedStatements };
 
-   const created =  await prisma.odgovor.create({
+    const created = await prisma.odgovor.create({
         data: {
             komentar_id: response.komentar_id,
             message: jsonObj as Prisma.JsonObject,
@@ -164,9 +164,8 @@ export const analyzeResponse = async (responseId: number, datasetId: string) => 
     // čišćenje resursa
     cleanupResources(vectorStore.id, fileIds);
 
-    return { success: true,  message: "Analiza ažurirana", responseId: created.id}
+    return { success: true, message: "Analiza ažurirana", responseId: created.id }
 };
-
 
 async function analyzeStatements(
     vectorStoreId: string,
@@ -174,7 +173,7 @@ async function analyzeStatements(
     metapodaci: string
 ): Promise<Statement[]> {
     const vectorIDs = [vectorStoreId];
-    
+
     for (const statement of statements) {
         console.log("Analiziram izjavu ID:", statement.id);
 
@@ -338,7 +337,7 @@ async function createVectorStore(skup: AnalysisTypes.SkupGroup): Promise<Analysi
 
 async function createFile(filePath: string, format: string | null, fileSize: number | null): Promise<AnalysisTypes.FileUploadResult> {
     console.log("Pozvan createFile");
-    
+
     const supportedFormats = ["csv", "doc", "docx", "html", "json", "pdf", "pptx", "txt", "xlsx", "xml", "xlsm", "xslx", "xls", "kml", "geojson"];
 
     if (fileSize !== null) {
@@ -413,7 +412,6 @@ async function createFile(filePath: string, format: string | null, fileSize: num
     }
 }
 
-// Pricekaj da se napravi vector store
 async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number = 300000): Promise<boolean> {
     const startTime = Date.now();
     const pollInterval = 15000;

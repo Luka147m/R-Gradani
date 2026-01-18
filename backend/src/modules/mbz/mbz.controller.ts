@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { importMbz } from './mbz.service';
 import { MbzStructureError } from './mbz.data';
 import { randomUUID } from 'crypto';
+import { logStore } from '../helper/logger';
 
 export async function uploadMbz(req: Request, res: Response) {
     if (!req.file) {
@@ -28,7 +29,6 @@ export async function getJobLogs(req: Request, res: Response) {
     const { jobId } = req.params;
     const since = req.query.since ? new Date(req.query.since as string) : undefined;
 
-    const { logStore } = await import('./mbz.logs');
     const logs = logStore.getLogs(jobId, since);
 
     res.status(200).json({

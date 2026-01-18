@@ -337,7 +337,7 @@ async function waitForVectorStoreReady(vectorStoreId: string, maxWaitMs: number 
     return false;
 }
 
-// Create vector store for a dataset
+// Kreiraj vector store
 async function createVectorStore(skup: SkupGroup): Promise<VectorStoreResponse> {
 
     const resources = skup.resources?.filter(res => res.url && res.format) || [];
@@ -442,7 +442,7 @@ async function createVectorStore(skup: SkupGroup): Promise<VectorStoreResponse> 
     return { vectorStore, fileIds }
 }
 
-// Analyze statements using OpenAI
+// Analiziraj izjavu
 async function analyzeStatements(
     vectorStoreId: string,
     statements: Statement[],

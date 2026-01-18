@@ -50,7 +50,7 @@ export const analyzeResponse = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid response ID" });
   }
   try {
-    const datasetId = req.body.datasetId; 
+    const datasetId = req.body.datasetId;
     console.log(datasetId);
     const response = await reponsesService.analyzeResponse(responseId, datasetId);
 
@@ -60,4 +60,8 @@ export const analyzeResponse = async (req: Request, res: Response) => {
   catch (error) {
     res.status(500).json({ message: `${error}` });
   }
+};
+
+export const analyzeAll = async (req: Request, res: Response) => {
+
 };

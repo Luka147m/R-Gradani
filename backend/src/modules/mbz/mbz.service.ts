@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { extractMbz } from './mbz.extract';
 import { importToDatabase } from './mbz.import';
-import { logToJob } from './mbz.logs';
+import { logToJob } from './../helper/logger';
 import os from 'os';
 
 function getTempBaseDir() {

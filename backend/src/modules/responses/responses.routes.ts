@@ -7,5 +7,6 @@ router.get('/komentar/:commentId', responsesController.getResponsesByCommentId);
 router.get('/:id', responsesController.getResponsesById);
 
 router.post('/:responseId/analyze', responsesController.analyzeResponse);
+router.post('/analyze', responsesController.analyzeAll)
 
 export default router;
