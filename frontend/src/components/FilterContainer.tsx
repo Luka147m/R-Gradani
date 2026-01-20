@@ -84,10 +84,16 @@ const FilterContainer = ({
   );
 
   
-  const publishersWithCounts = useMemo(
-    () => filteredPublisher.filter((p) => (publisherCounts[String(p.id)] ?? 0) > 0),
-    [filteredPublisher, publisherCounts],
-  );
+  const publishersWithCounts = useMemo(() => {
+    const withCounts = filteredPublisher.filter(
+      (p) => (publisherCounts[String(p.id)] ?? 0) > 0,
+    );
+    return [...withCounts].sort(
+      (a, b) =>
+        (publisherCounts[String(b.id)] ?? 0) -
+        (publisherCounts[String(a.id)] ?? 0),
+    );
+  }, [filteredPublisher, publisherCounts]);
 
   const visiblePublishers = showAllPublishers
     ? publishersWithCounts
@@ -122,7 +128,7 @@ const FilterContainer = ({
   };
 
   useEffect(() => {
-    const allIds = publishersWithCounts.map((p) => p.id);
+    const allIds = publishersWithCounts.map((p) => String(p.id));
     setTempPublisherIds(allIds);
   }, [publishersWithCounts]);
 
