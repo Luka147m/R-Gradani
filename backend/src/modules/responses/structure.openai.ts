@@ -1,9 +1,18 @@
-// Za strukturiranje komentara koristimo gpt-5-mini
+/**
+ * @file structure.openai.ts
+ *
+ * Ova datoteka sadrži logiku za:
+ *  Strukturiranje komentara pomoću OpenAI LLM-a
+ *  Funkcije za pokretanje strukturiranja komentara u batch-evima ili sve odjednom
+ *
+ */
 import OpenAI from "openai";
 import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import prisma from "../../config/prisma";
 import { logToJob, isJobCancelled } from "../helper/logger";
+import { getCommentsWithoutResponses } from "./responses.repository";
+import { CriticalApiError } from './error.openai';
 
 const openai = new OpenAI();
 
@@ -19,6 +28,7 @@ const prompts = {
         STRUKTURA PODATAKA (npr. nedostajući stupci ili nazivi stupaca, pogrešni tipovi podataka), FORMAT PODATAKA (npr. dostupni formati datoteka, kodiranje), POVEZANOST (s drugih skupovima), AŽURIRANOST, OSTALO).`,
 }
 
+// Za strukturiranje komentara koristimo gpt-5-mini
 const model = "gpt-5-mini";
 
 // Tipovi
@@ -32,20 +42,18 @@ const izjaveSchema = z.object({
     statements: z.array(izjavaSchema),
 });
 
-type CommentRow = {
-    id: number;
-    skup_id: string | null;
-    message: string | null;
-    skup_podataka: { title: string | null } | null;
-};
-
 type Statement = {
     id: number;
     text: string;
     category: string;
 };
 
-// Čistimo komentar korisnika od HTML tagova i nepotrebnih praznina
+/**
+ * Pomoćna funkcija čisti HTML tagove iz komentara i formatira ga za slanje LLM-u
+ *
+ * @param comment - originalni komentar s mogućim HTML tagovima
+ * @returns tekst komentara bez HTML tagova
+ */
 function cleanComment(comment?: string | null): string {
     if (!comment) return "";
 
@@ -57,39 +65,13 @@ function cleanComment(comment?: string | null): string {
         .trim();
 }
 
-// Funkcija koja dohvaća n komentara koji još nemaju odgovore
-async function getComments(limit: number, offset: number = 0): Promise<CommentRow[]> {
-
-    const comments = await prisma.komentar.findMany({
-        where: {
-            odgovor: {
-                none: {}   // nema nijednog odgovora (Ovo se može kasnije promijeniti)
-            }
-        },
-        select: {
-            id: true,
-            skup_id: true,
-            message: true,
-            skup_podataka: {
-                select: {
-                    title: true,  // samo title skupa podataka
-                }
-            }
-
-        },
-        take: limit,
-        skip: offset
-    });
-
-    // Bigint mapping
-    return comments.map(c => ({
-        ...c,
-        id: Number(c.id)
-    }));
-
-}
-
-// Funkcija prima string komentara, vraća niz strukturiranih izjava
+/**
+ * Funkcija koja prima jedan komentar i šalje ga na openai za strukturiranje
+ *
+ * @param comment - tekst komentara za strukturiranje
+ * @returns niz strukturiranih izjava
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
 async function structureComment(comment: string): Promise<Statement[]> {
     try {
         const response = await openai.responses.create({
@@ -108,9 +90,9 @@ async function structureComment(comment: string): Promise<Statement[]> {
 
     } catch (err: any) {
         if (err.status === 401) {
-            throw new Error("Invalid API key - cannot continue");
+            throw new CriticalApiError("Invalid API key");
         } else if (err.status === 402) {
-            throw new Error("Insufficient funds - cannot continue");
+            throw new CriticalApiError("Insufficient funds");
         } else if (err.status === 429) {
             console.error("Rate limit exceeded, try again later");
             return [];
@@ -121,11 +103,18 @@ async function structureComment(comment: string): Promise<Statement[]> {
     }
 }
 
-// Funkcija koja procesira n komentara bez odgovora
+/**
+ * Funkcija koja pokreće strukturiranje N komentara koji nemaju odgovore, batch
+ * 
+ * @param limit - maksimalan broj komentara za dohvat
+ * @param offset - offset za dohvat komentara (koristi 0)
+ * @param jobId - ID zadatka za logiranje
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
 async function structureNComments(limit: number, offset: number = 0, jobId: string) {
     logToJob(jobId, 'info', 'Počinjem strukturiranje komentara...')
 
-    const commentsRows = await getComments(limit, offset);
+    const commentsRows = await getCommentsWithoutResponses(limit, offset);
     logToJob(jobId, 'info', `Pronađeno ${commentsRows.length} komentara za procesiranje`)
 
     // console.log(commentsRows[0])
@@ -184,9 +173,8 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
             // Provjeriti moze li se pauza smanjiti
 
         } catch (error: any) {
-            if (error.message?.includes("cannot continue")) {
-                logToJob(jobId, 'error', `Kritična greška: ${error.message}`)
-                throw error;
+            if (error instanceof CriticalApiError) {
+                throw error;  // Kritična greška se propagira dalje
             }
 
             failedComments++;
@@ -209,7 +197,12 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
     logToJob(jobId, 'info', `Neuspješno: ${failedComments}/${totalComments}`)
 }
 
-// Strukturira sve komentare koji dosad nisu bili strukturirani
+/**
+ * Funkcija koja pokreće strukturiranje svih komentara koji nemaju odgovore, u batch-evima
+ *
+ * @param jobId - ID zadatka za logiranje
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
 export async function structureAll(jobId: string) {
 
     const batchSize = 20;
@@ -217,7 +210,7 @@ export async function structureAll(jobId: string) {
 
     try {
         while (true) {
-            const commentsRows = await getComments(batchSize);
+            const commentsRows = await getCommentsWithoutResponses(batchSize);
             if (commentsRows.length === 0) break;
 
             await structureNComments(batchSize, 0, jobId);
@@ -228,6 +221,9 @@ export async function structureAll(jobId: string) {
 
         logToJob(jobId, 'info', 'Strukturiranje završeno.')
     } catch (error: any) {
+        if (error instanceof CriticalApiError) {
+            throw error;    // Kritična greška se propagira dalje
+        }
         logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
         throw error;
     }

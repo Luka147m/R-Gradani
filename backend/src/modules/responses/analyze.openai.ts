@@ -1,3 +1,13 @@
+/**
+ * @file analyze.openai.ts
+ *
+ * Ova datoteka sadrži logiku za:
+ *  Analizu izjava koristeći OpenAI API
+ *  Izračunavanje score na temelju rezultata analize
+ *  Izgradnju metapodataka za skupove podataka
+ *  Obradu svih skupova podataka i njihovih izjava u batch načinu rada
+ * 
+ */
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import * as AnalysisTypes from './analysis.types';
@@ -6,6 +16,7 @@ import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
 import { getStructuredComments } from './responses.repository';
 import { createVectorStore, cleanupResources } from './vectorStore.openai';
+import { CriticalApiError } from './error.openai';
 
 const openai = new OpenAI();
 const model = 'gpt-5-mini';
@@ -14,6 +25,17 @@ const ANALYSIS_PROMPT = `Analiziraj koliko je sljedeća izjava istinita za skup 
 Komentar neka bude najviše jedna rečenica. Podudarnost predstavlja postotak zapisa/redaka za koji je izjava istinita.
 Ako je podudarnost manja od 25, onda je usvojenost True inače False.`;
 
+/**
+ * Funkcija koja analizira izjave koristeći OpenAI API, obavlja poziv API-ja za svaku izjavu
+ * i vraća ažurirani niz izjava s rezultatima analize.
+ *
+ * @param vectorStoreId - ID vector storea
+ * @param statements - niz izjava koje treba analizirati
+ * @param metapodaci - metapodaci skupa podataka u obliku stringa
+ * @param jobId - ID posla za logiranje
+ * @returns Ažurirani niz izjava s rezultatima analize
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
 export async function analyzeStatements(
     vectorStoreId: string,
     statements: AnalysisTypes.Statement[],
@@ -60,10 +82,10 @@ export async function analyzeStatements(
         } catch (err: any) {
             if (err.status === 401) {
                 logToJob(jobId, 'error', 'Invalid API key - cannot continue');
-                throw new Error("Invalid API key - cannot continue");
+                throw new CriticalApiError("Invalid API key");
             } else if (err.status === 402) {
                 logToJob(jobId, 'error', 'Insufficient funds - cannot continue');
-                throw new Error("Insufficient funds - cannot continue");
+                throw new CriticalApiError("Insufficient funds");
             } else if (err.status === 429) {
                 logToJob(jobId, 'warn', 'Rate limit exceeded for statement, retrying...');
                 statement.analysis = undefined;
@@ -81,6 +103,12 @@ export async function analyzeStatements(
     return statements;
 }
 
+/**
+ * Pomoćna funkcija za izračunavanje ukupnog score na temelju podudarnosti iz analiza izjava.
+ *
+ * @param statements - niz izjava s rezultatima analize
+ * @returns Ukupni score kao broj
+ */
 export function calculateScore(statements: AnalysisTypes.Statement[]): number {
     const ukupno = statements.reduce(
         (acc, obj) => acc + (obj.analysis?.podudarnost || 0),
@@ -90,6 +118,12 @@ export function calculateScore(statements: AnalysisTypes.Statement[]): number {
     return prosjek;
 }
 
+/**
+ *  Pomoćna funkcija koja gradi metapodatke skupa podataka u obliku stringa.
+ * 
+ * @param skup - podaci o skupu podataka u obliku AnalysisTypes.SkupGroup
+ * @returns Metapodaci skupa podataka u obliku stringa
+ */
 export function buildMetadata(skup: AnalysisTypes.SkupGroup): string {
     return `
         Naziv skupa: ${skup.title || 'N/A'}
@@ -102,6 +136,12 @@ export function buildMetadata(skup: AnalysisTypes.SkupGroup): string {
     `;
 }
 
+/**
+ * Funkcija koja pokreće analizu svih skupova podataka u batch načinu rada.
+ * 
+ * @param jobId - ID posla za logiranje
+ * @throws Baca grešku ako se dogodi kritična greška tijekom analize
+ */
 export async function analyzeAllData(jobId: string): Promise<void> {
     logToJob(jobId, 'info', 'Započinjem analiziranje izjava')
     const totalStart = Date.now();
@@ -148,7 +188,12 @@ export async function analyzeAllData(jobId: string): Promise<void> {
     }
 }
 
-
+/**
+ * Funkcija koja obogaćuje informacije o skupovima podataka dohvaćanjem dodatnih podataka iz baze podataka.
+ * 
+ * @param dict - Rječnik strukturiranih komentara grupiranih po skupovima podataka
+ * @returns Obogaćeni rječnik s dodatnim informacijama o skupovima podataka
+ */
 async function enrichSkupInfo(dict: AnalysisTypes.StructuredCommentDict): Promise<AnalysisTypes.StructuredCommentDict> {
     const skupIds = Object.keys(dict);
 
@@ -198,7 +243,13 @@ async function enrichSkupInfo(dict: AnalysisTypes.StructuredCommentDict): Promis
     return dict;
 }
 
-// Analiziraj jedan skup
+/**
+ * Funkcija koja pokreće analizu za jedan skup podataka.
+ *
+ * @param skup - podaci o skupu podataka u obliku AnalysisTypes.SkupGroup
+ * @param jobId - ID posla za logiranje
+ * @throws Baca grešku, ako se dogodi kritična greška tijekom analize - API ključ nije valjan ili su potrošena sva sredstva
+ */
 async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promise<void> {
     if (isJobCancelled(jobId)) {
         throw new Error('Job cancelled');
@@ -276,9 +327,8 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
                 logToJob(jobId, 'info', `Odgovor ${comment.odgovorId} ažuriran sa score: ${score}`);
 
             } catch (error: any) {
-                if (error.message?.includes("cannot continue")) {
-                    logToJob(jobId, 'error', `Kritična greška: ${error.message}`)
-                    throw error;
+                if (error instanceof CriticalApiError) {
+                    throw error;  // Kritična greška se propagira dalje
                 }
 
                 logToJob(jobId, 'error', `Greška kod analize komentara ${comment.odgovorId}: ${error.message}`);
@@ -291,14 +341,18 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
         await cleanupResources(vectorStore.id, fileIds, jobId);
 
     } catch (error: any) {
-        if (error.message?.includes("cannot continue")) {
-            throw error;  // Kritična greška
+        if (error instanceof CriticalApiError) {
+            throw error;  // Kritična greška se propagira dalje
         }
         logToJob(jobId, 'error', `Greška kod skupa ${skup.skup_id}: ${error.message}`);
-        // Nastavi s sljedećim skupom
     }
 }
 
+/**
+ * Funkcija koja ažurira polje last_analysis za određeni skup podataka.
+ * 
+ * @param skupId - UUID skupa
+ */
 async function updateSkupLastAnalysis(skupId: string): Promise<void> {
     try {
         await prisma.skup_podataka.update({
@@ -312,6 +366,13 @@ async function updateSkupLastAnalysis(skupId: string): Promise<void> {
     }
 }
 
+/**
+ * Funkcija koja zapisuje grešku u bazu podataka za određeni odgovor.
+ * 
+ * @param comment - StructuredCommentRow koji sadrži ID odgovora i poruku
+ * @param errorMessage - poruka greške koja će biti zapisana
+ * @param update - ako je true, ažurira postojeći odgovor; ako je false, stvara novi odgovor
+ */
 async function writeErrorToDb(
     comment: AnalysisTypes.StructuredCommentRow,
     errorMessage: string,
@@ -349,6 +410,12 @@ async function writeErrorToDb(
 
 }
 
+/**
+ * Funkcija koja provjerava je li rezultat izrade vector storea greška.
+ * 
+ * @param result - rezultat izrade vector storea
+ * @returns - true ako je rezultat greška, inače false
+ */
 function isVectorStoreError(
     result: AnalysisTypes.VectorStoreResponse,
 ): result is AnalysisTypes.VectorStoreError {

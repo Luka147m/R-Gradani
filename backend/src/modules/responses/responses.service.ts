@@ -4,6 +4,8 @@ import { completeJob, logToJob, startJob, isJobCancelled } from '../helper/logge
 import { analyzeAllData } from './analyze.openai';
 import { structureAll } from './structure.openai';
 
+import { CriticalApiError } from './error.openai';
+
 // ----------------------------------------------------------------------------------
 
 export const getResponsesByCommentId = async (commentId: number) => {
@@ -24,6 +26,8 @@ export const getResponseById = async (responseId: number) => {
     }
     return response;
 };
+
+//----------------------------------------------------------------------------------
 
 // // Analiza za jedan skup
 // export const analyzeResponse = async (
@@ -137,7 +141,14 @@ export const getResponseById = async (responseId: number) => {
 //     return;
 // };
 
-// Analiza za sve
+/**
+ * Funkcija koja pokreće kompletan proces strukturiranja i analiziranja svih podataka.
+ * Tijekom rada dodaje logove u posao s danim jobId-om. Ako je posao otkazan, prekida se što prije.
+ * Također prekida posao ako se dogodi kritična greška (npr. nevaljani API ključ, nemamo kredita više).
+ * 
+ * @param jobId - ID posla za logiranje
+ * 
+ */
 export const analyzeAll = async (jobId: string) => {
     try {
         startJob(jobId)
@@ -159,7 +170,7 @@ export const analyzeAll = async (jobId: string) => {
             return;
         }
 
-        // 2 Analiziranje
+        // 2 Analiziranje - radi, ali iz nekog razloga sporo??
         await analyzeAllData(jobId)
 
         if (isJobCancelled(jobId)) {
@@ -170,8 +181,12 @@ export const analyzeAll = async (jobId: string) => {
 
         logToJob(jobId, 'info', 'Završen posao')
         completeJob(jobId, true)
+
     } catch (error: any) {
-        if (error.message === 'Job cancelled') {
+        if (error instanceof CriticalApiError) {
+            logToJob(jobId, 'error', `Kritična greška: ${error.message}`)
+            completeJob(jobId, false);
+        } else if (error.message === 'Job cancelled') {
             logToJob(jobId, 'info', 'Job cancelled by user');
             completeJob(jobId, false);
         } else {
