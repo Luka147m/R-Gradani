@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as reponsesService from "./responses.service";
-import { logStore } from '../helper/logger';
+import { logStore, cancelJob } from '../helper/logger';
 import { randomUUID } from 'crypto';
 
 
@@ -100,3 +100,22 @@ export async function getJobStatus(req: Request, res: Response) {
     ...jobInfo
   });
 }
+
+export const cancelAnalysis = async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+
+  const cancelled = cancelJob(jobId);
+
+  if (!cancelled) {
+    return res.status(404).json({
+      success: false,
+      message: 'Job not found, not running, or already completed'
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Cancellation requested. Job will stop after current operation.',
+    jobId
+  });
+};

@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import prisma from "../../config/prisma";
-import { logToJob } from "../helper/logger";
+import { logToJob, isJobCancelled } from "../helper/logger";
 
 const openai = new OpenAI();
 
@@ -136,8 +136,15 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
 
     // Procesiramo svaki komentar
     for (const comment of commentsRows) {
+
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'warn', 'Strukturiranje prekinuto - job cancelled');
+            throw new Error('Job cancelled');
+        }
+
         try {
             // console.log(`Procesiram komentar ${comment.comment_id}`);
+            logToJob(jobId, 'info', `Strukturiram komentar ${comment.id}`)
             if (!comment.message) {
                 logToJob(jobId, 'debug', `Komentar ${comment.id}: Prazna poruka`)
                 failedComments++;

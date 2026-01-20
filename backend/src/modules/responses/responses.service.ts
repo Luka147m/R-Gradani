@@ -1,18 +1,8 @@
-import prisma from '../../config/prisma';
-import { Prisma } from '@prisma/client';
-import OpenAI from 'openai';
-
 import * as reponsesRepository from '../responses/responses.repository';
-import { fetchDatasetAndResourcesById } from '../datasets/datasets.service';
-import * as AnalysisTypes from '../responses/analysis.types';
-import { Statement } from './analysis.types';
-import { completeJob, logToJob, startJob } from '../helper/logger';
+import { completeJob, logToJob, startJob, isJobCancelled } from '../helper/logger';
 
-import { createVectorStore, cleanupResources } from './vectorStore.openai';
-import { analyzeStatements, calculateScore, buildMetadata, analyzeAllData } from './analyze.openai';
+import { analyzeAllData } from './analyze.openai';
 import { structureAll } from './structure.openai';
-
-const openai = new OpenAI();
 
 // ----------------------------------------------------------------------------------
 
@@ -151,18 +141,43 @@ export const getResponseById = async (responseId: number) => {
 export const analyzeAll = async (jobId: string) => {
     try {
         startJob(jobId)
+
+
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'info', 'Job cancelled');
+            completeJob(jobId, false);
+            return;
+        }
+
         // 1 Strukturiranje - radi
         logToJob(jobId, 'info', 'Započinjem strukturiranje')
         await structureAll(jobId)
 
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'info', 'Job cancelled');
+            completeJob(jobId, false);
+            return;
+        }
+
         // 2 Analiziranje
         await analyzeAllData(jobId)
+
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'info', 'Job cancelled');
+            completeJob(jobId, false);
+            return;
+        }
 
         logToJob(jobId, 'info', 'Završen posao')
         completeJob(jobId, true)
     } catch (error: any) {
-        logToJob(jobId, 'error', `Posao neuspješan: ${error.message}`)
-        completeJob(jobId, false)
+        if (error.message === 'Job cancelled') {
+            logToJob(jobId, 'info', 'Job cancelled by user');
+            completeJob(jobId, false);
+        } else {
+            logToJob(jobId, 'error', `Posao neuspješan: ${error.message}`);
+            completeJob(jobId, false);
+        }
     }
 };
 

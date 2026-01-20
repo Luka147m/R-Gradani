@@ -7,15 +7,17 @@ interface LogEntry {
 }
 
 interface JobStatus {
-    status: 'running' | 'completed' | 'failed';
+    status: 'running' | 'completed' | 'failed' | 'cancelled';
     startedAt: Date;
     completedAt?: Date;
     error?: string;
+    cancelled?: boolean;
 }
 
 class LogStore {
     private logs: Map<string, LogEntry[]> = new Map();
     private jobStatuses: Map<string, JobStatus> = new Map();
+    private cancelledJobs: Set<string> = new Set();
     private maxLogsPerJob = 100;
     private logTTL = 600000;
     private logIndexCounters: Map<string, number> = new Map();
@@ -26,17 +28,25 @@ class LogStore {
             startedAt: new Date()
         });
         this.logIndexCounters.set(jobId, 0);
+        this.cancelledJobs.delete(jobId);
     }
 
     completeJob(jobId: string, success: boolean, error?: string) {
         const jobStatus = this.jobStatuses.get(jobId);
         if (jobStatus) {
-            jobStatus.status = success ? 'completed' : 'failed';
+            if (this.cancelledJobs.has(jobId)) {
+                jobStatus.status = 'cancelled';
+                jobStatus.cancelled = true;
+            } else {
+                jobStatus.status = success ? 'completed' : 'failed';
+            }
             jobStatus.completedAt = new Date();
             if (error) {
                 jobStatus.error = error;
             }
         }
+
+        this.cancelledJobs.delete(jobId);
     }
 
     getJobInfo(jobId: string, sinceIndex?: number) {
@@ -50,9 +60,25 @@ class LogStore {
         return {
             ...status,
             isComplete: status.status !== 'running',
+            isCancelled: this.cancelledJobs.has(jobId) || status.cancelled,
             logs
         };
     }
+
+    cancelJob(jobId: string): boolean {
+        const jobStatus = this.jobStatuses.get(jobId);
+        if (jobStatus && jobStatus.status === 'running') {
+            this.cancelledJobs.add(jobId);
+            this.addLog(jobId, 'warn', 'Job cancellation requested by user');
+            return true;
+        }
+        return false;
+    }
+
+    isJobCancelled(jobId: string): boolean {
+        return this.cancelledJobs.has(jobId);
+    }
+
 
     addLog(jobId: string, level: LogEntry['level'], message: string) {
         if (!this.logs.has(jobId)) {
@@ -90,6 +116,7 @@ class LogStore {
         this.logs.delete(jobId);
         this.jobStatuses.delete(jobId);
         this.logIndexCounters.delete(jobId);
+        this.cancelledJobs.delete(jobId);
     }
 
     cleanup() {
@@ -102,6 +129,7 @@ class LogStore {
                 this.logs.delete(jobId);
                 this.jobStatuses.delete(jobId)
                 this.logIndexCounters.delete(jobId);
+                this.cancelledJobs.delete(jobId);
             }
         }
     }
@@ -124,6 +152,14 @@ export function startJob(jobId: string) {
 
 export function completeJob(jobId: string, success: boolean = true, error?: string) {
     logStore.completeJob(jobId, success, error);
+}
+
+export function cancelJob(jobId: string): boolean {
+    return logStore.cancelJob(jobId);
+}
+
+export function isJobCancelled(jobId: string): boolean {
+    return logStore.isJobCancelled(jobId);
 }
 
 

@@ -1,12 +1,11 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import * as AnalysisTypes from './analysis.types';
-import { logToJob } from '../helper/logger';
+import { logToJob, isJobCancelled } from '../helper/logger';
 import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
 import { getStructuredComments } from './responses.repository';
 import { createVectorStore, cleanupResources } from './vectorStore.openai';
-import { update } from 'tar';
 
 const openai = new OpenAI();
 const model = 'gpt-5-mini';
@@ -113,6 +112,12 @@ export async function analyzeAllData(jobId: string): Promise<void> {
 
     try {
         do {
+
+            if (isJobCancelled(jobId)) {
+                logToJob(jobId, 'warn', 'Analiziranje prekinuto - job cancelled');
+                throw new Error('Job cancelled');
+            }
+
             batch = await getStructuredComments(batchSize, offset);
             batch = await enrichSkupInfo(batch);
 
@@ -195,6 +200,9 @@ async function enrichSkupInfo(dict: AnalysisTypes.StructuredCommentDict): Promis
 
 // Analiziraj jedan skup
 async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promise<void> {
+    if (isJobCancelled(jobId)) {
+        throw new Error('Job cancelled');
+    }
     logToJob(jobId, 'info', `Analiziram skup podataka ID: ${skup.skup_id}`)
     let skupId = skup.skup_id
 

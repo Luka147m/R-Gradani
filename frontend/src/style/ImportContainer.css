@@ -69,3 +69,42 @@
   border-radius: 4px;
   font-weight: bold;
 }
+
+.cancel-button {
+  flex: 1;
+  background-color: #dc2626;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.cancel-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancel-button:active:not(:disabled) {
+  background-color: #991b1b;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.button-group .close-logs-button {
+  flex: 1;
+}

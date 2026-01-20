@@ -1,4 +1,4 @@
-import { Wrench } from 'lucide-react';
+import { Wrench, XCircle } from 'lucide-react';
 import ApiButton from './ApiButton.tsx';
 import IconText from './IconText.tsx';
 import api from '../api/axios.tsx';
@@ -18,8 +18,9 @@ interface LogEntry {
 interface JobStatusResponse {
   success: boolean;
   jobId: string;
-  status: 'running' | 'completed' | 'failed';
+  status: 'running' | 'completed' | 'failed' | 'cancelled';
   isComplete: boolean;
+  isCancelled?: boolean;
   startedAt: string;
   completedAt?: string;
   error?: string;
@@ -32,8 +33,11 @@ export const AnalyzeContainer = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isWorking, setIsWorking] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
-  const [jobStatus, setJobStatus] = useState<'running' | 'completed' | 'failed'>('running');
+  const [jobStatus, setJobStatus] = useState<
+    'running' | 'completed' | 'failed' | 'cancelled'
+  >('running');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+   const [isCancelling, setIsCancelling] = useState<boolean>(false);
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
   const lastIndexRef = useRef<number>(-1);
@@ -53,6 +57,7 @@ export const AnalyzeContainer = () => {
     setIsWorking(false);
     setJobStatus('running');
     setErrorMessage(null);
+    setIsCancelling(false);
     lastIndexRef.current = -1;
   };
 
@@ -60,6 +65,7 @@ export const AnalyzeContainer = () => {
     setIsWorking(true);
     setLogs([]);
     setErrorMessage(null);
+    setIsCancelling(false);
 
     try {
       const response = await api.post('/odgovori/analyze');
@@ -77,6 +83,27 @@ export const AnalyzeContainer = () => {
     }
   };
 
+  const cancelAnalysis = async () => {
+    if (!jobId) return;
+
+    setIsCancelling(true);
+
+    try {
+      const response = await api.post(`/odgovori/analyze/cancel/${jobId}`);
+
+      if (response.data.success) {
+        console.log('Cancellation requested');
+      } else {
+        alert('Greška pri otkazivanju analize.');
+        setIsCancelling(false);
+      }
+    } catch (error) {
+      console.error('Error cancelling job:', error);
+      alert('Greška pri otkazivanju analize.');
+      setIsCancelling(false);
+    }
+  };
+
   // Polling za logove
   useEffect(() => {
     if (!jobId) return;
@@ -89,7 +116,8 @@ export const AnalyzeContainer = () => {
         }
 
         const response = await api.get<JobStatusResponse>(
-          `/odgovori/logs/${jobId}?${params}`);
+          `/odgovori/logs/${jobId}?${params}`,
+        );
 
         if (!response.data.success) {
           console.error('Job not found');
@@ -116,7 +144,8 @@ export const AnalyzeContainer = () => {
 
         if (response.data.isComplete) {
           setIsCompleted(true);
-          
+          setIsCancelling(false);
+
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
@@ -133,7 +162,7 @@ export const AnalyzeContainer = () => {
 
     // Svake sekunde
     pollingIntervalRef.current = window.setInterval(pollJobStatus, 1000);
-    
+
     pollJobStatus();
 
     return () => {
@@ -142,7 +171,6 @@ export const AnalyzeContainer = () => {
         pollingIntervalRef.current = null;
       }
     };
-
   }, [jobId]);
 
   const getLogColor = (level: string) => {
@@ -157,6 +185,32 @@ export const AnalyzeContainer = () => {
         return '#6b7280';
       default:
         return '#000';
+    }
+  };
+
+    const getStatusColor = () => {
+    switch (jobStatus) {
+      case 'completed':
+        return { backgroundColor: '#dcfce7', color: '#166534' };
+      case 'failed':
+        return { backgroundColor: '#fee2e2', color: '#991b1b' };
+      case 'cancelled':
+        return { backgroundColor: '#fef3c7', color: '#92400e' };
+      default:
+        return {};
+    }
+  };
+
+   const getStatusMessage = () => {
+    switch (jobStatus) {
+      case 'completed':
+        return 'Analiza uspješna!';
+      case 'failed':
+        return 'Analiza neuspješna';
+      case 'cancelled':
+        return 'Analiza otkazana';
+      default:
+        return '';
     }
   };
 
@@ -190,65 +244,75 @@ export const AnalyzeContainer = () => {
               </>
             ) : (
               <div className="log-btn-wrapper">
-               
-                  <div>
-                    {isCompleted && (
-                      <div className = 'status' style={{ 
-                        backgroundColor: jobStatus === 'completed' ? '#dcfce7' : '#fee2e2',
-                        color: jobStatus === 'completed' ? '#166534' : '#991b1b',
-                      }}>
-                        {jobStatus === 'completed' ? 'Analiza uspješna!' : 'Analiza neuspješna'}
-                      </div>
-                    )}
-
-                    {errorMessage && (
-                      <div className = 'status' style={{
-                        backgroundColor: '#fef2f2',
-                        color: '#991b1b',
-                      }}>
-                        Greška: {errorMessage}
-                      </div>
-                    )}
-
-                    <div className="logs-container" ref={logsContainerRef}>
-                      {logs.length === 0 ? (
-                        <p style={{ color: '#6b7280' }}>Čekanje na logove...</p>
-                      ) : (
-                        logs.map((log, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              marginBottom: '4px',
-                              color: getLogColor(log.level),
-                            }}
-                          >
-                            <span
-                              style={{ color: '#9ca3af', fontSize: '11px' }}
-                            >
-                              {new Date(log.timestamp).toLocaleTimeString()}
-                            </span>{' '}
-                            <span style={{ fontWeight: 'bold' }}>
-                              [{log.level.toUpperCase()}]
-                            </span>{' '}
-                            {log.message}
-                          </div>
-                        ))
-                      )}
+                <div>
+                  {isCompleted && (
+                    <div className='status' style={getStatusColor()}>
+                      {getStatusMessage()}
                     </div>
+                  )}
+
+                  {errorMessage && (
+                    <div className='status' style={{
+                      backgroundColor: '#fef2f2',
+                      color: '#991b1b',
+                    }}>
+                      Greška: {errorMessage}
+                    </div>
+                  )}
+
+                  <div className="logs-container" ref={logsContainerRef}>
+                    {logs.length === 0 ? (
+                      <p style={{ color: '#6b7280' }}>Čekanje na logove...</p>
+                    ) : (
+                      logs.map((log, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            marginBottom: '4px',
+                            color: getLogColor(log.level),
+                          }}
+                        >
+                          <span
+                            style={{ color: '#9ca3af', fontSize: '11px' }}
+                          >
+                            {new Date(log.timestamp).toLocaleTimeString()}
+                          </span>{' '}
+                          <span style={{ fontWeight: 'bold' }}>
+                            [{log.level.toUpperCase()}]
+                          </span>{' '}
+                          {log.message}
+                        </div>
+                      ))
+                    )}
                   </div>
-               
-                {isCompleted && (
-                  <button
-                    className="close-logs-button"
-                    onClick={() => {
-                      setIsCompleted(false);
-                      setIsWorking(false);
-                      setLogs([]);
-                    }}
-                  >
-                    Zatvori logove
-                  </button>
-                )}
+                </div>
+
+                <div className="button-group">
+                  {!isCompleted && (
+                    <button
+                      className="cancel-button"
+                      onClick={cancelAnalysis}
+                      disabled={isCancelling}
+                    >
+                      <XCircle size={18} />
+                      {isCancelling ? 'Otkazivanje...' : 'Otkaži analizu'}
+                    </button>
+                  )}
+
+                  {isCompleted && (
+                    <button
+                      className="close-logs-button"
+                      onClick={() => {
+                        setIsCompleted(false);
+                        setIsWorking(false);
+                        setLogs([]);
+                        setIsCancelling(false);
+                      }}
+                    >
+                      Zatvori logove
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>

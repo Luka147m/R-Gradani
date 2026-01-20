@@ -10,6 +10,7 @@ router.get('/:id', responsesController.getResponsesById);
 
 // Pokretanje za sve
 router.post('/analyze', responsesController.analyzeAll)
+router.post('/analyze/cancel/:jobId', responsesController.cancelAnalysis);
 
 // Logovi
 router.get("/logs/:jobId", responsesController.getJobStatus);
