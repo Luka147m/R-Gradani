@@ -9,15 +9,22 @@ import api from "../api/axios.tsx";
 
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import "../style/FilterContainer.css";
+import { all } from "axios";
 
 type FilterContainerProps = {
   localSearchTerm: string;
+  allResults: getDatasetDTO[];
   setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
+  hasSearched: boolean;
+  setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const FilterContainer = ({
   localSearchTerm,
+  allResults,
   setAllResults,
+  hasSearched,
+  setHasSearched,
 }: FilterContainerProps) => {
   const [, setSearchParams] = useSearchParams();
   const {
@@ -41,6 +48,9 @@ const FilterContainer = ({
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
   const [tempIgnoreReported, setTempIgnoreReported] =
     useState<boolean>(ignoreReported);
+
+  const [publisherCounts, setPublisherCounts] = 
+    useState<Record<string, number>>({});
 
   useEffect(
     () => setTempPublisherIds(selectedPublisherIds),
@@ -73,25 +83,37 @@ const FilterContainer = ({
     [publisherQuery, publishers],
   );
 
-  const visiblePublishers = showAllPublishers
-    ? filteredPublisher
-    : filteredPublisher.slice(0, 5);
-
-  const visiblePublisherIds = visiblePublishers.map((p) => p.id);
-
-  const areAllVisibleChecked = visiblePublisherIds.every((id) =>
-    tempPublisherIds.includes(id),
+  
+  const publishersWithCounts = useMemo(
+    () => filteredPublisher.filter((p) => (publisherCounts[String(p.id)] ?? 0) > 0),
+    [filteredPublisher, publisherCounts],
   );
 
-  const toggleVisiblePublishers = () => {
-    setTempPublisherIds((prev) => {
-      if (areAllVisibleChecked) {
-        return prev.filter((id) => !visiblePublisherIds.includes(id));
-      } else {
-        return Array.from(new Set([...prev, ...visiblePublisherIds]));
-      }
-    });
-  };
+  const visiblePublishers = showAllPublishers
+    ? publishersWithCounts
+    : publishersWithCounts.slice(0, 5);
+
+  
+  useEffect(() => {
+    if (allResults.length > 0) {
+      const counts = allResults.reduce<Record<string, number>>((acc, result) => {
+        const id = String(result.publisher_id ?? "unknown");
+        acc[id] = (acc[id] || 0) + 1;
+        return acc;
+      }, {});
+      setPublisherCounts(counts);
+      console.log(localSearchTerm)
+      console.log("Publisher counts updated:", counts);
+      console.log("Sum of counts:", Object.values(counts).reduce((a, b) => a + b, 0));
+      console.log("All Results:", allResults);
+    } else {
+      setPublisherCounts({});
+      console.log("Publisher counts cleared");
+    }
+  }, [allResults]);
+  
+
+  
 
   const togglePublisher = (id: string, checked: boolean) => {
     setTempPublisherIds((prev) =>
@@ -100,9 +122,9 @@ const FilterContainer = ({
   };
 
   useEffect(() => {
-    const allIds = filteredPublisher.map((p) => p.id);
+    const allIds = publishersWithCounts.map((p) => p.id);
     setTempPublisherIds(allIds);
-  }, [filteredPublisher]);
+  }, [publishersWithCounts]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
@@ -132,60 +154,43 @@ const FilterContainer = ({
       publisherIds: checkedVisiblePublisherIds,
     });
     setAllResults(response.data);
+    
   };
 
   return (
     <div className="filter-container">
       <div className="filter-section">
-        <div className="title">
-          <Building size={20} />
-          <h2>Izdavač</h2>
-          <button
-            type="button"
-            className="select-all-btn"
-            onClick={toggleVisiblePublishers}
-          >
-            {areAllVisibleChecked ? "Isključi sve" : "Označi sve"}
-          </button>
-        </div>
-        <div className="search-publisher">
-          <input
-            type="text"
-            placeholder="Pretraži izdavače"
-            className="publisher-input"
-            value={publisherQuery}
-            onChange={(e) => setPublisherQuery(e.target.value)}
-          />
-        </div>
-        <div className="publisher-list">
-          {filteredPublisher.length > 5 && (
-            <button
-              type="button"
-              className="select-all-btn"
-              onClick={() => setShowAllPublishers((prev) => !prev)}
-            >
-              {showAllPublishers ? "Prikaži manje" : "Prikaži više"}
-            </button>
-          )}
-          {visiblePublishers.map((p) => (
-            <div key={p.id} className="publisher-item">
-              <input
-                type="checkbox"
-                id={`publisher-${p.id}`}
-                className="publisher-checkbox"
-                checked={tempPublisherIds.includes(p.id)}
-                onChange={(e) => togglePublisher(p.id, e.target.checked)}
-              />
-              <label htmlFor={`publisher-${p.id}`}>{p.publisher}</label>
+        {hasSearched && (
+          <div className="filter-section">
+            <div className="title">
+              <Building size={20} />
+              <h2>Izdavač</h2>
             </div>
-          ))}
+            <div className="search-publisher"></div>
+            <div className="publisher-list">
+              {visiblePublishers.map((p) => (
+                <div key={p.id} className="publisher-item">
+                  <input
+                    type="checkbox"
+                    id={`publisher-${p.id}`}
+                    className="publisher-checkbox"
+                    checked={tempPublisherIds.includes(p.id)}
+                    onChange={(e) => togglePublisher(p.id, e.target.checked)}
+                  />
+                  <label htmlFor={`publisher-${p.id}`}>
+                    {p.publisher} ({publisherCounts[String(p.id)] ?? 0})
+                  </label>
+                </div>
+              ))}
 
-          {filteredPublisher.length === 0 && (
-            <div className="publisher-item">
-              <em>Nema rezultata</em>
+              {visiblePublishers.length === 0 && (
+                <div className="publisher-item">
+                  <em>Nema rezultata</em>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="filter-section">

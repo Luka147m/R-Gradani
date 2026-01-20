@@ -162,7 +162,11 @@ function HomePage() {
           <div className="search-results-container">
             <FilterContainer
               localSearchTerm={localSearchTerm}
+              allResults={allResults}
               setAllResults={setAllResults}
+              hasSearched={hasSearched}
+              setHasSearched={setHasSearched}
+              
             />
 
             <SearchResults

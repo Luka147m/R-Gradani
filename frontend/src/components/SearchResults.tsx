@@ -41,13 +41,16 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       localStorage.getItem("reportedDatasets") || "[]",
     );
 
+    // debug
+    console.log("searchTerm:", searchTerm, "selectedPublisherIds:", selectedPublisherIds, "allResults:", allResults.length);
+
     let filtered = allResults.filter((d) =>
       (d.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     if (selectedPublisherIds.length > 0) {
       filtered = filtered.filter((d) =>
-        selectedPublisherIds.includes(d.publisher_id ?? ""),
+        selectedPublisherIds.includes(String(d.publisher_id ?? "")),
       );
     }
 
