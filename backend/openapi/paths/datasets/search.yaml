@@ -13,21 +13,17 @@ post:
             searchText:
               type: string
               description: Text to search for in dataset titles and descriptions.
+              default: ""
             publisherIds:
               type: array
               items:
                 type: string
               description: A list of publisher IDs to filter by.
               default: []
-            ignoreMarked:
+            isAnalysed:
               type: boolean
-              description: Flag to indicate if marked datasets should be ignored.
-            markedIds:
-              type: array
-              items:
-                type: string
-              description: A list of dataset IDs to be ignored if ignoreMarked is true.
-              default: []
+              description: Variable to filter analysed datasets
+              default: false
   responses:
     "200":
       description: An array of datasets matching the search criteria.

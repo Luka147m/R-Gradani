@@ -52,13 +52,12 @@ export const getDatasetsByIds = async (req: Request, res: Response) => {
 
 export const searchDatasets = async (req: Request, res: Response) => {
   try {
-    const { searchText, publisherIds, ignoreMarked, markedIds } = req.body;
+    const { searchText, publisherIds, isAnalysed } = req.body;
 
     const datasets = await datasetsService.searchDatasets({
       searchText,
       publisherIds,
-      ignoreMarked,
-      markedIds,
+      isAnalysed,
     });
 
     res.status(200).json(datasets);
