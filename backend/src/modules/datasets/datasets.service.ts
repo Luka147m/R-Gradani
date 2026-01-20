@@ -69,10 +69,9 @@ export const fetchDatasetsByIds = async (ids: string[]) => {
 export const searchDatasets = async (params: {
   searchText?: string;
   publisherIds?: string[];
-  ignoreMarked?: boolean;
-  markedIds?: string[];
+  isAnalysed?: boolean;
 }) => {
-  const { searchText, publisherIds, ignoreMarked, markedIds } = params;
+  const { searchText, publisherIds, isAnalysed } = params;
 
   const andConditions: Prisma.skup_podatakaWhereInput[] = [];
 
@@ -91,16 +90,30 @@ export const searchDatasets = async (params: {
     });
   }
 
-  if (ignoreMarked && markedIds && markedIds.length > 0) {
+  if (isAnalysed !== undefined) {
     andConditions.push({
-      id: { notIn: markedIds },
+      last_analysis: isAnalysed ? { not: null } : { equals: null },
     });
   }
 
-  return prisma.skup_podataka.findMany({
+  const datasets = await prisma.skup_podataka.findMany({
     where: {
       AND: andConditions,
     },
+  });
+
+  const now = new Date().getTime();
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+
+  return datasets.map((dataset) => {
+    const isFresh = dataset.last_analysis
+      ? now - new Date(dataset.last_analysis).getTime() < ONE_DAY
+      : false;
+
+    return {
+      ...dataset,
+      isFresh,
+    };
   });
 };
 
