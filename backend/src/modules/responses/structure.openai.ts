@@ -11,7 +11,7 @@ import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import prisma from "../../config/prisma";
 import { logToJob, isJobCancelled } from "../helper/logger";
-import { getCommentsWithoutResponses } from "./responses.repository";
+import { getCommentsWithoutResponses, getCommentsWithoutResponsesForDataset } from "./responses.repository";
 import { CriticalApiError } from './error.openai';
 
 const openai = new OpenAI();
@@ -227,4 +227,123 @@ export async function structureAll(jobId: string) {
         logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
         throw error;
     }
+}
+
+/**
+ * Funkcija koja pokreće strukturiranje svih komentara koji nemaju odgovore za JEDAN skup podataka, u batch-evima
+ *
+ * @param skupId - UUID skupa podataka koji se analizira
+ * @param jobId - ID zadatka za logiranje
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
+export async function structureForOneDataset(skupId: string, jobId: string) {
+
+    const batchSize = 20;
+    let totalProcessed = 0;
+
+    try {
+        while (true) {
+            const commentsRows = await getCommentsWithoutResponsesForDataset(skupId, batchSize);
+            if (commentsRows.length === 0) break;
+
+            await structureNCommentsForOneDataset(skupId, batchSize, 0, jobId);
+
+            totalProcessed += commentsRows.length;
+            logToJob(jobId, 'info', `Ukupno strukturirano: ${totalProcessed}`)
+        }
+
+        logToJob(jobId, 'info', 'Strukturiranje završeno.')
+    } catch (error: any) {
+        if (error instanceof CriticalApiError) {
+            throw error;    // Kritična greška se propagira dalje
+        }
+        logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
+        throw error;
+    }
+}
+
+/**
+ * Funkcija koja pokreće strukturiranje N komentara koji nemaju odgovore za JEDAN skup podataka, batch
+ * 
+ * @param skupId - UUID skupa podataka koji se analizira
+ * @param limit - maksimalan broj komentara za dohvat
+ * @param offset - offset za dohvat komentara (koristi 0)
+ * @param jobId - ID zadatka za logiranje
+ * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
+ */
+async function structureNCommentsForOneDataset(skupId: string, limit: number, offset: number = 0, jobId: string) {
+    logToJob(jobId, 'info', 'Počinjem strukturiranje komentara...')
+
+    const commentsRows = await getCommentsWithoutResponsesForDataset(skupId, limit, offset);
+    logToJob(jobId, 'info', `Pronađeno ${commentsRows.length} komentara za procesiranje`)
+
+    // console.log(commentsRows[0])
+
+    let totalComments = commentsRows.length;
+    let processedComments = 0;
+    let failedComments = 0;
+
+    // Procesiramo svaki komentar
+    for (const comment of commentsRows) {
+
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'warn', 'Strukturiranje prekinuto - job cancelled');
+            throw new Error('Job cancelled');
+        }
+
+        try {
+            // console.log(`Procesiram komentar ${comment.comment_id}`);
+            logToJob(jobId, 'info', `Strukturiram komentar ${comment.id}`)
+            if (!comment.message) {
+                logToJob(jobId, 'debug', `Komentar ${comment.id}: Prazna poruka`)
+                failedComments++;
+                continue;
+            }
+
+            // Strukturiramo komentar pomoću LLM-a
+            const statements = await structureComment(comment.message);
+
+            if (statements.length === 0) {
+                // console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
+                logToJob(jobId, 'debug', `Komentar ${comment.id}: Nema strukturiranih izjava`)
+                failedComments++;
+                continue;
+            }
+
+            // Pripremamo objekt za spremanje
+            const responseData = {
+                izjave: statements,
+            };
+
+            // Spremamo u bazu
+            await prisma.odgovor.create({
+                data: {
+                    komentar_id: comment.id,
+                    created: new Date(),
+                    message: responseData,
+                    score: null
+                }
+            });
+
+            processedComments++;
+            // console.log(`Komentar ${comment.comment_id}: ${statements.length} izjava spremljeno`);
+
+            // Pauza između poziva da izbjegnemo rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Provjeriti moze li se pauza smanjiti
+
+        } catch (error: any) {
+            if (error instanceof CriticalApiError) {
+                throw error;  // Kritična greška se propagira dalje
+            }
+
+            failedComments++;
+            logToJob(jobId, 'warn', `Greška kod komentara ${comment.id}:`)
+            console.error(`Greška kod komentara ${comment.id}:`, error.message);
+            continue;
+        }
+    }
+
+    logToJob(jobId, 'info', `Uspješno strukturirano: ${processedComments}/${totalComments}`)
+    logToJob(jobId, 'info', `Neuspješno: ${failedComments}/${totalComments}`)
 }

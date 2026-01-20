@@ -192,16 +192,22 @@ async function waitForVectorStoreReady(
             `Files status - Completed: ${completedFiles.length}, Failed: ${failedFiles.length}, Processing: ${processingFiles.length}`,
         );
 
-        if (failedFiles.length === filesResponse.data.length) {
-            logToJob(jobId, 'error', 'All files failed to process.');
-            return false;
-        }
-
+        // Ako su svi gotovi
         if (completedFiles.length > 0 && processingFiles.length === 0) {
             logToJob(
                 jobId,
                 'info',
                 `${completedFiles.length} file(s) processed successfully, ${failedFiles.length} failed`,
+            );
+            return true;
+        }
+
+        // Ako je prošlo maksimalno vrijeme, ali imamo neke uspješne datoteke, prihvati ih
+        if (Date.now() - startTime >= maxWaitMs && completedFiles.length > 0) {
+            logToJob(
+                jobId,
+                'warn',
+                `Timeout reached but ${completedFiles.length} files completed successfully. Proceeding with available files.`,
             );
             return true;
         }
@@ -216,7 +222,16 @@ async function waitForVectorStoreReady(
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
 
-    logToJob(jobId, 'error', 'Timeout waiting for vector store to be ready');
+    // Nakon isteka vremena, provjeri ima li ikakvih završenih datoteka
+    const finalCheck = await openai.vectorStores.files.list(vectorStoreId);
+    const finalCompleted = finalCheck.data.filter(f => f.status === 'completed');
+
+    if (finalCompleted.length > 0) {
+        logToJob(jobId, 'warn', `Timeout but ${finalCompleted.length} files available for analysis`);
+        return true;
+    }
+
+    logToJob(jobId, 'error', 'Timeout with no completed files');
     return false;
 }
 

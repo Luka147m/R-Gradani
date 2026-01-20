@@ -4,7 +4,7 @@ import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets'
 import { MarkedDatasets } from '../components/MarkedDatasets';
 import { CommentBubble } from '../components/CommentBubble.tsx';
 import { ImportContainer } from '../components/ImportContainer.tsx';
-import { AnalyzeContainer } from '../components/AnalyzeContainer.tsx';
+import { AnalyzeAllContainer } from '../components/AnalyzeAllContainer.tsx';
 import { Wrench } from 'lucide-react';
 import '../style/HomePage.css';
 
@@ -58,7 +58,7 @@ function ProfilePage() {
 
           <div className="request-card">
             <h2>Pokreni analizu</h2>
-            <AnalyzeContainer />
+            <AnalyzeAllContainer />
             <p>Pokreće analizu nad svim dostupnim podacima</p>
           </div>
           </div>

@@ -14,7 +14,7 @@ import * as AnalysisTypes from './analysis.types';
 import { logToJob, isJobCancelled } from '../helper/logger';
 import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
-import { getStructuredComments } from './responses.repository';
+import { getStructuredComments, getStructuredCommentsForDataset } from './responses.repository';
 import { createVectorStore, cleanupResources } from './vectorStore.openai';
 import { CriticalApiError } from './error.openai';
 
@@ -175,10 +175,11 @@ export async function analyzeAllData(jobId: string): Promise<void> {
                 break;
             }
             for (const skupId of Object.keys(batch)) {
-                await analyzeSkup(batch[skupId], jobId);
+                await analyzeSkup(batch[skupId], jobId, false);
             }
 
-            // offset += batchSize;
+            // Nije potreban offset jer se uvijek dohvaćaju novi komentari koji nisu analizirani koji imaju score null
+            // offset += batchSize; 
         } while (totalComments > 0);
 
         const totalEnd = Date.now();
@@ -257,7 +258,7 @@ async function enrichSkupInfo(dict: AnalysisTypes.StructuredCommentDict): Promis
  * @param jobId - ID posla za logiranje
  * @throws Baca grešku, ako se dogodi kritična greška tijekom analize - API ključ nije valjan ili su potrošena sva sredstva
  */
-async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promise<void> {
+async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string, createNewEntry: boolean): Promise<void> {
     if (isJobCancelled(jobId)) {
         throw new Error('Job cancelled');
     }
@@ -269,7 +270,7 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
         if (isVectorStoreError(result)) {
             logToJob(jobId, 'error', `Error: ${result.error}`)
             for (const comment of skup.comments) {
-                await writeErrorToDb(comment, result.error, true);
+                await writeErrorToDb(comment, result.error, createNewEntry);
                 await updateSkupLastAnalysis(skupId)
             }
             return;
@@ -281,7 +282,7 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
         if (!filesResponse.data || filesResponse.data.length === 0) {
             logToJob(jobId, 'info', 'Vector store je prazan, nema datoteka za analizu.')
             for (const comment of skup.comments) {
-                await writeErrorToDb(comment, "Nema dostupnih datoteka za analizu izjava.", true);
+                await writeErrorToDb(comment, "Nema dostupnih datoteka za analizu izjava.", createNewEntry);
                 await updateSkupLastAnalysis(skupId)
             }
             return;
@@ -320,14 +321,24 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
                 const jsonObj = { izjave: finalStatements };
                 const score = calculateScore(finalStatements);
 
-
-                await prisma.odgovor.update({
-                    where: { id: comment.odgovorId },
-                    data: {
-                        message: jsonObj as Prisma.JsonObject,
-                        score: score
-                    }
-                });
+                if (createNewEntry) {
+                    await prisma.odgovor.create({
+                        data: {
+                            komentar_id: comment.komentarId,
+                            created: new Date(),
+                            message: jsonObj as Prisma.JsonObject,
+                            score: score
+                        }
+                    })
+                } else {
+                    await prisma.odgovor.update({
+                        where: { id: comment.odgovorId },
+                        data: {
+                            message: jsonObj as Prisma.JsonObject,
+                            score: score
+                        }
+                    })
+                }
 
                 await updateSkupLastAnalysis(skupId)
 
@@ -339,7 +350,7 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string): Promis
                 }
 
                 logToJob(jobId, 'error', `Greška kod analize komentara ${comment.odgovorId}: ${error.message}`);
-                await writeErrorToDb(comment, `Greška tijekom analize: ${error.message}`, true);
+                await writeErrorToDb(comment, `Greška tijekom analize: ${error.message}`, createNewEntry);
                 await updateSkupLastAnalysis(skupId)
                 continue;
             }
@@ -383,7 +394,7 @@ async function updateSkupLastAnalysis(skupId: string): Promise<void> {
 async function writeErrorToDb(
     comment: AnalysisTypes.StructuredCommentRow,
     errorMessage: string,
-    update: boolean = true
+    createNewEntry: boolean = false
 ): Promise<void> {
     const { odgovorId, message } = comment;
 
@@ -397,7 +408,7 @@ async function writeErrorToDb(
         ...existingObj,
     };
 
-    if (update) {
+    if (!createNewEntry) {
         await prisma.odgovor.update({
             where: { id: odgovorId },
             data: {
@@ -427,4 +438,58 @@ function isVectorStoreError(
     result: AnalysisTypes.VectorStoreResponse,
 ): result is AnalysisTypes.VectorStoreError {
     return 'error' in result;
+}
+
+/**
+ * Funkcija koja pokreće analizu za dani skup podataka
+ * 
+ * @param skupId - UUID skupa podataka koji se analizira
+ * @param jobId - ID posla za logiranje
+ * @throws Baca grešku ako se dogodi kritična greška tijekom analize
+ */
+export async function analyzeDataset(skupId: string, jobId: string): Promise<void> {
+    logToJob(jobId, 'info', 'Započinjem analiziranje izjava')
+    const totalStart = Date.now();
+    const batchSize = 20;
+    let offset = 0;
+    let batch: AnalysisTypes.StructuredCommentDict = {};
+    let totalComments = 0;
+
+    try {
+        do {
+
+            if (isJobCancelled(jobId)) {
+                logToJob(jobId, 'warn', 'Analiziranje prekinuto - job cancelled');
+                throw new Error('Job cancelled');
+            }
+
+            batch = await getStructuredCommentsForDataset(skupId, batchSize, offset);
+            batch = await enrichSkupInfo(batch);
+
+            totalComments = Object.values(batch).reduce((acc, skup) => acc + skup.comments.length, 0);
+            // console.log(`Dohvaćeno ${totalComments} komentara`);
+
+            if (totalComments === 0) {
+                break;
+            }
+            for (const skupId of Object.keys(batch)) {
+                await analyzeSkup(batch[skupId], jobId, true);
+            }
+
+            // Bitno offset
+            offset += batchSize;
+        } while (totalComments > 0);
+
+        const totalEnd = Date.now();
+        const totalLogText = `Ukupno vrijeme izvođenja: ${(totalEnd - totalStart) / 1000} sekundi`;
+        // console.log(totalLogText);
+        logToJob(jobId, 'info', totalLogText)
+
+    } catch (error) {
+        console.error("Greška tijekom analize izjava:", error);
+        logToJob(jobId, 'info', 'Greška tijekom analize izjava')
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }

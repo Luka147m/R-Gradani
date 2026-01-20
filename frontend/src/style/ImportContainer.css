@@ -108,3 +108,9 @@
 .button-group .close-logs-button {
   flex: 1;
 }
+
+.import-modal p {
+  margin: 16px 0 20px;
+  text-align: center;
+  color: #e5e7eb;
+}
