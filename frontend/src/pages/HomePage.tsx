@@ -16,7 +16,7 @@ function HomePage() {
   const [allResults, setAllResults] = useState<DataSet[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const { isSearchActivated, setIsSearchActivated, setSearchTerm } =
+  const { isSearchActivated, setIsSearchActivated, setSearchTerm, setSelectedPublisherIds } =
     useSearch();
 
   useEffect(() => {
@@ -62,6 +62,7 @@ function HomePage() {
 
   const performSearch = async (term: string) => {
     try {
+      setSelectedPublisherIds([]);
       if (!term.trim()) {
         const resp = await api.get("/skupovi");
         setAllResults(resp.data);
@@ -143,6 +144,7 @@ function HomePage() {
                 setLocalSearchTerm(e.target.value);
                 setAllResults([]);
                 setHasSearched(false);
+                setSelectedPublisherIds([]);
                 }}
               onKeyDown={handleKeyDown}
             />
@@ -165,7 +167,7 @@ function HomePage() {
               allResults={allResults}
               setAllResults={setAllResults}
               hasSearched={hasSearched}
-              setHasSearched={setHasSearched}
+             
               
             />
 

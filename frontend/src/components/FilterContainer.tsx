@@ -9,22 +9,22 @@ import api from "../api/axios.tsx";
 
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import "../style/FilterContainer.css";
-import { all } from "axios";
+
 
 type FilterContainerProps = {
   localSearchTerm: string;
   allResults: getDatasetDTO[];
   setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
   hasSearched: boolean;
-  setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
+  
 };
 
 const FilterContainer = ({
   localSearchTerm,
   allResults,
-  setAllResults,
+  
   hasSearched,
-  setHasSearched,
+  
 }: FilterContainerProps) => {
   const [, setSearchParams] = useSearchParams();
   const {
@@ -32,7 +32,7 @@ const FilterContainer = ({
     selectedPublisherIds,
     setSelectedPublisherIds,
     publisherQuery,
-    setPublisherQuery,
+    // setPublisherQuery,
     dateRange,
     setDateRange,
     ignoreSaved,
@@ -61,7 +61,7 @@ const FilterContainer = ({
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
 
   const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
-  const [showAllPublishers, setShowAllPublishers] = useState(false);
+  
 
   useEffect(() => {
     api.get("/izdavaci").then((response) => {
@@ -95,9 +95,8 @@ const FilterContainer = ({
     );
   }, [filteredPublisher, publisherCounts]);
 
-  const visiblePublishers = showAllPublishers
-    ? publishersWithCounts
-    : publishersWithCounts.slice(0, 5);
+  const visiblePublishers = publishersWithCounts;
+   
 
   
   useEffect(() => {
@@ -111,7 +110,7 @@ const FilterContainer = ({
       console.log(localSearchTerm)
       console.log("Publisher counts updated:", counts);
       console.log("Sum of counts:", Object.values(counts).reduce((a, b) => a + b, 0));
-      console.log("All Results:", allResults);
+      
     } else {
       setPublisherCounts({});
       console.log("Publisher counts cleared");
@@ -129,8 +128,10 @@ const FilterContainer = ({
 
   useEffect(() => {
     const allIds = publishersWithCounts.map((p) => String(p.id));
-    setTempPublisherIds(allIds);
-  }, [publishersWithCounts]);
+    if (allIds.length > 0 && tempPublisherIds.length === 0) {
+      setTempPublisherIds(allIds);
+    }
+  }, [publishersWithCounts, tempPublisherIds]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
@@ -147,20 +148,6 @@ const FilterContainer = ({
     setDateRange(tempDateRange);
     setIgnoreSaved(tempIgnoreSaved);
     setIgnoreReported(tempIgnoreReported);
-
-    const visiblePublishers = showAllPublishers
-      ? filteredPublisher
-      : filteredPublisher.slice(0, 5);
-
-    const checkedVisiblePublisherIds = visiblePublishers
-      .filter((p) => tempPublisherIds.includes(p.id))
-      .map((p) => p.id);
-
-    const response = await api.post("/skupovi/filter", {
-      publisherIds: checkedVisiblePublisherIds,
-    });
-    setAllResults(response.data);
-    
   };
 
   return (
@@ -180,8 +167,8 @@ const FilterContainer = ({
                     type="checkbox"
                     id={`publisher-${p.id}`}
                     className="publisher-checkbox"
-                    checked={tempPublisherIds.includes(p.id)}
-                    onChange={(e) => togglePublisher(p.id, e.target.checked)}
+                    checked={tempPublisherIds.includes(String(p.id))}
+                    onChange={(e) => togglePublisher(String(p.id), e.target.checked)}
                   />
                   <label htmlFor={`publisher-${p.id}`}>
                     {p.publisher} ({publisherCounts[String(p.id)] ?? 0})
