@@ -75,9 +75,16 @@ export async function analyzeStatements(
                 text: { format: zodTextFormat(AnalysisTypes.analizaSchema, 'event') },
             });
 
-            statement.analysis = JSON.parse(
-                response.output_text || '{}',
-            ) as AnalysisTypes.AnalizaResult;
+            try {
+                const parsed = response.output_text
+                    ? JSON.parse(response.output_text)
+                    : {};
+                statement.analysis = parsed as AnalysisTypes.AnalizaResult;
+            } catch (parseError) {
+                logToJob(jobId, 'warn', `Failed to parse analysis for statement ${statement.id}`);
+                statement.analysis = undefined;
+                continue;
+            }
 
         } catch (err: any) {
             if (err.status === 401) {

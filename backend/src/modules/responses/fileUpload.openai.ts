@@ -146,10 +146,10 @@ async function uploadFileToOpenAI(
         });
         return { fileId: result.id };
     } catch (err: any) {
-        if (err.status === 401) {
-            throw new CriticalApiError('Invalid API key');
-        } else if (err.status === 402) {
-            throw new CriticalApiError('Insufficient funds');
+        if (err.status === 401 || err.status === 402) {
+            throw new CriticalApiError(
+                err.status === 401 ? 'Invalid API key' : 'Insufficient funds'
+            );
         }
         else {
             console.error('Upload error:', err.message);

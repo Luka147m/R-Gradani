@@ -182,15 +182,19 @@ export const analyzeAll = async (jobId: string) => {
         logToJob(jobId, 'info', 'Završen posao')
         completeJob(jobId, true)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error
+            ? error.message
+            : String(error);
+
         if (error instanceof CriticalApiError) {
-            logToJob(jobId, 'error', `Kritična greška: ${error.message}`)
+            logToJob(jobId, 'error', `Kritična greška: ${errorMessage}`);
             completeJob(jobId, false);
-        } else if (error.message === 'Job cancelled') {
+        } else if (errorMessage === 'Job cancelled') {
             logToJob(jobId, 'info', 'Job cancelled by user');
             completeJob(jobId, false);
         } else {
-            logToJob(jobId, 'error', `Posao neuspješan: ${error.message}`);
+            logToJob(jobId, 'error', `Posao neuspješan: ${errorMessage}`);
             completeJob(jobId, false);
         }
     }

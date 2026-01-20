@@ -143,7 +143,7 @@ async function addFilesToVectorStore(
             else {
                 logToJob(jobId, 'warn', `Greška pri dodavanju datoteke: ${err.message}`);
                 console.error("Unknown error:", err.message);
-                return;
+                continue;
             }
         }
     }
