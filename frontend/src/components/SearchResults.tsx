@@ -51,24 +51,24 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       );
     }
 
-    // if (ignoreSaved) {
-    //   filtered = filtered.filter((d) => !savedIds.includes(d.id));
-    // }
+    if (ignoreSaved) {
+      filtered = filtered.filter((d) => !savedIds.includes(d.id));
+    }
 
-    // if (ignoreReported) {
-    //   filtered = filtered.filter((d) => !reportedIds.includes(d.id));
-    // }
+    if (ignoreReported) {
+      filtered = filtered.filter((d) => !reportedIds.includes(d.id));
+    }
 
-    // if (dateRange[0]) {
-    //   filtered = filtered.filter(
-    //     (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
-    //   );
-    // }
-    // if (dateRange[1]) {
-    //   const endDate = new Date(dateRange[1]);
-    //   endDate.setDate(endDate.getDate() + 1);
-    //   filtered = filtered.filter((d) => new Date(d.created ?? 0) < endDate);
-    // }
+    if (dateRange[0]) {
+      filtered = filtered.filter(
+        (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
+      );
+    }
+    if (dateRange[1]) {
+      const endDate = new Date(dateRange[1]);
+      endDate.setDate(endDate.getDate() + 1);
+      filtered = filtered.filter((d) => new Date(d.created ?? 0) < endDate);
+    }
 
     setFilteredResults(sortResults(filtered, sortOption));
   }, [

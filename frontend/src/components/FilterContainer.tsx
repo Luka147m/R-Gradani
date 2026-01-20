@@ -61,7 +61,7 @@ const FilterContainer = ({
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
 
   const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
-  
+  const [showAllPublishers, setShowAllPublishers] = useState(false);
 
   useEffect(() => {
     api.get("/izdavaci").then((response) => {
@@ -95,7 +95,9 @@ const FilterContainer = ({
     );
   }, [filteredPublisher, publisherCounts]);
 
-  const visiblePublishers = publishersWithCounts;
+  const visiblePublishers = showAllPublishers
+    ? publishersWithCounts
+    : publishersWithCounts.slice(0, 7);
    
 
   
@@ -115,7 +117,7 @@ const FilterContainer = ({
       setPublisherCounts({});
       console.log("Publisher counts cleared");
     }
-  }, [allResults]);
+  }, [allResults, localSearchTerm]);
   
 
   
@@ -128,10 +130,14 @@ const FilterContainer = ({
 
   useEffect(() => {
     const allIds = publishersWithCounts.map((p) => String(p.id));
+    if (hasSearched && allIds.length > 0) {
+      setTempPublisherIds(allIds);
+      return;
+    }
     if (allIds.length > 0 && tempPublisherIds.length === 0) {
       setTempPublisherIds(allIds);
     }
-  }, [publishersWithCounts, tempPublisherIds]);
+  }, [publishersWithCounts, hasSearched]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
@@ -176,6 +182,18 @@ const FilterContainer = ({
                 </div>
               ))}
 
+              {publishersWithCounts.length > 7 && (
+                <div className="publisher-item show-all-wrapper">
+                  <button
+                    type="button"
+                    className="select-all-btn"
+                    onClick={() => setShowAllPublishers((s) => !s)}
+                  >
+                    {showAllPublishers ? "Prikaži manje" : `Prikaži sve (${publishersWithCounts.length})`}
+                  </button>
+                </div>
+              )}
+              
               {visiblePublishers.length === 0 && (
                 <div className="publisher-item">
                   <em>Nema rezultata</em>
