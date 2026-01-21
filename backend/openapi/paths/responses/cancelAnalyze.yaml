@@ -1,0 +1,20 @@
+post:
+  summary: Cancel a running analysis
+  description: Requests cancellation of a running analysis job.
+  tags:
+    - Responses
+  parameters:
+    - name: jobId
+      in: path
+      required: true
+      description: The UUID of the analysis job to cancel.
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Cancellation requested successfully
+    '404':
+      description: Job not found or already completed
+
+    '500':
+      description: Internal Server Error

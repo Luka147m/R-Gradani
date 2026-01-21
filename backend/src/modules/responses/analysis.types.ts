@@ -23,6 +23,7 @@ export type MessageStructure = {
 };
 
 export type StructuredCommentRow = {
+    komentarId: number;
     odgovorId: number;
     message: Prisma.JsonValue | null;
     skupId: string | null;
@@ -70,5 +71,5 @@ export type FileUploadResult = {
 };
 
 export type AnalyzeResult =
-  | { success: true; message: "Analiza ažurirana", responseId: number }
-  | { success: false; message: "Analiza nije ažurirana", reason: string };     
+    | { success: true; message: "Analiza ažurirana", responseId: number }
+    | { success: false; message: "Analiza nije ažurirana", reason: string };     

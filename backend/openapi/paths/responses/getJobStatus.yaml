@@ -1,0 +1,46 @@
+get:
+  summary: Get logs of an analysis job
+  description: Retrieves log information for a specific analysis job. Optionally, use `sinceIndex` query parameter to get logs after a certain index.
+  tags:
+    - Responses
+  parameters:
+    - name: jobId
+      in: path
+      required: true
+      description: The ID of the analysis job.
+      schema:
+        type: string
+    - name: sinceIndex
+      in: query
+      required: false
+      description: Optional index to get logs since a specific point.
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Job logs retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              logs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    index:
+                      type: integer
+                      description: The index of the log entry
+                    message:
+                      type: string
+                      description: The log message
+                    timestamp:
+                      type: string
+                      format: date-time
+                      description: The timestamp of the log entry
+    '404':
+      description: Job not found
+
+    '500':
+      description: Internal Server Error

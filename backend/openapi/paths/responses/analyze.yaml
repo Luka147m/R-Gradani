@@ -1,0 +1,18 @@
+post:
+  summary: Start analysis for all datasets
+  description: Initiates analysis for all available datasets from scratch.
+  tags:
+    - Responses
+  responses:
+    '202':
+      description: Analysis started successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              jobId:
+                type: string
+                description: The UUID of the analysis job
+    '500':
+      description: Internal Server Error

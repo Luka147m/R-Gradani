@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 
-import { RecentlyVisitedDatasets } from "../components/ReacentlyVisitedDatasets";
-import { MarkedDatasets } from "../components/MarkedDatasets";
-import { CommentBubble } from "../components/CommentBubble.tsx";
-import { ImportContainer } from "../components/ImportContainer.tsx";
-import "../style/HomePage.css";
+import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
+import { MarkedDatasets } from '../components/MarkedDatasets';
+import { CommentBubble } from '../components/CommentBubble.tsx';
+import { ImportContainer } from '../components/ImportContainer.tsx';
+import { AnalyzeAllContainer } from '../components/AnalyzeAllContainer.tsx';
+import { Wrench } from 'lucide-react';
+import '../style/HomePage.css';
 
 interface RequestData {
   content: string;
@@ -41,10 +43,26 @@ function ProfilePage() {
     <>
       <div className="main-container profile-page-container">
         <div className="sidebar">
-          <div>
+          <div className="ikona-naslov-div">
+            <Wrench className="ikona" />
+            <h1 className="search-skupovi-h1">Postavke</h1>
+          </div>
+
+          {/*Privremeno ukran css od ispod kopmonenti"*/}
+
+          <div className="search-skupovi-div">
+          <div className="request-card">
             <h2>Uvoz .mbz datoteke</h2>
             <ImportContainer />
           </div>
+
+          <div className="request-card">
+            <h2>Pokreni analizu</h2>
+            <AnalyzeAllContainer />
+            <p>Pokreće analizu nad svim dostupnim podacima</p>
+          </div>
+          </div>
+
         </div>
 
         <div className="sidebar">
