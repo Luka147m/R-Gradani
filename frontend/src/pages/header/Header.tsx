@@ -82,7 +82,7 @@ const Header: React.FC = () => {
           >
             <IconText
               icon={MoveLeft}
-              text="natrag"
+              text="Natrag"
               className="path_history"
               iconSize={20}
             ></IconText>
