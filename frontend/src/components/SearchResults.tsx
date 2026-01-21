@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { DatasetCard } from "./DatasetCard";
-import { ArrowDownUp } from "lucide-react";
 import { useSearch } from "../hooks/useSearch";
 import "../style/SearchPage.css";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
@@ -77,6 +76,8 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     ignoreSaved,
     ignoreReported,
     dateRange,
+    savedIds,
+    reportedIds,
   ]);
   const sortResults = (
     data: getDatasetDTO[],
@@ -95,14 +96,14 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       case "date-desc":
         return sorted.sort(
           (a, b) =>
-            new Date(b.created ?? 0).getTime() -
-            new Date(a.created ?? 0).getTime(),
+            new Date(b.last_analysis ?? 0).getTime() -
+            new Date(a.last_analysis ?? 0).getTime(),
         );
       case "date-asc":
         return sorted.sort(
           (a, b) =>
-            new Date(a.created ?? 0).getTime() -
-            new Date(b.created ?? 0).getTime(),
+            new Date(a.last_analysis ?? 0).getTime() -
+            new Date(b.last_analysis ?? 0).getTime(),
         );
       default:
         return sorted;
@@ -130,7 +131,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
 
         <div className="sort-options">
           <label htmlFor="sort-select">
-            <ArrowDownUp />
+            Sortiraj po: 
           </label>
           <select
             id="sort-select"
