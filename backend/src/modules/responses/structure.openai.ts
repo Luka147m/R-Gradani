@@ -12,7 +12,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import prisma from "../../config/prisma";
 import { logToJob, isJobCancelled } from "../helper/logger";
 import { getCommentsWithoutResponses, getCommentsWithoutResponsesForDataset } from "./responses.repository";
-import { CriticalApiError } from './error.openai';
+import { CriticalApiError, JobCancelledError } from './error.openai';
 
 const openai = new OpenAI();
 
@@ -72,7 +72,10 @@ function cleanComment(comment?: string | null): string {
  * @returns niz strukturiranih izjava
  * @throws Baca grešku, ako se dogodi greška tijekom poziva API, odnosno ako ne valja ključ ili smo potrošili sve novce
  */
-async function structureComment(comment: string): Promise<Statement[]> {
+async function structureComment(comment: string, jobId: string): Promise<Statement[]> {
+    if (isJobCancelled(jobId)) {
+        throw new JobCancelledError(jobId);
+    }
     try {
         const response = await openai.responses.create({
             model,
@@ -127,8 +130,7 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
     for (const comment of commentsRows) {
 
         if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'warn', 'Strukturiranje prekinuto - job cancelled');
-            throw new Error('Job cancelled');
+            throw new JobCancelledError(jobId);
         }
 
         try {
@@ -141,7 +143,7 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
             }
 
             // Strukturiramo komentar pomoću LLM-a
-            const statements = await structureComment(comment.message);
+            const statements = await structureComment(comment.message, jobId);
 
             if (statements.length === 0) {
                 // console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
@@ -173,7 +175,7 @@ async function structureNComments(limit: number, offset: number = 0, jobId: stri
             // Provjeriti moze li se pauza smanjiti
 
         } catch (error: any) {
-            if (error instanceof CriticalApiError) {
+            if (error instanceof CriticalApiError || error instanceof JobCancelledError) {
                 throw error;  // Kritična greška se propagira dalje
             }
 
@@ -210,6 +212,11 @@ export async function structureAll(jobId: string) {
 
     try {
         while (true) {
+
+            if (isJobCancelled(jobId)) {
+                throw new JobCancelledError(jobId);
+            }
+
             const commentsRows = await getCommentsWithoutResponses(batchSize);
             if (commentsRows.length === 0) break;
 
@@ -221,8 +228,8 @@ export async function structureAll(jobId: string) {
 
         logToJob(jobId, 'info', 'Strukturiranje završeno.')
     } catch (error: any) {
-        if (error instanceof CriticalApiError) {
-            throw error;    // Kritična greška se propagira dalje
+        if (error instanceof CriticalApiError || error instanceof JobCancelledError) {
+            throw error;  // Kritična greška se propagira dalje
         }
         logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
         throw error;
@@ -254,8 +261,8 @@ export async function structureForOneDataset(skupId: string, jobId: string) {
 
         logToJob(jobId, 'info', 'Strukturiranje završeno.')
     } catch (error: any) {
-        if (error instanceof CriticalApiError) {
-            throw error;    // Kritična greška se propagira dalje
+        if (error instanceof CriticalApiError || error instanceof JobCancelledError) {
+            throw error;  // Kritična greška se propagira dalje
         }
         logToJob(jobId, 'error', `Posao prekinut: ${error.message}`)
         throw error;
@@ -287,8 +294,7 @@ async function structureNCommentsForOneDataset(skupId: string, limit: number, of
     for (const comment of commentsRows) {
 
         if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'warn', 'Strukturiranje prekinuto - job cancelled');
-            throw new Error('Job cancelled');
+            throw new JobCancelledError(jobId);
         }
 
         try {
@@ -301,7 +307,7 @@ async function structureNCommentsForOneDataset(skupId: string, limit: number, of
             }
 
             // Strukturiramo komentar pomoću LLM-a
-            const statements = await structureComment(comment.message);
+            const statements = await structureComment(comment.message, jobId);
 
             if (statements.length === 0) {
                 // console.log(`Komentar ${comment.id}: Nema strukturiranih izjava`);
@@ -333,7 +339,7 @@ async function structureNCommentsForOneDataset(skupId: string, limit: number, of
             // Provjeriti moze li se pauza smanjiti
 
         } catch (error: any) {
-            if (error instanceof CriticalApiError) {
+            if (error instanceof CriticalApiError || error instanceof JobCancelledError) {
                 throw error;  // Kritična greška se propagira dalje
             }
 

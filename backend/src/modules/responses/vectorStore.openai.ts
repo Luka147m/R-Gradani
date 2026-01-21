@@ -9,9 +9,9 @@
  */
 import OpenAI from 'openai';
 import * as AnalysisTypes from '../responses/analysis.types';
-import { logToJob } from '../helper/logger';
+import { logToJob, isJobCancelled } from '../helper/logger';
 import { createFile } from './fileUpload.openai';
-import { CriticalApiError } from './error.openai';
+import { CriticalApiError, JobCancelledError } from './error.openai';
 
 const openai = new OpenAI();
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -44,6 +44,17 @@ export async function createVectorStore(
         const uploadResults: AnalysisTypes.FileUploadResult[] = [];
 
         for (const resource of resources) {
+
+            if (isJobCancelled(jobId)) {
+                for (const fid of fileIds) {
+                    try {
+                        await openai.files.delete(fid);
+                    } catch (e) {
+                    }
+                }
+                throw new JobCancelledError(jobId);
+            }
+
             if (!resource.url || !resource.format) {
                 uploadResults.push({ fileId: null, reason: 'no_format' });
                 continue;
@@ -156,6 +167,7 @@ async function addFilesToVectorStore(
  * @param maxWaitMs - maksimalno vrijeme čekanja u milisekundama
  * @param jobId - UUID posla za logiranje i eventualno prekidanje
  * @returns Vraća true ako je spreman za korištenje, inače false
+ * @throws Baca grešku ako je posao prekinut
  */
 async function waitForVectorStoreReady(
     vectorStoreId: string,
@@ -166,6 +178,12 @@ async function waitForVectorStoreReady(
     const pollInterval = 15000;
 
     while (Date.now() - startTime < maxWaitMs) {
+
+        if (isJobCancelled(jobId)) {
+            logToJob(jobId, 'info', 'Vector store preparation cancelled');
+            return false;
+        }
+
         const filesResponse = await openai.vectorStores.files.list(vectorStoreId);
 
         if (filesResponse.data.length === 0) {

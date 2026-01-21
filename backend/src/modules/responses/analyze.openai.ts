@@ -16,7 +16,7 @@ import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
 import { getStructuredComments, getStructuredCommentsForDataset } from './responses.repository';
 import { createVectorStore, cleanupResources } from './vectorStore.openai';
-import { CriticalApiError } from './error.openai';
+import { CriticalApiError, JobCancelledError } from './error.openai';
 
 const openai = new OpenAI();
 const model = 'gpt-5-mini';
@@ -45,6 +45,9 @@ export async function analyzeStatements(
     const vectorIDs = [vectorStoreId];
 
     for (const statement of statements) {
+        if (isJobCancelled(jobId)) {
+            throw new JobCancelledError(jobId);
+        }
         logToJob(jobId, 'debug', `Analiziram izjavu ID: ${statement.id}`);
 
         try {
@@ -161,8 +164,7 @@ export async function analyzeAllData(jobId: string): Promise<void> {
         do {
 
             if (isJobCancelled(jobId)) {
-                logToJob(jobId, 'warn', 'Analiziranje prekinuto - job cancelled');
-                throw new Error('Job cancelled');
+                throw new JobCancelledError(jobId);
             }
 
             batch = await getStructuredComments(batchSize, offset);
@@ -260,10 +262,13 @@ async function enrichSkupInfo(dict: AnalysisTypes.StructuredCommentDict): Promis
  */
 async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string, createNewEntry: boolean): Promise<void> {
     if (isJobCancelled(jobId)) {
-        throw new Error('Job cancelled');
+        throw new JobCancelledError(jobId);
     }
+
     logToJob(jobId, 'info', `Analiziram skup podataka ID: ${skup.skup_id}`)
     let skupId = skup.skup_id
+    let vectorStoreId: string | null = null;
+    let fileIds: string[] = [];
 
     try {
         const result = await createVectorStore(skup, jobId);
@@ -272,13 +277,15 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string, createN
             for (const comment of skup.comments) {
                 await writeErrorToDb(comment, result.error, createNewEntry);
                 await updateSkupLastAnalysis(skupId)
+
             }
             return;
         }
 
-        const { vectorStore, fileIds } = result;
+        vectorStoreId = result.vectorStore.id;
+        fileIds = result.fileIds;
 
-        const filesResponse = await openai.vectorStores.files.list(vectorStore.id);
+        const filesResponse = await openai.vectorStores.files.list(vectorStoreId);
         if (!filesResponse.data || filesResponse.data.length === 0) {
             logToJob(jobId, 'info', 'Vector store je prazan, nema datoteka za analizu.')
             for (const comment of skup.comments) {
@@ -307,7 +314,7 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string, createN
 
             try {
                 const analyzedStatements = await analyzeStatements(
-                    vectorStore.id,
+                    vectorStoreId,
                     updatedStatements,
                     metapodaci,
                     jobId
@@ -356,13 +363,22 @@ async function analyzeSkup(skup: AnalysisTypes.SkupGroup, jobId: string, createN
             }
         }
 
-        await cleanupResources(vectorStore.id, fileIds, jobId);
+        await cleanupResources(vectorStoreId, fileIds, jobId);
 
     } catch (error: any) {
-        if (error instanceof CriticalApiError) {
+        if (error instanceof CriticalApiError || error instanceof JobCancelledError) {
             throw error;  // Kritična greška se propagira dalje
         }
         logToJob(jobId, 'error', `Greška kod skupa ${skup.skup_id}: ${error.message}`);
+    }
+    finally {
+        if (vectorStoreId && fileIds.length > 0) {
+            try {
+                await cleanupResources(vectorStoreId, fileIds, jobId);
+            } catch (cleanupError) {
+                logToJob(jobId, 'warn', `Cleanup failed: ${cleanupError}`);
+            }
+        }
     }
 }
 
@@ -459,8 +475,7 @@ export async function analyzeDataset(skupId: string, jobId: string): Promise<voi
         do {
 
             if (isJobCancelled(jobId)) {
-                logToJob(jobId, 'warn', 'Analiziranje prekinuto - job cancelled');
-                throw new Error('Job cancelled');
+                throw new JobCancelledError(jobId);
             }
 
             batch = await getStructuredCommentsForDataset(skupId, batchSize, offset);

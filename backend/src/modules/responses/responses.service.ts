@@ -4,7 +4,7 @@ import { completeJob, logToJob, startJob, isJobCancelled } from '../helper/logge
 import { analyzeAllData, analyzeDataset } from './analyze.openai';
 import { structureAll, structureForOneDataset } from './structure.openai';
 
-import { CriticalApiError } from './error.openai';
+import { CriticalApiError, JobCancelledError } from './error.openai';
 
 // ----------------------------------------------------------------------------------
 
@@ -39,51 +39,31 @@ export const getResponseById = async (responseId: number) => {
  */
 export const analyzeAll = async (jobId: string) => {
     try {
-        startJob(jobId)
+        startJob(jobId);
 
+        // Strukturiranje komentara
+        logToJob(jobId, 'info', 'Započinjem strukturiranje');
+        await structureAll(jobId);
 
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
+        // Analiziranje strukturiranih komentara
+        logToJob(jobId, 'info', 'Započinjem analiziranje');
+        await analyzeAllData(jobId);
 
-        // 1 Strukturiranje - radi
-        logToJob(jobId, 'info', 'Započinjem strukturiranje')
-        await structureAll(jobId)
-
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
-
-        // 2 Analiziranje - radi, ali iz nekog razloga sporo??
-        await analyzeAllData(jobId)
-
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
-
-        logToJob(jobId, 'info', 'Završen posao')
-        completeJob(jobId, true)
+        logToJob(jobId, 'info', 'Završen posao');
+        completeJob(jobId, true);
 
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error
-            ? error.message
-            : String(error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
 
         if (error instanceof CriticalApiError) {
             logToJob(jobId, 'error', `Kritična greška: ${errorMessage}`);
-            completeJob(jobId, false);
-        } else if (errorMessage === 'Job cancelled') {
-            logToJob(jobId, 'info', 'Job cancelled by user');
+            completeJob(jobId, false, errorMessage);
+        } else if (error instanceof JobCancelledError || errorMessage === 'Job cancelled') {
+            logToJob(jobId, 'info', 'Posao otkazan od strane korisnika');
             completeJob(jobId, false);
         } else {
             logToJob(jobId, 'error', `Posao neuspješan: ${errorMessage}`);
-            completeJob(jobId, false);
+            completeJob(jobId, false, errorMessage);
         }
     }
 };
@@ -99,46 +79,31 @@ export const analyzeAll = async (jobId: string) => {
  */
 export const analyzeOneDataset = async (skupId: string, jobId: string) => {
     try {
-        startJob(jobId)
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
+        startJob(jobId);
 
-        // Radi strukturiranje za komentare koji nemaju
-        logToJob(jobId, 'info', 'Započinjem strukturiranje')
-        await structureForOneDataset(skupId, jobId)
+        // Strukturiranje komentara koji nemaju odgovore
+        logToJob(jobId, 'info', 'Započinjem strukturiranje');
+        await structureForOneDataset(skupId, jobId);
 
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
+        // Analiza strukturiranih komentara
+        logToJob(jobId, 'info', 'Započinjem analiziranje');
+        await analyzeDataset(skupId, jobId);
 
-        // Ponovno analiziraj
-        await analyzeDataset(skupId, jobId)
-        if (isJobCancelled(jobId)) {
-            logToJob(jobId, 'info', 'Job cancelled');
-            completeJob(jobId, false);
-            return;
-        }
-        logToJob(jobId, 'info', 'Završen posao')
-        completeJob(jobId, true)
+        logToJob(jobId, 'info', 'Završen posao');
+        completeJob(jobId, true);
+
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error
-            ? error.message
-            : String(error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
 
         if (error instanceof CriticalApiError) {
             logToJob(jobId, 'error', `Kritična greška: ${errorMessage}`);
-            completeJob(jobId, false);
-        } else if (errorMessage === 'Job cancelled') {
-            logToJob(jobId, 'info', 'Job cancelled by user');
+            completeJob(jobId, false, errorMessage);
+        } else if (error instanceof JobCancelledError || errorMessage === 'Job cancelled') {
+            logToJob(jobId, 'info', 'Posao otkazan od strane korisnika');
             completeJob(jobId, false);
         } else {
             logToJob(jobId, 'error', `Posao neuspješan: ${errorMessage}`);
-            completeJob(jobId, false);
+            completeJob(jobId, false, errorMessage);
         }
     }
 };

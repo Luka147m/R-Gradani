@@ -7,3 +7,13 @@ export class CriticalApiError extends Error {
         this.name = 'CriticalApiError';
     }
 }
+
+/**
+ * Greška koja se događa ako je posao prekinut
+ */
+export class JobCancelledError extends Error {
+    constructor(jobId: string) {
+        super(`Job ${jobId} was cancelled`);
+        this.name = 'JobCancelledError';
+    }
+}
