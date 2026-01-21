@@ -501,7 +501,9 @@ export async function analyzeDataset(skupId: string, jobId: string): Promise<voi
         logToJob(jobId, 'info', totalLogText)
 
     } catch (error) {
-        console.error("Greška tijekom analize izjava:", error);
+        if (!(error instanceof JobCancelledError)) {
+            console.error("Greška tijekom analize izjava:", error);
+        }
         logToJob(jobId, 'info', 'Greška tijekom analize izjava')
         throw error;
     } finally {
