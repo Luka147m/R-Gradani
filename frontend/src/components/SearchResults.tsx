@@ -5,6 +5,7 @@ import { useSearch } from "../hooks/useSearch";
 import "../style/SearchPage.css";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import api from "../api/axios.tsx";
+import { useParseLocalStorage } from "../providers/useParseLocalStorage.tsx";
 
 type SortOption = "title-asc" | "title-desc" | "date-desc" | "date-asc";
 
@@ -23,6 +24,9 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     dateRange,
   } = useSearch();
 
+  const [savedIds] = useParseLocalStorage<string>("savedDatasets", []);
+  const [reportedIds] = useParseLocalStorage<string>("reportedDatasets", []);
+
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [showAllDatasets, setShowAllDatasets] = useState(false);
   const [filteredResults, setFilteredResults] = useState<getDatasetDTO[]>([]);
@@ -34,14 +38,8 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
   }, [setAllResults]);
 
   useEffect(() => {
-    const savedIds: string[] = JSON.parse(
-      localStorage.getItem("savedDatasets") || "[]",
-    );
-    const reportedIds: string[] = JSON.parse(
-      localStorage.getItem("reportedDatasets") || "[]",
-    );
-
-    // debug
+    
+    
 
     let filtered = allResults;
 
@@ -52,11 +50,11 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     }
 
     if (ignoreSaved) {
-      filtered = filtered.filter((d) => !savedIds.includes(d.id));
+      filtered = filtered.filter((d) => !Array.isArray(savedIds) || !savedIds.includes(d.id));
     }
 
     if (ignoreReported) {
-      filtered = filtered.filter((d) => !reportedIds.includes(d.id));
+      filtered = filtered.filter((d) => !Array.isArray(reportedIds) || !reportedIds.includes(d.id));
     }
 
     if (dateRange[0]) {
