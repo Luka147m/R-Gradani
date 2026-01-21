@@ -38,10 +38,13 @@
   background-color: #bb86fc;
   padding: 14px 16px;
   color: white;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border: 1px solid white;
   min-height: 100px;
-  width: 100%;
+  width: 25rem;
+  height: 8rem;
   display: flex;
   flex-direction: column;
   justify-content: center;

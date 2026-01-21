@@ -26,7 +26,7 @@ main {
 }
 
 .main-container {
-  width: 90%;
+  width: fit-content;
   min-height: 100%;
   background-color: #1e1e1e;
   display: flex;

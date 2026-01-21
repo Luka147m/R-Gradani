@@ -5,15 +5,17 @@ import { useSearch } from "../hooks/useSearch";
 import "../style/SearchPage.css";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import api from "../api/axios.tsx";
+import { useParseLocalStorage } from "../providers/useParseLocalStorage.tsx";
 
 type SortOption = "title-asc" | "title-desc" | "date-desc" | "date-asc";
 
 type SearchResultsProps = {
   allResults: getDatasetDTO[];
   setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
+  hasSearched?: boolean;
 };
 
-const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
+const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResultsProps) => {
   const {
     searchTerm,
     selectedPublisherIds,
@@ -21,6 +23,9 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
     ignoreReported,
     dateRange,
   } = useSearch();
+
+  const [savedIds] = useParseLocalStorage<string>("savedDatasets", []);
+  const [reportedIds] = useParseLocalStorage<string>("reportedDatasets", []);
 
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [showAllDatasets, setShowAllDatasets] = useState(false);
@@ -33,34 +38,28 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
   }, [setAllResults]);
 
   useEffect(() => {
-    const savedIds: string[] = JSON.parse(
-      localStorage.getItem("savedDatasets") || "[]"
-    );
-    const reportedIds: string[] = JSON.parse(
-      localStorage.getItem("reportedDatasets") || "[]"
-    );
+    
+    
 
-    let filtered = allResults.filter((d) =>
-      (d.title ?? "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = allResults;
 
     if (selectedPublisherIds.length > 0) {
       filtered = filtered.filter((d) =>
-        selectedPublisherIds.includes(d.publisher_id ?? "")
+        selectedPublisherIds.includes(String(d.publisher_id ?? "")),
       );
     }
 
     if (ignoreSaved) {
-      filtered = filtered.filter((d) => !savedIds.includes(d.id));
+      filtered = filtered.filter((d) => !Array.isArray(savedIds) || !savedIds.includes(d.id));
     }
 
     if (ignoreReported) {
-      filtered = filtered.filter((d) => !reportedIds.includes(d.id));
+      filtered = filtered.filter((d) => !Array.isArray(reportedIds) || !reportedIds.includes(d.id));
     }
 
     if (dateRange[0]) {
       filtered = filtered.filter(
-        (d) => new Date(d.created ?? 0) >= new Date(dateRange[0])
+        (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
       );
     }
     if (dateRange[1]) {
@@ -81,36 +80,47 @@ const SearchResults = ({ allResults, setAllResults }: SearchResultsProps) => {
   ]);
   const sortResults = (
     data: getDatasetDTO[],
-    option: SortOption
+    option: SortOption,
   ): getDatasetDTO[] => {
     const sorted = [...data];
     switch (option) {
       case "title-asc":
         return sorted.sort((a, b) =>
-          (a.title ?? "").localeCompare(b.title ?? "")
+          (a.title ?? "").localeCompare(b.title ?? ""),
         );
       case "title-desc":
         return sorted.sort((a, b) =>
-          (b.title ?? "").localeCompare(a.title ?? "")
+          (b.title ?? "").localeCompare(a.title ?? ""),
         );
       case "date-desc":
         return sorted.sort(
           (a, b) =>
             new Date(b.created ?? 0).getTime() -
-            new Date(a.created ?? 0).getTime()
+            new Date(a.created ?? 0).getTime(),
         );
       case "date-asc":
         return sorted.sort(
           (a, b) =>
             new Date(a.created ?? 0).getTime() -
-            new Date(b.created ?? 0).getTime()
+            new Date(b.created ?? 0).getTime(),
         );
       default:
         return sorted;
     }
   };
 
+  if (!hasSearched) {
+    return (
+      <div className="search-results">
+        <div className="title-and-sort">
+          <h2>Pritisni Enter za prikaz rezultata pretrage</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="search-results">
       <div className="title-and-sort">
         <h2>

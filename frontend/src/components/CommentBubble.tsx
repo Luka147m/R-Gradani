@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {Bookmark, Flag} from 'lucide-react';
+import { useParseLocalStorage } from '../providers/useParseLocalStorage.tsx';
 
 import "../style/CommentBubble.css"
 
@@ -20,65 +21,49 @@ interface CommentBubbleProps{
 
 export const CommentBubble: React.FC<CommentBubbleProps> = ({ content, isFromComment, usvojenost, podudarnost, isProfilePage = false }) => {
 
+    const [savedRequests, setSavedRequests] = useParseLocalStorage<RequestData>('savedRequests', []);
+    const [reportedRequests, setReportedRequests] = useParseLocalStorage<RequestData>('reportedRequests', []);
+
+
     const [saved, setSaved] = useState(false);
     const [reported, setReported] = useState(false);
 
     const requestData: RequestData = { content, isFromComment, usvojenost, podudarnost };
 
     useEffect(() => {
-        try{
-            const raw = localStorage.getItem('savedRequests');
-            const arr: RequestData[] = raw ? JSON.parse(raw) : [];
-            setSaved(arr.some(req => req.content === content));
-        } catch{
+        if(Array.isArray(savedRequests)){
+            setSaved(savedRequests.some(req => req.content === content));
+        } else {
             setSaved(false);
         }
-    }, [content]);
+    }, [content, savedRequests]);
 
     useEffect(() => {
-        try{
-            const raw = localStorage.getItem('reportedRequests');
-            const arr: RequestData[] = raw ? JSON.parse(raw) : [];
-            setReported(arr.some(req => req.content === content));
-        } catch{
+        if(Array.isArray(reportedRequests)){
+            setReported(reportedRequests.some(req => req.content === content));
+        } else {
             setReported(false);
         }
-    }, [content]);
+    }, [content, reportedRequests]);
 
     const toggleReport = () => {
-        try{
-            const raw = localStorage.getItem('reportedRequests');
-            const arr: RequestData[] = raw ? JSON.parse(raw) : [];
-            if(arr.some(req => req.content === content)){
-                const filtered = arr.filter(req => req.content !== content);
-                localStorage.setItem('reportedRequests', JSON.stringify(filtered));
-                setReported(false);
-            }else {
-                arr.push(requestData);
-                localStorage.setItem('reportedRequests', JSON.stringify(arr));
-                setReported(true);
-            }       
-        } catch(e){
-            console.error("Error na localStorage-u", e);
-        }
+        setReportedRequests((current) => {
+            const arr = Array.isArray(current) ? current : [];
+            const exists = arr.some(req => req.content === content);
+            const next = exists ? arr.filter(req => req.content !== content) : [...arr, requestData];
+            setReported(!exists);
+            return next;
+        });
     }
 
     const toggleSave = () => {
-        try{
-            const raw = localStorage.getItem('savedRequests');
-            const arr: RequestData[] = raw ? JSON.parse(raw) : [];
-            if (arr.some(req => req.content === content)){
-                const filtered = arr.filter(req => req.content !== content);
-                localStorage.setItem('savedRequests', JSON.stringify(filtered));
-                setSaved(false);
-            }else{
-                arr.push(requestData);
-                localStorage.setItem('savedRequests', JSON.stringify(arr));
-                setSaved(true);
-            }
-        } catch(e) {
-            console.error('Error na localStorage-u', e);
-        }
+        setSavedRequests((current) => {
+            const arr = Array.isArray(current) ? current : [];
+            const exists = arr.some(req => req.content === content);
+            const next = exists ? arr.filter(req => req.content !== content) : [...arr, requestData];
+            setSaved(!exists);
+            return next;
+        });
     }
 
     const getStatusConfig = () => {

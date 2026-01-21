@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 import { RecentlyVisitedDatasets } from '../components/ReacentlyVisitedDatasets';
 import { MarkedDatasets } from '../components/MarkedDatasets';
@@ -21,9 +21,9 @@ function ProfilePage() {
 
   // seed + load
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedRequests') || '[]');
+    const saved = JSON.parse(localStorage.getItem("savedRequests") || "[]");
     const reported = JSON.parse(
-      localStorage.getItem('reportedRequests') || '[]',
+      localStorage.getItem("reportedRequests") || "[]",
     );
 
     if (Array.isArray(saved)) {

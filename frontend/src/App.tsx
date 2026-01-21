@@ -11,25 +11,28 @@ import "./style/global/colors.css";
 import "./style/global/common.css";
 import { PathHistoryProvider } from "./providers/PathHistoryProvider";
 import { PathTracker } from "./pages/header/PathTracker";
+import { UserContextProvider } from "./providers/UserContextProvider";
 
 function App() {
   return (
-    <SearchProvider>
-      <PathHistoryProvider>
-        <Router>
-          <PathTracker></PathTracker>
-          <Routes>
-            <Route element={<DefaultLayout></DefaultLayout>}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/dataset/:id" element={<DatasetPage />} />
-              <Route path="/search" element={<AdvancedFilterPage />} />
-              <Route path="/statistics" element={<StatisticsPage />} />
-            </Route>
-          </Routes>
-        </Router>
-      </PathHistoryProvider>
-    </SearchProvider>
+    <UserContextProvider>
+      <SearchProvider>
+        <PathHistoryProvider>
+          <Router>
+            <PathTracker></PathTracker>
+            <Routes>
+              <Route element={<DefaultLayout></DefaultLayout>}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/dataset/:id" element={<DatasetPage />} />
+                <Route path="/search" element={<AdvancedFilterPage />} />
+                <Route path="/statistics" element={<StatisticsPage />} />
+              </Route>
+            </Routes>
+          </Router>
+        </PathHistoryProvider>
+      </SearchProvider>
+    </UserContextProvider>
   );
 }
 
