@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",                                  // dev → Vite proxy → backend
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
 });
 
