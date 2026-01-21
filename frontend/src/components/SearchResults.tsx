@@ -140,8 +140,8 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
           >
             <option value="title-asc">Naslovu (A-Z)</option>
             <option value="title-desc">Naslovu (Z-A)</option>
-            <option value="date-desc">Datumu (najnovije)</option>
-            <option value="date-asc">Datumu (najstarije)</option>
+            <option value="date-desc">Datumu zadnje provedene analize  (najnovije)</option>
+            <option value="date-asc">Datumu zadnje provedene analize  (najstarije)</option>
           </select>
         </div>
       </div>
