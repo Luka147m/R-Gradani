@@ -10,14 +10,21 @@ import api from "../api/axios.tsx";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import "../style/FilterContainer.css";
 
+
 type FilterContainerProps = {
   localSearchTerm: string;
+  allResults: getDatasetDTO[];
   setAllResults: React.Dispatch<React.SetStateAction<getDatasetDTO[]>>;
+  hasSearched: boolean;
+  
 };
 
 const FilterContainer = ({
   localSearchTerm,
-  setAllResults,
+  allResults,
+  
+  hasSearched,
+  
 }: FilterContainerProps) => {
   const [, setSearchParams] = useSearchParams();
   const {
@@ -25,7 +32,7 @@ const FilterContainer = ({
     selectedPublisherIds,
     setSelectedPublisherIds,
     publisherQuery,
-    setPublisherQuery,
+    // setPublisherQuery,
     dateRange,
     setDateRange,
     ignoreSaved,
@@ -41,6 +48,9 @@ const FilterContainer = ({
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
   const [tempIgnoreReported, setTempIgnoreReported] =
     useState<boolean>(ignoreReported);
+
+  const [publisherCounts, setPublisherCounts] = 
+    useState<Record<string, number>>({});
 
   useEffect(
     () => setTempPublisherIds(selectedPublisherIds),
@@ -73,25 +83,44 @@ const FilterContainer = ({
     [publisherQuery, publishers],
   );
 
+  
+  const publishersWithCounts = useMemo(() => {
+    const withCounts = filteredPublisher.filter(
+      (p) => (publisherCounts[String(p.id)] ?? 0) > 0,
+    );
+    return [...withCounts].sort(
+      (a, b) =>
+        (publisherCounts[String(b.id)] ?? 0) -
+        (publisherCounts[String(a.id)] ?? 0),
+    );
+  }, [filteredPublisher, publisherCounts]);
+
   const visiblePublishers = showAllPublishers
-    ? filteredPublisher
-    : filteredPublisher.slice(0, 5);
+    ? publishersWithCounts
+    : publishersWithCounts.slice(0, 7);
+   
 
-  const visiblePublisherIds = visiblePublishers.map((p) => p.id);
+  
+  useEffect(() => {
+    if (allResults.length > 0) {
+      const counts = allResults.reduce<Record<string, number>>((acc, result) => {
+        const id = String(result.publisher_id ?? "unknown");
+        acc[id] = (acc[id] || 0) + 1;
+        return acc;
+      }, {});
+      setPublisherCounts(counts);
+      console.log(localSearchTerm)
+      console.log("Publisher counts updated:", counts);
+      console.log("Sum of counts:", Object.values(counts).reduce((a, b) => a + b, 0));
+      
+    } else {
+      setPublisherCounts({});
+      console.log("Publisher counts cleared");
+    }
+  }, [allResults, localSearchTerm]);
+  
 
-  const areAllVisibleChecked = visiblePublisherIds.every((id) =>
-    tempPublisherIds.includes(id),
-  );
-
-  const toggleVisiblePublishers = () => {
-    setTempPublisherIds((prev) => {
-      if (areAllVisibleChecked) {
-        return prev.filter((id) => !visiblePublisherIds.includes(id));
-      } else {
-        return Array.from(new Set([...prev, ...visiblePublisherIds]));
-      }
-    });
-  };
+  
 
   const togglePublisher = (id: string, checked: boolean) => {
     setTempPublisherIds((prev) =>
@@ -100,9 +129,15 @@ const FilterContainer = ({
   };
 
   useEffect(() => {
-    const allIds = filteredPublisher.map((p) => p.id);
-    setTempPublisherIds(allIds);
-  }, [filteredPublisher]);
+    const allIds = publishersWithCounts.map((p) => String(p.id));
+    if (hasSearched && allIds.length > 0) {
+      setTempPublisherIds(allIds);
+      return;
+    }
+    if (allIds.length > 0 && tempPublisherIds.length === 0) {
+      setTempPublisherIds(allIds);
+    }
+  }, [publishersWithCounts, hasSearched]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
@@ -119,73 +154,54 @@ const FilterContainer = ({
     setDateRange(tempDateRange);
     setIgnoreSaved(tempIgnoreSaved);
     setIgnoreReported(tempIgnoreReported);
-
-    const visiblePublishers = showAllPublishers
-      ? filteredPublisher
-      : filteredPublisher.slice(0, 5);
-
-    const checkedVisiblePublisherIds = visiblePublishers
-      .filter((p) => tempPublisherIds.includes(p.id))
-      .map((p) => p.id);
-
-    const response = await api.post("/skupovi/filter", {
-      publisherIds: checkedVisiblePublisherIds,
-    });
-    setAllResults(response.data);
   };
 
   return (
     <div className="filter-container">
       <div className="filter-section">
-        <div className="title">
-          <Building size={20} />
-          <h2>Izdavač</h2>
-          <button
-            type="button"
-            className="select-all-btn"
-            onClick={toggleVisiblePublishers}
-          >
-            {areAllVisibleChecked ? "Isključi sve" : "Označi sve"}
-          </button>
-        </div>
-        <div className="search-publisher">
-          <input
-            type="text"
-            placeholder="Pretraži izdavače"
-            className="publisher-input"
-            value={publisherQuery}
-            onChange={(e) => setPublisherQuery(e.target.value)}
-          />
-        </div>
-        <div className="publisher-list">
-          {filteredPublisher.length > 5 && (
-            <button
-              type="button"
-              className="select-all-btn"
-              onClick={() => setShowAllPublishers((prev) => !prev)}
-            >
-              {showAllPublishers ? "Prikaži manje" : "Prikaži više"}
-            </button>
-          )}
-          {visiblePublishers.map((p) => (
-            <div key={p.id} className="publisher-item">
-              <input
-                type="checkbox"
-                id={`publisher-${p.id}`}
-                className="publisher-checkbox"
-                checked={tempPublisherIds.includes(p.id)}
-                onChange={(e) => togglePublisher(p.id, e.target.checked)}
-              />
-              <label htmlFor={`publisher-${p.id}`}>{p.publisher}</label>
+        {hasSearched && (
+          <div className="filter-section">
+            <div className="title">
+              <Building size={20} />
+              <h2>Izdavač</h2>
             </div>
-          ))}
+            <div className="search-publisher"></div>
+            <div className="publisher-list">
+              {visiblePublishers.map((p) => (
+                <div key={p.id} className="publisher-item">
+                  <input
+                    type="checkbox"
+                    id={`publisher-${p.id}`}
+                    className="publisher-checkbox"
+                    checked={tempPublisherIds.includes(String(p.id))}
+                    onChange={(e) => togglePublisher(String(p.id), e.target.checked)}
+                  />
+                  <label htmlFor={`publisher-${p.id}`}>
+                    {p.publisher} ({publisherCounts[String(p.id)] ?? 0})
+                  </label>
+                </div>
+              ))}
 
-          {filteredPublisher.length === 0 && (
-            <div className="publisher-item">
-              <em>Nema rezultata</em>
+              {publishersWithCounts.length > 7 && (
+                <div className="publisher-item show-all-wrapper">
+                  <button
+                    type="button"
+                    className="select-all-btn"
+                    onClick={() => setShowAllPublishers((s) => !s)}
+                  >
+                    {showAllPublishers ? "Prikaži manje" : `Prikaži sve (${publishersWithCounts.length})`}
+                  </button>
+                </div>
+              )}
+              
+              {visiblePublishers.length === 0 && (
+                <div className="publisher-item">
+                  <em>Nema rezultata</em>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="filter-section">
