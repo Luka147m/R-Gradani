@@ -1,0 +1,25 @@
+post:
+  summary: Start analysis for a single dataset
+  description: Starts analysis for a specific dataset identified by `skupId`.
+  parameters:
+    - name: skupId
+      in: path
+      required: true
+      description: The ID of the dataset to analyze.
+      schema:
+        type: string
+  responses:
+    '202':
+      description: Analysis started successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              jobId:
+                type: string
+                description: The UUID of the analysis job
+    '400':
+      description: Invalid dataset ID
+    '500':
+      description: Internal Server Error

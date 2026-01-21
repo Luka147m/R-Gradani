@@ -10,6 +10,18 @@ interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
   jobId: string;
+  index: number;
+}
+
+interface JobStatusResponse {
+  success: boolean;
+  jobId: string;
+  status: 'running' | 'completed' | 'failed';
+  isComplete: boolean;
+  startedAt: string;
+  completedAt?: string;
+  error?: string;
+  logs: LogEntry[];
 }
 
 export const ImportContainer = () => {
@@ -19,11 +31,15 @@ export const ImportContainer = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [jobStatus, setJobStatus] = useState<
+    'running' | 'completed' | 'failed'
+  >('running');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const lastTimestampRef = useRef<string | null>(null);
+  const lastIndexRef = useRef<number>(-1);
   const pollingIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -33,16 +49,15 @@ export const ImportContainer = () => {
     }
   }, [logs]);
 
-  // Odmaknuti ovo za finalnu local verziju, jer nece biti auth na backu
-  const token = 'LZ4/Q8sjKPy63PNoQm3fRvImBCC5CGm8aUAgPxy1y/c=';
-
   const importComments = () => {
     setImportIsSelected(true);
     setLogs([]);
     setJobId(null);
     setIsImporting(false);
+    setJobStatus('running');
+    setErrorMessage(null);
     setUploadProgress(0);
-    lastTimestampRef.current = null;
+    lastIndexRef.current = -1;
   };
 
   const checkFileType = (fileInt: File | null) => {
@@ -69,13 +84,10 @@ export const ImportContainer = () => {
     setIsImporting(true);
     setLogs([]);
     setUploadProgress(0);
+    setErrorMessage(null);
 
     try {
-      // Bearer token na kraju odmaknuti?
       const response = await api.post('/upload', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         onUploadProgress: (progressEvent) => {
           const percent = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1),
@@ -102,54 +114,69 @@ export const ImportContainer = () => {
   useEffect(() => {
     if (!jobId) return;
 
-    const pollLogs = async () => {
+    const pollJobStatus = async () => {
       try {
         const params = new URLSearchParams();
-        if (lastTimestampRef.current) {
-          params.append('since', lastTimestampRef.current);
+        if (lastIndexRef.current >= 0) {
+          params.append('sinceIndex', lastIndexRef.current.toString());
         }
 
-        const response = await api.get(`/upload/logs/${jobId}?${params}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get<JobStatusResponse>(
+          `/upload/logs/${jobId}?${params}`,
+        );
 
-        if (response.data.success && response.data.logs.length > 0) {
-          setLogs((prev) => [...prev, ...response.data.logs]);
+        if (!response.data.success) {
+          console.error('Job not found');
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+          setIsImporting(false);
+          alert('Job nije pronađen na serveru');
+          return;
+        }
+
+        if (response.data.logs.length > 0) {
+          setLogs((prev) => {
+            const existingIndices = new Set(prev.map((log) => log.index));
+            const newLogs = response.data.logs.filter(
+              (log) => !existingIndices.has(log.index),
+            );
+            return [...prev, ...newLogs];
+          });
 
           const lastLog = response.data.logs[response.data.logs.length - 1];
-          lastTimestampRef.current = lastLog.timestamp;
+          lastIndexRef.current = lastLog.index;
+        }
 
-          const isComplete = response.data.logs.some(
-            (log: LogEntry) =>
-              log.message.includes('completed successfully') ||
-              log.message.includes('Import completed') ||
-              log.level === 'error',
-          );
+        setJobStatus(response.data.status);
 
-          if (isComplete) {
-            // setIsImporting(false);
-            setIsCompleted(true);
-            if (pollingIntervalRef.current) {
-              clearInterval(pollingIntervalRef.current);
-              pollingIntervalRef.current = null;
-            }
+        if (response.data.isComplete) {
+          setIsCompleted(true);
+
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+
+          if (response.data.status === 'failed' && response.data.error) {
+            setErrorMessage(response.data.error);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch logs:', error);
+        console.error('Failed to fetch job status:', error);
       }
     };
 
-    // Interval za polling
-    pollingIntervalRef.current = window.setInterval(pollLogs, 1000);
-    pollLogs();
+    // Svake sekunde
+    pollingIntervalRef.current = window.setInterval(pollJobStatus, 1000);
 
-    // Cleanup
+    pollJobStatus();
+
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
     };
   }, [jobId]);
@@ -224,6 +251,34 @@ export const ImportContainer = () => {
                   </div>
                 ) : (
                   <div>
+                    {isCompleted && (
+                      <div
+                        className="status"
+                        style={{
+                          backgroundColor:
+                            jobStatus === 'completed' ? '#dcfce7' : '#fee2e2',
+                          color:
+                            jobStatus === 'completed' ? '#166534' : '#991b1b',
+                        }}
+                      >
+                        {jobStatus === 'completed'
+                          ? 'Uvoz završen uspješno!'
+                          : 'Uvoz neuspješan'}
+                      </div>
+                    )}
+
+                    {errorMessage && (
+                      <div
+                        className="status"
+                        style={{
+                          backgroundColor: '#fef2f2',
+                          color: '#991b1b',
+                        }}
+                      >
+                        Greška: {errorMessage}
+                      </div>
+                    )}
+
                     <div className="logs-container" ref={logsContainerRef}>
                       {logs.length === 0 ? (
                         <p style={{ color: '#6b7280' }}>Čekanje na logove...</p>

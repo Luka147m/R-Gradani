@@ -2,8 +2,7 @@ import prisma from "../../config/prisma";
 import path from 'path';
 import { extractData } from "./mbz.data";
 import type { Dataset, Publisher, Discussion, Resource } from "./mbz.data";
-import { logToJob } from './mbz.logs';
-import fs from 'fs'
+import { logToJob } from './../helper/logger';
 
 async function insertIzdavac(publishers: Record<string, Publisher>, jobId: string) {
     // console.log('Inserting publishers...');

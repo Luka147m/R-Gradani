@@ -63,6 +63,14 @@ paths:
     $ref: './paths/upload/getMbz.yaml'
   /api/stats:
     $ref: './paths/stats/stats.yaml'
+  /api/odgovori/analyze/{skupId}:
+    $ref: './paths/responses/analyzeDataset.yaml'
+  /api/odgovori/analyze:
+    $ref: './paths/responses/analyze.yaml'
+  /api/odgovori/analyze/cancel/{jobId}:
+    $ref: './paths/responses/cancelAnalyze.yaml'
+  /api/odgovori/logs/{jobId}:
+    $ref: './paths/responses/getJobStatus.yaml'
 components:
   securitySchemes:
     BearerAuth:
