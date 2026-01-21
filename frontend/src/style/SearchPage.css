@@ -11,6 +11,7 @@
 .search-results {
   width: 67%;
   padding: 5px;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .sort-options {
@@ -38,6 +39,11 @@
   gap: 16px;
 }
 
+/* Opciono: fade-in za svaki card */
+.search-result-grid > * {
+  animation: fadeIn 0.5s ease-in;
+}
+
 .title-and-sort {
   display: flex;
   flex-direction: row;
@@ -61,5 +67,34 @@
 
   .search-result-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
