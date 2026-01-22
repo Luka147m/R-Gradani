@@ -1,9 +1,8 @@
-*{
+* {
   box-sizing: border-box;
 }
 
-
-.dataset-title{
+.dataset-title {
   font-size: 2rem;
   margin-bottom: 0px;
   text-align: center;
@@ -13,62 +12,59 @@
   gap: 8px;
 }
 
-.dataset-url{
-    color: #ffffff;
-    text-align: center;
-    margin-top: 4px;
-    text-decoration: underline;
+.dataset-url {
+  color: #ffffff;
+  text-align: center;
+  margin-top: 4px;
+  text-decoration: underline;
 }
 
-.pregled-komentara-lable{
+.pregled-komentara-lable {
   display: flex;
-  align-items: center;  
+  align-items: center;
   justify-content: center;
   gap: 8px;
   margin-top: 32px;
   margin-bottom: 16px;
-  
 }
 
-.user-info{
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 8px;
-    top: 16px;
-    left: 16px;
-    font-size: 1.2rem;
-    color: #BBBBBB;
+.user-info {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 8px;
+  top: 16px;
+  left: 16px;
+  font-size: 1.2rem;
+  color: #bbbbbb;
 }
 
-.analysis-card{
-  background-color: #2C2C2C;
+.analysis-card {
+  background-color: #2c2c2c;
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 16px;
   position: relative;
-
 }
-
 
 /* ----------- AI/normal Selector Styles ----------- */
 
-.AI-normal-selector{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row ;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 0px;
-    width: fit-content;
-    margin: 5px auto;
-    scale: 0.7;
+.AI-normal-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 0px;
+  width: fit-content;
+  margin: 5px auto;
+  scale: 0.7;
 }
 
 .selector-btn.active-AISearch {
-  background-color: #BB86FC;
+  background-color: var(--primary);
 }
 
 .selector-btn.active-normalSearch {
@@ -83,49 +79,41 @@
 }
 
 /* ----------- Comments Styles ----------- */
-.commentIndex{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
+.commentIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
 
-.comments-flex{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
+.comments-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.comment-bubble-space{
-    
-    width: 100%;
+.comment-bubble-space {
+  width: 100%;
 }
 
-.comment-bubble-normal{
-    position: relative;
-    width: 100%;
-    background-color: rgb(110, 108, 108);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
+.comment-bubble-normal {
+  position: relative;
+  width: 100%;
+  background-color: rgb(110, 108, 108);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
 }
-.coment-bubble-normal.p{
-    margin: 0px;
-    
-
+.coment-bubble-normal.p {
+  margin: 0px;
 }
 
-.home-redirect-icon{
-  color: #BB86FC;
-}
-
-.home-redirect-icon:hover{
-  opacity:80%;
+.home-redirect-icon:hover {
+  opacity: 80%;
 }
 
 /* ----------- Main Container Styles ----------- */
 
-.search-home-profile-div{
+.search-home-profile-div {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -138,62 +126,63 @@
 /* ----------- Add Comment Overlay Styles ----------- */
 
 .add-comment-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    
-    background-color: rgba(0, 0, 0, 0.9); /* Darker background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background-color: rgba(0, 0, 0, 0.9); /* Darker background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .add-comment-card {
-    background-color: #1e1e1e; /* Dark background for the card */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 600px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  background-color: #1e1e1e; /* Dark background for the card */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.comment-input, .comment-textarea {
-    background-color: #a7a7a7; /* Light gray background */
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    padding: 10px;
-    font-size: 1rem;
-    width: 100%;
+.comment-input,
+.comment-textarea {
+  background-color: #a7a7a7; /* Light gray background */
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
 }
 
 .comment-textarea {
-    resize: vertical;
-    height: 200px;
+  resize: vertical;
+  height: 200px;
 }
 
 .submit-button {
-    background-color: #ffffff; /* White button */
-    color: #000000; /* Black text */
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: #ffffff; /* White button */
+  color: #000000; /* Black text */
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .submit-button:hover {
-    background-color: #f0f0f0; /* Light gray on hover */
+  background-color: #f0f0f0; /* Light gray on hover */
 }
 
 .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    align-self: flex-end;
-    color: #a7a7a7; 
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  align-self: flex-end;
+  color: #a7a7a7;
 }

@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 
 import { DataSet } from "../types/dataset";
 import { useUserContext } from "../providers/UserContextProvider";
-import { colors } from "../style/global/colors";
 
 export const DatasetCard: React.FC<DataSet> = (props) => {
   const { id, title, url, created } = props;
@@ -56,10 +55,12 @@ export const DatasetCard: React.FC<DataSet> = (props) => {
       </a>
       <div className="save-icon-dataset">
         <Bookmark
-          size={20}
+          className={`save-icon ${isStored ? "saved" : ""}`}
           onClick={toggleSave}
-          color={isStored ? colors.correct : undefined}
-          fill={isStored ? colors.correct : "none"}
+          color={isStored ? "var(--secondary)" : undefined}
+          fill={isStored ? "var(--secondary)" : "none"}
+          strokeWidth={2.5}
+          size={30}
         />
       </div>
     </div>

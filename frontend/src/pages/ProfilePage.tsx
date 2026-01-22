@@ -58,7 +58,7 @@ function ProfilePage() {
             <p>
               Unesite više komentara zapakiranih u .mbz arhivu. Odabrani
               komentari će se pohraniti na poslužitelj i nad njima će se obaviti
-              strojna obrada
+              strojna obrada.
             </p>
             <ImportContainer />
           </div>
@@ -69,7 +69,7 @@ function ProfilePage() {
             </h2>
             <p>
               Na jednom mjestu pokrenite strojnu obradu nad svim dostupnim
-              skupovima podataka
+              skupovima podataka na poslužitelju.
             </p>
             <AnalyzeAllContainer />
           </div>
@@ -92,7 +92,10 @@ function ProfilePage() {
             <div className="sidebar">
               <div className="flex-col">
                 <div className="ikona-naslov-div">
-                  <Bookmark className="ikona-profile" />
+                  <Bookmark
+                    className="ikona"
+                    style={{ color: "var(--correct)" }}
+                  />
                   <h2 className="search-skupovi-h1">Zabilježene izjave</h2>
                 </div>
                 <div>
@@ -121,10 +124,7 @@ function ProfilePage() {
             <div className="sidebar">
               <div className="flex-col">
                 <div className="ikona-naslov-div">
-                  <Flag
-                    className="ikona-profile"
-                    style={{ color: "var(--error)" }}
-                  />
+                  <Flag className="ikona" style={{ color: "var(--error)" }} />
                   <h2 className="search-skupovi-h1">Prijavljene izjave</h2>
                 </div>
                 {reportedRequests.length === 0 ? (

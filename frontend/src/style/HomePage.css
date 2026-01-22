@@ -64,7 +64,7 @@ body {
   height: 32px;
   padding: 0 10px;
   border: none;
-  background-color: #bb86fc;
+  background-color: var(--primary);
   color: #fff;
   border-radius: 0px;
   cursor: pointer;
@@ -155,7 +155,7 @@ body {
 }
 
 .selector-btn.active-home {
-  background-color: #bb86fc;
+  background-color: var(--primary);
 }
 
 .selector-btn.active-profile {
@@ -491,6 +491,7 @@ body {
   margin: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   width: clamp(20rem, 100%, 40rem);
+  text-align: justify;
 }
 
 .request-card h2 {

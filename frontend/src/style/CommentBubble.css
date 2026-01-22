@@ -1,6 +1,6 @@
 .comment {
   position: relative;
-  width: 45%;
+  width: clamp(15rem, 40%, 26rem);
   background-color: rgb(227, 197, 197);
   color: black;
   padding: 10px;
@@ -45,13 +45,13 @@ p {
 }
 
 .save-icon .active {
-  color: #03dac6;
-  fill: #03dac6;
+  color: var(--correct);
+  fill: var(--correct);
   stroke: none;
 }
 .report-icon .active {
-  color: #cf6679;
-  fill: #cf6679;
+  color: var(--error);
+  fill: var(--error);
   stroke: none;
 }
 
@@ -79,15 +79,15 @@ p {
 }
 
 .status-success.usvojenost-status-box {
-  background: #2ecc71;
+  background: var(--correct);
 }
 
 .status-warning.usvojenost-status-box {
-  background: #f39c12;
+  background: var(--error);
 }
 
 .status-error.usvojenost-status-box {
-  background: #e74c3c;
+  background: var(--error);
 }
 
 .podudarnost-wrapper {
@@ -194,13 +194,15 @@ p {
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
   z-index: 20;
 }
 
 .podudarnost-tooltip::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 115%;
   left: 50%;

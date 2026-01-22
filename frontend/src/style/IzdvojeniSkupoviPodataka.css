@@ -38,7 +38,7 @@
 
 .skup-podataka-card {
   position: relative;
-  background-color: #bb86fc;
+  background-color: var(--primary);
   padding: 14px 16px;
   color: white;
   transition:
@@ -67,12 +67,10 @@
   right: 12px;
   color: white;
   cursor: pointer;
-  background-color: black;
   border-radius: 20%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
 }
 
 .analiza-card h3,
