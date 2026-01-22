@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import IconText from "../../components/IconText";
-import { ExternalLink, Home, LayoutDashboard, MoveLeft, ChartBarStacked } from "lucide-react";
+import {
+  ExternalLink,
+  LayoutDashboard,
+  MoveLeft,
+  ChartBarStacked,
+  Globe,
+} from "lucide-react";
 import { colors } from "../../style/global/colors";
 
 import "../../style/Header.css";
@@ -15,8 +21,8 @@ const iconStyle = { fontWeight: "bold" };
 
 const HomeItem: React.FC<HeaderItemProps> = ({ selected }) => (
   <IconText
-    icon={Home}
-    text="Početna stranica"
+    icon={Globe}
+    text="Istražite"
     selected={selected}
     fillColor={colors.primary}
     style={iconStyle}
@@ -27,7 +33,7 @@ const HomeItem: React.FC<HeaderItemProps> = ({ selected }) => (
 const ProfileItem: React.FC<HeaderItemProps> = ({ selected }) => (
   <IconText
     icon={LayoutDashboard}
-    text="Korisnička stranica"
+    text="Nadzorna ploča"
     selected={selected}
     fillColor={colors.secondary}
     style={iconStyle}
@@ -67,7 +73,7 @@ const Header: React.FC = () => {
       prevItems.map((item) => ({
         ...item,
         selected: item.path === location.pathname,
-      }))
+      })),
     );
   }, [location.pathname]);
 
