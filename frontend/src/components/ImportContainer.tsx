@@ -1,13 +1,13 @@
-import { CloudUpload } from 'lucide-react';
-import ApiButton from './ApiButton.tsx';
-import IconText from './IconText.tsx';
-import api from '../api/axios.tsx';
-import { useState, useRef, useEffect } from 'react';
-import '../style/ImportContainer.css';
+import { CloudUpload } from "lucide-react";
+import ApiButton from "./ApiButton.tsx";
+import IconText from "./IconText.tsx";
+import api from "../api/axios.tsx";
+import { useState, useRef, useEffect } from "react";
+import "../style/ImportContainer.css";
 
 interface LogEntry {
   timestamp: string;
-  level: 'info' | 'warn' | 'error' | 'debug';
+  level: "info" | "warn" | "error" | "debug";
   message: string;
   jobId: string;
   index: number;
@@ -16,7 +16,7 @@ interface LogEntry {
 interface JobStatusResponse {
   success: boolean;
   jobId: string;
-  status: 'running' | 'completed' | 'failed';
+  status: "running" | "completed" | "failed";
   isComplete: boolean;
   startedAt: string;
   completedAt?: string;
@@ -32,8 +32,8 @@ export const ImportContainer = () => {
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [jobStatus, setJobStatus] = useState<
-    'running' | 'completed' | 'failed'
-  >('running');
+    "running" | "completed" | "failed"
+  >("running");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const logsContainerRef = useRef<HTMLDivElement>(null);
@@ -54,18 +54,18 @@ export const ImportContainer = () => {
     setLogs([]);
     setJobId(null);
     setIsImporting(false);
-    setJobStatus('running');
+    setJobStatus("running");
     setErrorMessage(null);
     setUploadProgress(0);
     lastIndexRef.current = -1;
   };
 
   const checkFileType = (fileInt: File | null) => {
-    if (fileInt && !fileInt.name.endsWith('.mbz')) {
-      alert('Datoteka mora biti u .mbz formatu.');
+    if (fileInt && !fileInt.name.endsWith(".mbz")) {
+      alert("Datoteka mora biti u .mbz formatu.");
       setFile(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
       return;
     }
@@ -74,12 +74,12 @@ export const ImportContainer = () => {
 
   const submitImport = async () => {
     if (!file) {
-      alert('Nije odabran niti jedan file.');
+      alert("Nije odabran niti jedan file.");
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     setIsImporting(true);
     setLogs([]);
@@ -87,7 +87,7 @@ export const ImportContainer = () => {
     setErrorMessage(null);
 
     try {
-      const response = await api.post('/upload', formData, {
+      const response = await api.post("/upload", formData, {
         onUploadProgress: (progressEvent) => {
           const percent = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1),
@@ -100,12 +100,12 @@ export const ImportContainer = () => {
       if (response.data.success && response.data.jobId) {
         setJobId(response.data.jobId);
       } else {
-        alert('Greška pri pokretanju uvoza.');
+        alert("Greška pri pokretanju uvoza.");
         setIsImporting(false);
       }
     } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Greška pri slanju datoteke.');
+      console.error("Upload failed:", error);
+      alert("Greška pri slanju datoteke.");
       setIsImporting(false);
     }
   };
@@ -118,7 +118,7 @@ export const ImportContainer = () => {
       try {
         const params = new URLSearchParams();
         if (lastIndexRef.current >= 0) {
-          params.append('sinceIndex', lastIndexRef.current.toString());
+          params.append("sinceIndex", lastIndexRef.current.toString());
         }
 
         const response = await api.get<JobStatusResponse>(
@@ -126,13 +126,13 @@ export const ImportContainer = () => {
         );
 
         if (!response.data.success) {
-          console.error('Job not found');
+          console.error("Job not found");
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
           }
           setIsImporting(false);
-          alert('Job nije pronađen na serveru');
+          alert("Job nije pronađen na serveru");
           return;
         }
 
@@ -159,12 +159,12 @@ export const ImportContainer = () => {
             pollingIntervalRef.current = null;
           }
 
-          if (response.data.status === 'failed' && response.data.error) {
+          if (response.data.status === "failed" && response.data.error) {
             setErrorMessage(response.data.error);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch job status:', error);
+        console.error("Failed to fetch job status:", error);
       }
     };
 
@@ -183,16 +183,16 @@ export const ImportContainer = () => {
 
   const getLogColor = (level: string) => {
     switch (level) {
-      case 'error':
-        return '#dc2626';
-      case 'warn':
-        return '#d97706';
-      case 'info':
-        return '#2563eb';
-      case 'debug':
-        return '#6b7280';
+      case "error":
+        return "#dc2626";
+      case "warn":
+        return "#d97706";
+      case "info":
+        return "#2563eb";
+      case "debug":
+        return "#6b7280";
       default:
-        return '#000';
+        return "#000";
     }
   };
 
@@ -200,7 +200,7 @@ export const ImportContainer = () => {
     <div className="import-container">
       <div className="button-wrapper">
         <button onClick={importComments} className="api-button import-button">
-          <IconText icon={CloudUpload} text="Uvezi .mbz datoteku"></IconText>
+          <IconText icon={CloudUpload} text="Uvezite"></IconText>
         </button>
       </div>
       {importIsSelected && (
@@ -215,8 +215,8 @@ export const ImportContainer = () => {
               </button>
             )}
 
-            <h2>Uvoz .mbz arhive</h2>
-            <p>Klikom na gumb odaberite .mbz datoteku za upload</p>
+            <h2>Grupno uvezite komentare</h2>
+            <p>Klikom na gumb odaberite .mbz datoteku za uvoz</p>
 
             {!isImporting ? (
               <>
@@ -242,9 +242,9 @@ export const ImportContainer = () => {
                       <div
                         style={{
                           width: `${uploadProgress}%`,
-                          height: '100%',
-                          backgroundColor: '#3b82f6',
-                          transition: 'width 0.3s',
+                          height: "100%",
+                          backgroundColor: "#3b82f6",
+                          transition: "width 0.3s",
                         }}
                       />
                     </div>
@@ -256,14 +256,14 @@ export const ImportContainer = () => {
                         className="status"
                         style={{
                           backgroundColor:
-                            jobStatus === 'completed' ? '#dcfce7' : '#fee2e2',
+                            jobStatus === "completed" ? "#dcfce7" : "#fee2e2",
                           color:
-                            jobStatus === 'completed' ? '#166534' : '#991b1b',
+                            jobStatus === "completed" ? "#166534" : "#991b1b",
                         }}
                       >
-                        {jobStatus === 'completed'
-                          ? 'Uvoz završen uspješno!'
-                          : 'Uvoz neuspješan'}
+                        {jobStatus === "completed"
+                          ? "Uvoz završen uspješno!"
+                          : "Uvoz neuspješan"}
                       </div>
                     )}
 
@@ -271,8 +271,8 @@ export const ImportContainer = () => {
                       <div
                         className="status"
                         style={{
-                          backgroundColor: '#fef2f2',
-                          color: '#991b1b',
+                          backgroundColor: "#fef2f2",
+                          color: "#991b1b",
                         }}
                       >
                         Greška: {errorMessage}
@@ -281,24 +281,24 @@ export const ImportContainer = () => {
 
                     <div className="logs-container" ref={logsContainerRef}>
                       {logs.length === 0 ? (
-                        <p style={{ color: '#6b7280' }}>Čekanje na logove...</p>
+                        <p style={{ color: "#6b7280" }}>Čekanje na logove...</p>
                       ) : (
                         logs.map((log, idx) => (
                           <div
                             key={idx}
                             style={{
-                              marginBottom: '4px',
+                              marginBottom: "4px",
                               color: getLogColor(log.level),
                             }}
                           >
                             <span
-                              style={{ color: '#9ca3af', fontSize: '11px' }}
+                              style={{ color: "#9ca3af", fontSize: "11px" }}
                             >
                               {new Date(log.timestamp).toLocaleTimeString()}
-                            </span>{' '}
-                            <span style={{ fontWeight: 'bold' }}>
+                            </span>{" "}
+                            <span style={{ fontWeight: "bold" }}>
                               [{log.level.toUpperCase()}]
-                            </span>{' '}
+                            </span>{" "}
                             {log.message}
                           </div>
                         ))

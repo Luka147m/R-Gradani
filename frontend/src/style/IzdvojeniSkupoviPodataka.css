@@ -20,7 +20,10 @@
 }
 
 .marked-datasets {
-  grid-template-columns: repeat(1, 1fr);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .button-wrapper {

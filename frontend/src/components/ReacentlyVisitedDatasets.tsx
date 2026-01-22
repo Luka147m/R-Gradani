@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import api from "../api/axios.tsx";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import { useUserContext } from "../providers/UserContextProvider.tsx";
-/* import { Heading1 } from 'lucide-react'; */
 
 export const RecentlyVisitedDatasets = () => {
   const [recentlyVisitedDatasetsData, setRecentlyVisitedDatasetsData] =
@@ -33,14 +32,18 @@ export const RecentlyVisitedDatasets = () => {
         </h1>
       </div>
       <div className="skupovi-podataka-grid">
-        {recentlyVisitedDatasets.map((id) => (
-          <DatasetCard
-            key={id}
-            {...recentlyVisitedDatasetsData[
-              recentlyVisitedDatasetsData.findIndex((i) => i.id === id)
-            ]}
-          ></DatasetCard>
-        ))}
+        {recentlyVisitedDatasets.length > 0 ? (
+          recentlyVisitedDatasets.map((id) => (
+            <DatasetCard
+              key={id}
+              {...recentlyVisitedDatasetsData[
+                recentlyVisitedDatasetsData.findIndex((i) => i.id === id)
+              ]}
+            ></DatasetCard>
+          ))
+        ) : (
+          <div className="muted">Nemate zabilježenih skupova podataka</div>
+        )}
       </div>
     </div>
   );

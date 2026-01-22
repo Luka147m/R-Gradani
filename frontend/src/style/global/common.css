@@ -9,3 +9,23 @@ input[type="text"]::placeholder {
   background-color: var(--text-box);
   color: var(--text-light);
 }
+
+.flex-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bottom-pad {
+  padding-bottom: 2rem;
+}

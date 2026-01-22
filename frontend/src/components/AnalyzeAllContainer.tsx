@@ -1,11 +1,11 @@
-import { Wrench } from 'lucide-react';
-import ApiButton from './ApiButton.tsx';
-import IconText from './IconText.tsx';
-import api from '../api/axios.tsx';
-import { useState } from 'react';
-import { AnalysisLogger } from './AnalysisLogger.tsx';
+import { Wrench } from "lucide-react";
+import ApiButton from "./ApiButton.tsx";
+import IconText from "./IconText.tsx";
+import api from "../api/axios.tsx";
+import { useState } from "react";
+import { AnalysisLogger } from "./AnalysisLogger.tsx";
 
-import '../style/ImportContainer.css';
+import "../style/ImportContainer.css";
 
 export const AnalyzeAllContainer = () => {
   const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -22,23 +22,23 @@ export const AnalyzeAllContainer = () => {
     setIsWorking(true);
 
     try {
-      const response = await api.post('/odgovori/analyze');
+      const response = await api.post("/odgovori/analyze");
 
       if (response.data.success && response.data.jobId) {
         setJobId(response.data.jobId);
       } else {
-        alert('Greška pri pokretanju analiza.');
+        alert("Greška pri pokretanju analiza.");
         setIsWorking(false);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Greška pri pokretanju analize.');
+      console.error("Error:", error);
+      alert("Greška pri pokretanju analize.");
       setIsWorking(false);
     }
   };
 
-  const handleJobComplete = (status: 'completed' | 'failed' | 'cancelled') => {
-    console.log('Job completed with status:', status);
+  const handleJobComplete = (status: "completed" | "failed" | "cancelled") => {
+    console.log("Job completed with status:", status);
   };
 
   const handleCloseLogger = () => {
@@ -50,7 +50,7 @@ export const AnalyzeAllContainer = () => {
     <div className="import-container">
       <div className="button-wrapper">
         <button onClick={submitTask} className="api-button import-button">
-          <IconText icon={Wrench} text="Pokreni analizu"></IconText>
+          <IconText icon={Wrench} text="Pokrenite"></IconText>
         </button>
       </div>
       {isSelected && (
@@ -66,10 +66,11 @@ export const AnalyzeAllContainer = () => {
             )}
 
             <h2>Pokretanje analize</h2>
-            {!isWorking && (<p>Klikom na gumb pokreni analizu nad SVIM podacima</p>)}
+            {!isWorking && (
+              <p>Klikom na gumb pokreni analizu nad SVIM podacima</p>
+            )}
 
             {!isWorking ? (
-              
               <ApiButton apiCall={submitResponse} className="api-button">
                 Potvrdi
               </ApiButton>

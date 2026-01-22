@@ -23,17 +23,17 @@ export const MarkedDatasets = () => {
     <>
       <div className="search-skupovi-div">
         <div className="ikona-naslov-div">
-          <Bookmark className="ikona" />
+          <Bookmark className="ikona-profile" />
           <h1 className="search-skupovi-h1">Zabilježeni skupovi podataka</h1>
         </div>
         {markedDatasets.length > 0 ? (
-          <div className="skupovi-podataka-grid marked-datasets">
+          <div className="marked-datasets">
             {markedDatasets.map((skupPodataka) => (
               <DatasetCard key={skupPodataka.id} {...skupPodataka} />
             ))}
           </div>
         ) : (
-          <div>Nema zabilježenih skupova podataka.</div>
+          <div className="muted">Nemate zabilježenih skupova podataka</div>
         )}
       </div>
     </>
