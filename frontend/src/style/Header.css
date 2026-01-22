@@ -19,9 +19,14 @@
 .nav {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
   font-size: 1.375rem;
   margin-block: 1rem;
+}
+
+.nav > div {
+  background-color: red;
 }
 
 .path_history {
