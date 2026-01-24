@@ -39,6 +39,8 @@ const FilterContainer = ({
     setIgnoreSaved,
     ignoreReported,
     setIgnoreReported,
+    includeSaved,
+    setIncludeSaved,
   } = useSearch();
 
   const [tempPublisherIds, setTempPublisherIds] =
@@ -46,8 +48,10 @@ const FilterContainer = ({
   const [tempDateRange, setTempDateRange] =
     useState<[string, string]>(dateRange);
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
-  const [tempIgnoreReported, setTempIgnoreReported] =
-    useState<boolean>(ignoreReported);
+  const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
+
+  const [tempIncludeSaved, setTempIncludeSaved] = useState<boolean>(includeSaved);
+  
 
   const [publisherCounts, setPublisherCounts] = 
     useState<Record<string, number>>({});
@@ -59,6 +63,7 @@ const FilterContainer = ({
   useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
+  useEffect(() => setTempIncludeSaved(includeSaved), [includeSaved]);
 
   const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
@@ -137,7 +142,7 @@ const FilterContainer = ({
     if (allIds.length > 0 && tempPublisherIds.length === 0) {
       setTempPublisherIds(allIds);
     }
-  }, [publishersWithCounts, hasSearched]);
+  }, [publishersWithCounts, hasSearched, tempPublisherIds.length]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
@@ -154,6 +159,8 @@ const FilterContainer = ({
     setDateRange(tempDateRange);
     setIgnoreSaved(tempIgnoreSaved);
     setIgnoreReported(tempIgnoreReported);
+
+    setIncludeSaved(tempIncludeSaved);
   };
 
   return (
@@ -235,7 +242,7 @@ const FilterContainer = ({
           <h2>Ostalo</h2>
         </div>
         <div className="ignore-checkboxes">
-          <div className="publisher-item">
+          {/* <div className="publisher-item">
             <label
               htmlFor="ignore-saved-datasets-checkbox"
               className="publisher-label"
@@ -259,6 +266,22 @@ const FilterContainer = ({
               isOn={tempIgnoreReported} 
               handleToggle={() => setTempIgnoreReported(!tempIgnoreReported)}
               id="ignore-reported-datasets-checkbox"
+            />
+          </div> */}
+
+
+          <div className="publisher-item">
+            <label
+              htmlFor="include-saved-datasets-checkbox"
+              className="publisher-label"
+            >
+              Uključi spremljene skupove podataka
+            
+            </label>
+            <Toggle 
+              isOn={tempIncludeSaved} 
+              handleToggle={() => setTempIncludeSaved(!tempIncludeSaved)}
+              id="include-saved-datasets-checkbox"
             />
           </div>
         </div>

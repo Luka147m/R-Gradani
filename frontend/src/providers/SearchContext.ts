@@ -18,6 +18,10 @@ interface SearchContextType {
   setIgnoreSaved: (ignore: boolean) => void;
   ignoreReported: boolean;
   setIgnoreReported: (ignore: boolean) => void;
+
+  includeSaved: boolean;
+  setIncludeSaved: (include: boolean) => void;
+  
 }
 
 export const SearchContext = createContext<SearchContextType | undefined>(undefined);

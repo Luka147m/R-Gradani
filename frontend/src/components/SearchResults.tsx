@@ -20,6 +20,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     selectedPublisherIds,
     ignoreSaved,
     ignoreReported,
+    includeSaved,
     dateRange,
   } = useSearch();
 
@@ -56,6 +57,10 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       filtered = filtered.filter((d) => !Array.isArray(reportedIds) || !reportedIds.includes(d.id));
     }
 
+    if(!includeSaved) {
+      filtered = filtered.filter((d) => Array.isArray(savedIds) && !savedIds.includes(d.id));
+    }
+
     if (dateRange[0]) {
       filtered = filtered.filter(
         (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
@@ -75,6 +80,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     sortOption,
     ignoreSaved,
     ignoreReported,
+    includeSaved,
     dateRange,
     savedIds,
     reportedIds,

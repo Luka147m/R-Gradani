@@ -16,6 +16,8 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
   const [ignoreSaved, setIgnoreSaved] = useState(false);
   const [ignoreReported, setIgnoreReported] = useState(false);
 
+  const [includeSaved, setIncludeSaved] = useState(true);
+
   const value = {
     searchTerm,
     setSearchTerm,
@@ -32,6 +34,9 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
     setIgnoreSaved,
     ignoreReported,
     setIgnoreReported,
+
+    includeSaved,
+    setIncludeSaved,
   };
 
   return (
