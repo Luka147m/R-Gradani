@@ -6,7 +6,7 @@ import { DataSet } from "../types/dataset";
 import { useUserContext } from "../providers/UserContextProvider";
 
 export const DatasetCard: React.FC<DataSet> = (props) => {
-  const { id, title, url, created } = props;
+  const { id, title, url, created, last_analysis } = props;
   const dataset = { title, url, created };
 
   const { savedDatasets, addSavedDataset, removeSavedDataset } =
@@ -28,6 +28,7 @@ export const DatasetCard: React.FC<DataSet> = (props) => {
   return (
     <div className="skup-podataka-card" data-id={id}>
       <Link
+        onClick={() => console.log("last_analysis: ", title, last_analysis)}
         to={`/dataset/${encodeURIComponent(id)}`}
         style={{ color: "inherit", textDecoration: "none" }}
         state={{

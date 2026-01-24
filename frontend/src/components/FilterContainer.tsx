@@ -41,6 +41,8 @@ const FilterContainer = ({
     setIgnoreReported,
     includeSaved,
     setIncludeSaved,
+    includeUnprocessed,
+    setIncludeUnprocessed,
   } = useSearch();
 
   const [tempPublisherIds, setTempPublisherIds] =
@@ -51,7 +53,7 @@ const FilterContainer = ({
   const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
 
   const [tempIncludeSaved, setTempIncludeSaved] = useState<boolean>(includeSaved);
-  
+  const [tempIncludeUnprocessed, setTempIncludeUnprocessed] = useState<boolean>(includeUnprocessed);
 
   const [publisherCounts, setPublisherCounts] = 
     useState<Record<string, number>>({});
@@ -64,6 +66,7 @@ const FilterContainer = ({
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
   useEffect(() => setTempIncludeSaved(includeSaved), [includeSaved]);
+  useEffect(() => setTempIncludeUnprocessed(includeUnprocessed), [includeUnprocessed]);
 
   const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
@@ -161,6 +164,7 @@ const FilterContainer = ({
     setIgnoreReported(tempIgnoreReported);
 
     setIncludeSaved(tempIncludeSaved);
+    setIncludeUnprocessed(tempIncludeUnprocessed);
   };
 
   return (
@@ -282,6 +286,20 @@ const FilterContainer = ({
               isOn={tempIncludeSaved} 
               handleToggle={() => setTempIncludeSaved(!tempIncludeSaved)}
               id="include-saved-datasets-checkbox"
+            />
+          </div>
+
+          <div className="publisher-item">
+            <label
+              htmlFor="include-unprocessed-datasets-checkbox"
+              className="publisher-label"
+            >
+              Uključi skupove podataka koji nisu obrađeni
+            </label>
+            <Toggle 
+              isOn={tempIncludeUnprocessed} 
+              handleToggle={() => setTempIncludeUnprocessed(!tempIncludeUnprocessed)}
+              id="include-unprocessed-datasets-checkbox"
             />
           </div>
         </div>

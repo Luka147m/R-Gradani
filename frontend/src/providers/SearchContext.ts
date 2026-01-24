@@ -21,6 +21,9 @@ interface SearchContextType {
 
   includeSaved: boolean;
   setIncludeSaved: (include: boolean) => void;
+
+  includeUnprocessed: boolean;
+  setIncludeUnprocessed: (include: boolean) => void;
   
 }
 

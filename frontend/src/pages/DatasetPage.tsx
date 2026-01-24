@@ -66,6 +66,8 @@ const DatasetPage = () => {
     if (comments.length > 0) {
       loadAnswers();
     }
+
+    
   }, [comments]);
 
   const datasetRefresh = () => {

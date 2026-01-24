@@ -15,4 +15,6 @@ export class DataSet {
   license_id?: string | null;
   publisher_id?: string | null;
   tags?: unknown | null; // JSON field
+  fetched_at?: Date | null;
+  last_analysis?: Date | null;
 }

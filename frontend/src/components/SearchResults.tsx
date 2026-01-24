@@ -21,6 +21,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     ignoreSaved,
     ignoreReported,
     includeSaved,
+    includeUnprocessed,
     dateRange,
   } = useSearch();
 
@@ -61,6 +62,10 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       filtered = filtered.filter((d) => Array.isArray(savedIds) && !savedIds.includes(d.id));
     }
 
+    if(!includeUnprocessed) {
+      filtered = filtered.filter((d) => d.last_analysis !== null);
+    }
+
     if (dateRange[0]) {
       filtered = filtered.filter(
         (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
@@ -84,7 +89,10 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     dateRange,
     savedIds,
     reportedIds,
+    includeUnprocessed,
   ]);
+
+
   const sortResults = (
     data: getDatasetDTO[],
     option: SortOption,
