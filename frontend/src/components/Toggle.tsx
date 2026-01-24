@@ -15,7 +15,7 @@ return (
             type="checkbox"
         />
         <label
-            style={{ background: isOn ? "var(--secondary)" : undefined }}
+            style={{ background: isOn ? "var(--correct)" : undefined }}
             className="react-toggle-label"
             htmlFor={`react-toggle-new-${id}`}
         >
