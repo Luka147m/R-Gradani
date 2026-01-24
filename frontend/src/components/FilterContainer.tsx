@@ -4,7 +4,7 @@ import { Building, Calendar, Search, Settings } from "lucide-react";
 import { useSearch } from "../hooks/useSearch";
 import { useSearchParams } from "react-router-dom";
 import { getPublisherDTO } from "../DTOs/getPublisherDTO.ts";
-
+import Toggle from "./Toggle.tsx";
 import api from "../api/axios.tsx";
 
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
@@ -236,34 +236,30 @@ const FilterContainer = ({
         </div>
         <div className="ignore-checkboxes">
           <div className="publisher-item">
-            <input
-              type="checkbox"
-              id="ignore-saved-datasets-checkbox"
-              className="publisher-checkbox"
-              checked={tempIgnoreSaved}
-              onChange={(e) => setTempIgnoreSaved(e.target.checked)}
-            />
             <label
               htmlFor="ignore-saved-datasets-checkbox"
               className="publisher-label"
             >
               Ignoriraj spremljene skupove podataka
             </label>
+            <Toggle 
+              isOn={tempIgnoreSaved} 
+              handleToggle={() => setTempIgnoreSaved(!tempIgnoreSaved)}
+              id="ignore-saved-datasets-checkbox"
+            />
           </div>
           <div className="publisher-item">
-            <input
-              type="checkbox"
-              id="ignore-reported-datasets-checkbox"
-              className="publisher-checkbox"
-              checked={tempIgnoreReported}
-              onChange={(e) => setTempIgnoreReported(e.target.checked)}
-            />
             <label
               htmlFor="ignore-reported-datasets-checkbox"
               className="publisher-label"
             >
               Ignoriraj skupove podataka koji imaju prijavljene probleme
             </label>
+            <Toggle 
+              isOn={tempIgnoreReported} 
+              handleToggle={() => setTempIgnoreReported(!tempIgnoreReported)}
+              id="ignore-reported-datasets-checkbox"
+            />
           </div>
         </div>
       </div>

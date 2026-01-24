@@ -45,13 +45,19 @@
 .publisher-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
+}
+
+.publisher-label{
+  max-width: 275px;
 }
 
 .ignore-checkboxes {
   display: flex;
   flex-direction: column;
   margin-right: 8px;
+  gap: 12px;
 }
 
 .slider-wrapper {

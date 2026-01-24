@@ -152,7 +152,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
             className="select-all-btn"
             onClick={() => setShowAllDatasets((prev) => !prev)}
           >
-            {showAllDatasets ? "Prikaži manje" : "Prikaži više"}
+            {showAllDatasets ? "Prikaži manje" : "Prikaži sve"}
           </button>
         )}
       </div>
