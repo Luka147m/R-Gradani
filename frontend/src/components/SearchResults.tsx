@@ -38,13 +38,18 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
   const [savedAllResults, setSavedAllResults] = useLocalStorage("allResults", "[]");
 
   useEffect(() => {
+
+    if (hasSearched) return;
+    if (savedAllResults && savedAllResults !== "[]") return;
+
     api.get("/skupovi/nedavno").then((response) => {
       setAllResults(response.data);
     });
-  }, [setAllResults]);
+  }, [setAllResults, hasSearched, savedAllResults]);
 
   useEffect(() => {
     if (searchTerm.trim()) {
+      console.log("Fetching analysed datasets for filtering... TEARM:", searchTerm);
       api.post("/skupovi/search", { searchText: searchTerm, isAnalysed: true }).then((response) => {
         setOnlyAnalysedDatasets(response.data);
       });
