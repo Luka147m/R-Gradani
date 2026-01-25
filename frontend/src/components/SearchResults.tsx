@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DatasetCard } from "./DatasetCard";
 import { useSearch } from "../hooks/useSearch";
+import { useLocalStorage} from "../hooks/useLocalStorage";
 import "../style/SearchPage.css";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import api from "../api/axios.tsx";
@@ -31,6 +32,10 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [showAllDatasets, setShowAllDatasets] = useState(false);
   const [filteredResults, setFilteredResults] = useState<getDatasetDTO[]>([]);
+  const [onlyAnalysedDatasets, setOnlyAnalysedDatasets] = useState<getDatasetDTO[]>([]);
+
+
+  const [savedAllResults, setSavedAllResults] = useLocalStorage("allResults", "[]");
 
   useEffect(() => {
     api.get("/skupovi/nedavno").then((response) => {
@@ -39,9 +44,14 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
   }, [setAllResults]);
 
   useEffect(() => {
-    
-    
+    if (searchTerm.trim()) {
+      api.post("/skupovi/search", { searchText: searchTerm, isAnalysed: true }).then((response) => {
+        setOnlyAnalysedDatasets(response.data);
+      });
+    }
+  }, [searchTerm]);
 
+  useEffect(() => {
     let filtered = allResults;
 
     if (selectedPublisherIds.length > 0) {
@@ -62,22 +72,26 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       filtered = filtered.filter((d) => Array.isArray(savedIds) && !savedIds.includes(d.id));
     }
 
-    if(!includeUnprocessed) {
-      filtered = filtered.filter((d) => d.last_analysis !== null);
-    }
-
     if (dateRange[0]) {
       filtered = filtered.filter(
         (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
       );
     }
+    
     if (dateRange[1]) {
       const endDate = new Date(dateRange[1]);
       endDate.setDate(endDate.getDate() + 1);
       filtered = filtered.filter((d) => new Date(d.created ?? 0) < endDate);
     }
 
+    if (!includeUnprocessed && onlyAnalysedDatasets.length > 0) {
+      filtered = filtered.filter((d) =>
+        onlyAnalysedDatasets.some((analysed) => analysed.id === d.id),
+      );
+    }
+
     setFilteredResults(sortResults(filtered, sortOption));
+    setSavedAllResults(JSON.stringify(filtered));
   }, [
     allResults,
     searchTerm,
@@ -90,6 +104,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     savedIds,
     reportedIds,
     includeUnprocessed,
+    onlyAnalysedDatasets,
   ]);
 
 

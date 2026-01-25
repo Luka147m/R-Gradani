@@ -58,10 +58,11 @@ const FilterContainer = ({
   const [publisherCounts, setPublisherCounts] = 
     useState<Record<string, number>>({});
 
-  useEffect(
-    () => setTempPublisherIds(selectedPublisherIds),
-    [selectedPublisherIds],
-  );
+  useEffect(() => {
+    setTempPublisherIds(selectedPublisherIds);
+  }, [selectedPublisherIds]);
+
+  
   useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
@@ -138,14 +139,11 @@ const FilterContainer = ({
 
   useEffect(() => {
     const allIds = publishersWithCounts.map((p) => String(p.id));
-    if (hasSearched && allIds.length > 0) {
-      setTempPublisherIds(allIds);
-      return;
-    }
+    
     if (allIds.length > 0 && tempPublisherIds.length === 0) {
       setTempPublisherIds(allIds);
     }
-  }, [publishersWithCounts, hasSearched, tempPublisherIds.length]);
+  }, [publishersWithCounts]);
 
   const handleDateChange = (type: "from" | "to", value: string) => {
     if (type === "from") {
