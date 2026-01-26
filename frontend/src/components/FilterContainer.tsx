@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
-import { Building, Calendar, Search, Settings } from "lucide-react";
-
+import { Building, Search, Settings } from "lucide-react";
+// import {Calendar} from "lucide-react"
 import { useSearch } from "../hooks/useSearch";
 import { useSearchParams } from "react-router-dom";
 import { getPublisherDTO } from "../DTOs/getPublisherDTO.ts";
@@ -145,13 +145,13 @@ const FilterContainer = ({
     }
   }, [publishersWithCounts]);
 
-  const handleDateChange = (type: "from" | "to", value: string) => {
-    if (type === "from") {
-      setTempDateRange([value, tempDateRange[1]]);
-    } else {
-      setTempDateRange([tempDateRange[0], value]);
-    }
-  };
+  // const handleDateChange = (type: "from" | "to", value: string) => {
+  //   if (type === "from") {
+  //     setTempDateRange([value, tempDateRange[1]]);
+  //   } else {
+  //     setTempDateRange([tempDateRange[0], value]);
+  //   }
+  // };
 
   const handleApplyFilters = async () => {
     setSearchParams(localSearchTerm.trim() ? { q: localSearchTerm } : {});
@@ -212,7 +212,7 @@ const FilterContainer = ({
           </div>
         )}
       </div>
-
+{/* 
       <div className="filter-section">
         <div className="title">
           <Calendar size={20} />
@@ -237,6 +237,7 @@ const FilterContainer = ({
           />
         </div>
       </div>
+       */}
 
       <div className="filter-section">
         <div className="title">
