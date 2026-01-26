@@ -27,7 +27,7 @@ const DatasetPage = () => {
   const name = state.name ?? params.name;
   const url = state.url ?? params.url;
   const created = state.created ?? params.created;
-  console.log(created);
+  console.log("DEBUG, " ,id, created);
 
   const [comments, setComments] = useState<getCommentDTO[]>([]);
   useEffect(() => {
@@ -42,18 +42,15 @@ const DatasetPage = () => {
   useEffect(() => {
     async function loadAnswers() {
       try {
-        // For all comments, create an array of promises:
         const answerPromises = comments.map((comment) =>
           api.get(`/odgovori/komentar/${comment.id}`),
         );
 
-        // Run all requests in parallel
-        const results = await Promise.all(answerPromises);
+        const results = await Promise.allSettled(answerPromises);
 
-        // Extract data from each response
-        const allAnswers: getCommentRepliesDTO[] = results.flatMap(
-          (res) => res.data,
-        );
+        const allAnswers: getCommentRepliesDTO[] = results
+          .filter((result) => result.status === 'fulfilled')
+          .flatMap((result) => (result as PromiseFulfilledResult<{ data: getCommentRepliesDTO[] }>).value.data);
 
         setReplies(allAnswers);
       } catch (err) {
