@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DatasetCard } from "./DatasetCard";
 import { useSearch } from "../hooks/useSearch";
+import { useLocalStorage} from "../hooks/useLocalStorage";
 import "../style/SearchPage.css";
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
 import api from "../api/axios.tsx";
@@ -20,6 +21,8 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     selectedPublisherIds,
     ignoreSaved,
     ignoreReported,
+    includeSaved,
+    includeUnprocessed,
     dateRange,
   } = useSearch();
 
@@ -29,17 +32,31 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [showAllDatasets, setShowAllDatasets] = useState(false);
   const [filteredResults, setFilteredResults] = useState<getDatasetDTO[]>([]);
+  const [onlyAnalysedDatasets, setOnlyAnalysedDatasets] = useState<getDatasetDTO[]>([]);
+
+
+  const [savedAllResults, setSavedAllResults] = useLocalStorage("allResults", "[]");
 
   useEffect(() => {
+
+    if (hasSearched) return;
+    if (savedAllResults && savedAllResults !== "[]") return;
+
     api.get("/skupovi/nedavno").then((response) => {
       setAllResults(response.data);
     });
-  }, [setAllResults]);
+  }, [setAllResults, hasSearched, savedAllResults]);
 
   useEffect(() => {
-    
-    
+    if (searchTerm.trim()) {
+      console.log("Fetching analysed datasets for filtering... TEARM:", searchTerm);
+      api.post("/skupovi/search", { searchText: searchTerm, isAnalysed: true }).then((response) => {
+        setOnlyAnalysedDatasets(response.data);
+      });
+    }
+  }, [searchTerm]);
 
+  useEffect(() => {
     let filtered = allResults;
 
     if (selectedPublisherIds.length > 0) {
@@ -56,18 +73,30 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
       filtered = filtered.filter((d) => !Array.isArray(reportedIds) || !reportedIds.includes(d.id));
     }
 
+    if(!includeSaved) {
+      filtered = filtered.filter((d) => Array.isArray(savedIds) && !savedIds.includes(d.id));
+    }
+
     if (dateRange[0]) {
       filtered = filtered.filter(
         (d) => new Date(d.created ?? 0) >= new Date(dateRange[0]),
       );
     }
+    
     if (dateRange[1]) {
       const endDate = new Date(dateRange[1]);
       endDate.setDate(endDate.getDate() + 1);
       filtered = filtered.filter((d) => new Date(d.created ?? 0) < endDate);
     }
 
+    if (!includeUnprocessed && onlyAnalysedDatasets.length > 0) {
+      filtered = filtered.filter((d) =>
+        onlyAnalysedDatasets.some((analysed) => analysed.id === d.id),
+      );
+    }
+
     setFilteredResults(sortResults(filtered, sortOption));
+    setSavedAllResults(JSON.stringify(filtered));
   }, [
     allResults,
     searchTerm,
@@ -75,10 +104,15 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
     sortOption,
     ignoreSaved,
     ignoreReported,
+    includeSaved,
     dateRange,
     savedIds,
     reportedIds,
+    includeUnprocessed,
+    onlyAnalysedDatasets,
   ]);
+
+
   const sortResults = (
     data: getDatasetDTO[],
     option: SortOption,
@@ -152,7 +186,7 @@ const SearchResults = ({ allResults, setAllResults, hasSearched }: SearchResults
             className="select-all-btn"
             onClick={() => setShowAllDatasets((prev) => !prev)}
           >
-            {showAllDatasets ? "Prikaži manje" : "Prikaži više"}
+            {showAllDatasets ? "Prikaži manje" : "Prikaži sve"}
           </button>
         )}
       </div>

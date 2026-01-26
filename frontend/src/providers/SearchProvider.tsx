@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { SearchContext } from './SearchContext';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export const SearchProvider = ({ children }: { children: ReactNode }) => {
 
@@ -15,6 +16,22 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
 
   const [ignoreSaved, setIgnoreSaved] = useState(false);
   const [ignoreReported, setIgnoreReported] = useState(false);
+
+
+  const [includeSaved, setIncludeSavedLocal] = useLocalStorage('includeSaved', 'true');
+  const [includeUnprocessed, setIncludeUnprocessedLocal] = useLocalStorage('includeUnprocessed', 'true');
+
+  const setIncludeSaved = (value: boolean) => {
+    setIncludeSavedLocal(String(value));
+  };
+
+  const setIncludeUnprocessed = (value: boolean) => {
+    setIncludeUnprocessedLocal(String(value));
+  };
+
+  // Konvertuj string vrijednosti u boolean za korištenje
+  const includeSavedBool = includeSaved === 'true';
+  const includeUnprocessedBool = includeUnprocessed === 'true';
 
   const value = {
     searchTerm,
@@ -32,6 +49,11 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
     setIgnoreSaved,
     ignoreReported,
     setIgnoreReported,
+
+    includeSaved: includeSavedBool,
+    setIncludeSaved,
+    includeUnprocessed: includeUnprocessedBool,
+    setIncludeUnprocessed,
   };
 
   return (
