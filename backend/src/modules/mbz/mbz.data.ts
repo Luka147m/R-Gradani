@@ -217,11 +217,11 @@ async function extractData(activitiesPath: string): Promise<ExtractionResult> {
                 all_discussions.push(discussionEntry);
 
                 // Check for dataset link in original message (before cleaning)
-                const urlMatch = message.match(/https:\/\/data\.gov\.hr\/ckan\/dataset\/([a-zA-Z0-9\-]+)/);
+                const urlMatch = message.match(/https:\/\/data\.gov\.hr\/ckan\/(hr\/)?dataset\/([a-zA-Z0-9\-]+)/);
 
                 if (urlMatch) {
                     const fullUrl = urlMatch[0];
-                    const identifier = urlMatch[1];
+                    const identifier = urlMatch[2];
 
                     // Check if dataset already exists
                     if (identifier in all_datasets) {
