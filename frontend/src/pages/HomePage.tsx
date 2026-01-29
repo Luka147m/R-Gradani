@@ -5,15 +5,17 @@ import { IzdvojeniSkupoviPodataka } from "../components/IzdvojeniSkupoviPodataka
 import { FilterContainer } from "../components/FilterContainer";
 import { SearchResults } from "../components/SearchResults";
 import { useSearch } from "../hooks/useSearch";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import "../style/HomePage.css";
-import type { DataSet } from "../types/dataset";
+import type { getDatasetDTO } from "../DTOs/getDatasetDTO";
 import api from "../api/axios.tsx";
 
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localSearchTerm, setLocalSearchTerm] = useState("");
-  const [allResults, setAllResults] = useState<DataSet[]>([]);
+  const [allResults, setAllResults] = useState<getDatasetDTO[]>([]);
+  const [savedAllResults] = useLocalStorage("allResults", "[]");
   const [hasSearched, setHasSearched] = useState(false);
 
   const { isSearchActivated, setIsSearchActivated, setSearchTerm, setSelectedPublisherIds } =
@@ -114,6 +116,19 @@ function HomePage() {
     setHasSearched(false);
   };
 
+  useEffect(() => {
+    try {
+      const parsed = JSON.parse(savedAllResults ?? "[]");
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setAllResults(parsed as getDatasetDTO[]);
+        setHasSearched(true);
+        setIsSearchActivated(true);
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
+  
   return (
     <>
       <div

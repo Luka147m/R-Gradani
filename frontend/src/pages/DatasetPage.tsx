@@ -11,6 +11,8 @@ import { DatasetState } from '../DTOs/datasetStateDTO.ts';
 import api from '../api/axios';
 import IconText from '../components/IconText.tsx';
 import { AnalyzeDatasetContainer } from '../components/AnalyzeDatasetContainer.tsx';
+import { AxiosError } from "axios";
+import { Bookmark } from "lucide-react";
 
 const DatasetPage = () => {
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ const DatasetPage = () => {
   const name = state.name ?? params.name;
   const url = state.url ?? params.url;
   const created = state.created ?? params.created;
-  console.log(created);
+  console.log("DEBUG, " ,id, created);
 
   const [comments, setComments] = useState<getCommentDTO[]>([]);
   useEffect(() => {
@@ -39,33 +41,65 @@ const DatasetPage = () => {
   const [replies, setReplies] = useState<getCommentRepliesDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const STORAGE_KEY = "savedDatasets";
+
+  const [saved, setSaved] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const savedIds: (string | undefined)[] = raw ? JSON.parse(raw) : [];
+    return savedIds.includes(id);
+  });
+  
   useEffect(() => {
     async function loadAnswers() {
+      setLoading(true);
+      setError(null);
+
       try {
-        // For all comments, create an array of promises:
         const answerPromises = comments.map((comment) =>
-          api.get(`/odgovori/komentar/${comment.id}`),
+          api.get<getCommentRepliesDTO[]>(`/odgovori/komentar/${comment.id}`)
         );
 
-        // Run all requests in parallel
-        const results = await Promise.all(answerPromises);
+        const results = await Promise.allSettled(answerPromises);
 
-        // Extract data from each response
-        const allAnswers: getCommentRepliesDTO[] = results.flatMap(
-          (res) => res.data,
-        );
+        const allAnswers: getCommentRepliesDTO[] = [];
+        const notFoundComments: getCommentDTO[] = [];
+
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            allAnswers.push(...result.value.data);
+          } else {
+            const error = result.reason as AxiosError;
+
+            if (error.response?.status === 404) {
+              notFoundComments.push(comments[index]);
+              console.log(`No answers found for comment ID: ${comments[index].id}`);
+            } else {
+              console.error("Unexpected error:", error);
+            }
+          }
+        });
 
         setReplies(allAnswers);
-      } catch (err) {
-        console.error('Failed to fetch answers:', err);
+        /*
+        if (notFoundComments.length > 0) {
+          setError(`No answers found for comments:${notFoundComments}`);
+        }
+        results.forEach((result, index) => {
+          console.log(index, result.status);
+        });
+        */
       } finally {
         setLoading(false);
       }
+
     }
 
     if (comments.length > 0) {
       loadAnswers();
     }
+
+    
   }, [comments]);
 
   const datasetRefresh = () => {
@@ -97,16 +131,49 @@ const DatasetPage = () => {
     return addComment();
   };
 
+
+  function toggleSaveDataset() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const savedIds: (string | undefined)[] = raw ? JSON.parse(raw) : [];
+
+    const exists = savedIds.includes(id);
+
+    const updated = exists
+      ? savedIds.filter((savedId) => savedId !== id)
+      : [...savedIds, id];
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+    setSaved(!exists);
+  }
+
+
   return (
     <div className="main-container">
       {/* <Link to="/"><HomeIcon size={24} className="home-redirect-icon" /></Link> */}
 
-      <IconText
-        icon={Database}
-        iconSize={30}
-        text={name || ''}
-        className="dataset-title"
-      ></IconText>
+      <div className="dataset-header" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '90%' }}>
+        <IconText
+          icon={Database}
+          iconSize={30}
+          text={name || ''}
+          className="dataset-title"
+          style={{ justifySelf: 'center', gridColumn: '2' }}
+        ></IconText>
+
+        <Bookmark
+          className={`save-icon ${saved ? "saved" : ""}`}
+          onClick={toggleSaveDataset}
+          color={saved ? "var(--correct)" : undefined}
+          fill={saved ? "var(--correct)" : "none"}
+          style={{ cursor: 'pointer', width: '30px', height: '30px', justifySelf: 'end', gridColumn: '3' }}
+        />
+
+      </div>
+      <span className="dataset-created">
+          Kreirano: {created ? new Date(created).toLocaleDateString() : 'N/A'}
+      </span>
+      
       <a href={url}>
         <h3 className="dataset-url">{url}</h3>
       </a>

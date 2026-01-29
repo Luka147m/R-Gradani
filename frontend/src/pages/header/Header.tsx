@@ -108,7 +108,11 @@ const Header: React.FC = () => {
         </nav>
       </div>
       <div className="last">
-        <a href="https://r-gradani-backend.onrender.com/docs" className="link">
+        <a 
+          href="https://r-gradani-backend.onrender.com/docs"  
+          className="link"
+          target="_blank"
+          rel="noopener noreferrer">
           <IconText
             icon={ExternalLink}
             text="API dokumentacija"

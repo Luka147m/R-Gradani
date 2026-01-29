@@ -2,7 +2,7 @@
   padding: 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  height: auto;
+  height: fit-content;
   width: fit-content;
 }
 
@@ -45,13 +45,19 @@
 .publisher-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
+}
+
+.publisher-label{
+  max-width: 275px;
 }
 
 .ignore-checkboxes {
   display: flex;
   flex-direction: column;
   margin-right: 8px;
+  gap: 12px;
 }
 
 .slider-wrapper {

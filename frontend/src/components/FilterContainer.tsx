@@ -1,10 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
-import { Building, Calendar, Search, Settings } from "lucide-react";
-
+import { Building, Search, Settings } from "lucide-react";
+// import {Calendar} from "lucide-react"
 import { useSearch } from "../hooks/useSearch";
 import { useSearchParams } from "react-router-dom";
 import { getPublisherDTO } from "../DTOs/getPublisherDTO.ts";
-
+import Toggle from "./Toggle.tsx";
 import api from "../api/axios.tsx";
 
 import type { getDatasetDTO } from "../DTOs/getDatasetDTO.ts";
@@ -39,6 +39,10 @@ const FilterContainer = ({
     setIgnoreSaved,
     ignoreReported,
     setIgnoreReported,
+    includeSaved,
+    setIncludeSaved,
+    includeUnprocessed,
+    setIncludeUnprocessed,
   } = useSearch();
 
   const [tempPublisherIds, setTempPublisherIds] =
@@ -46,19 +50,24 @@ const FilterContainer = ({
   const [tempDateRange, setTempDateRange] =
     useState<[string, string]>(dateRange);
   const [tempIgnoreSaved, setTempIgnoreSaved] = useState<boolean>(ignoreSaved);
-  const [tempIgnoreReported, setTempIgnoreReported] =
-    useState<boolean>(ignoreReported);
+  const [tempIgnoreReported, setTempIgnoreReported] = useState<boolean>(ignoreReported);
+
+  const [tempIncludeSaved, setTempIncludeSaved] = useState<boolean>(includeSaved);
+  const [tempIncludeUnprocessed, setTempIncludeUnprocessed] = useState<boolean>(includeUnprocessed);
 
   const [publisherCounts, setPublisherCounts] = 
     useState<Record<string, number>>({});
 
-  useEffect(
-    () => setTempPublisherIds(selectedPublisherIds),
-    [selectedPublisherIds],
-  );
+  useEffect(() => {
+    setTempPublisherIds(selectedPublisherIds);
+  }, [selectedPublisherIds]);
+
+  
   useEffect(() => setTempDateRange(dateRange), [dateRange]);
   useEffect(() => setTempIgnoreSaved(ignoreSaved), [ignoreSaved]);
   useEffect(() => setTempIgnoreReported(ignoreReported), [ignoreReported]);
+  useEffect(() => setTempIncludeSaved(includeSaved), [includeSaved]);
+  useEffect(() => setTempIncludeUnprocessed(includeUnprocessed), [includeUnprocessed]);
 
   const [publishers, setPublishers] = useState<getPublisherDTO[]>([]);
   const [showAllPublishers, setShowAllPublishers] = useState(false);
@@ -130,22 +139,19 @@ const FilterContainer = ({
 
   useEffect(() => {
     const allIds = publishersWithCounts.map((p) => String(p.id));
-    if (hasSearched && allIds.length > 0) {
-      setTempPublisherIds(allIds);
-      return;
-    }
+    
     if (allIds.length > 0 && tempPublisherIds.length === 0) {
       setTempPublisherIds(allIds);
     }
-  }, [publishersWithCounts, hasSearched]);
+  }, [publishersWithCounts]);
 
-  const handleDateChange = (type: "from" | "to", value: string) => {
-    if (type === "from") {
-      setTempDateRange([value, tempDateRange[1]]);
-    } else {
-      setTempDateRange([tempDateRange[0], value]);
-    }
-  };
+  // const handleDateChange = (type: "from" | "to", value: string) => {
+  //   if (type === "from") {
+  //     setTempDateRange([value, tempDateRange[1]]);
+  //   } else {
+  //     setTempDateRange([tempDateRange[0], value]);
+  //   }
+  // };
 
   const handleApplyFilters = async () => {
     setSearchParams(localSearchTerm.trim() ? { q: localSearchTerm } : {});
@@ -154,6 +160,9 @@ const FilterContainer = ({
     setDateRange(tempDateRange);
     setIgnoreSaved(tempIgnoreSaved);
     setIgnoreReported(tempIgnoreReported);
+
+    setIncludeSaved(tempIncludeSaved);
+    setIncludeUnprocessed(tempIncludeUnprocessed);
   };
 
   return (
@@ -203,7 +212,7 @@ const FilterContainer = ({
           </div>
         )}
       </div>
-
+{/* 
       <div className="filter-section">
         <div className="title">
           <Calendar size={20} />
@@ -228,6 +237,7 @@ const FilterContainer = ({
           />
         </div>
       </div>
+       */}
 
       <div className="filter-section">
         <div className="title">
@@ -235,35 +245,61 @@ const FilterContainer = ({
           <h2>Ostalo</h2>
         </div>
         <div className="ignore-checkboxes">
-          <div className="publisher-item">
-            <input
-              type="checkbox"
-              id="ignore-saved-datasets-checkbox"
-              className="publisher-checkbox"
-              checked={tempIgnoreSaved}
-              onChange={(e) => setTempIgnoreSaved(e.target.checked)}
-            />
+          {/* <div className="publisher-item">
             <label
               htmlFor="ignore-saved-datasets-checkbox"
               className="publisher-label"
             >
               Ignoriraj spremljene skupove podataka
             </label>
+            <Toggle 
+              isOn={tempIgnoreSaved} 
+              handleToggle={() => setTempIgnoreSaved(!tempIgnoreSaved)}
+              id="ignore-saved-datasets-checkbox"
+            />
           </div>
           <div className="publisher-item">
-            <input
-              type="checkbox"
-              id="ignore-reported-datasets-checkbox"
-              className="publisher-checkbox"
-              checked={tempIgnoreReported}
-              onChange={(e) => setTempIgnoreReported(e.target.checked)}
-            />
             <label
               htmlFor="ignore-reported-datasets-checkbox"
               className="publisher-label"
             >
               Ignoriraj skupove podataka koji imaju prijavljene probleme
             </label>
+            <Toggle 
+              isOn={tempIgnoreReported} 
+              handleToggle={() => setTempIgnoreReported(!tempIgnoreReported)}
+              id="ignore-reported-datasets-checkbox"
+            />
+          </div> */}
+
+
+          <div className="publisher-item">
+            <label
+              htmlFor="include-saved-datasets-checkbox"
+              className="publisher-label"
+            >
+              Uključi spremljene skupove podataka
+            
+            </label>
+            <Toggle 
+              isOn={tempIncludeSaved} 
+              handleToggle={() => setTempIncludeSaved(!tempIncludeSaved)}
+              id="include-saved-datasets-checkbox"
+            />
+          </div>
+
+          <div className="publisher-item">
+            <label
+              htmlFor="include-unprocessed-datasets-checkbox"
+              className="publisher-label"
+            >
+              Uključi skupove podataka koji nisu obrađeni
+            </label>
+            <Toggle 
+              isOn={tempIncludeUnprocessed} 
+              handleToggle={() => setTempIncludeUnprocessed(!tempIncludeUnprocessed)}
+              id="include-unprocessed-datasets-checkbox"
+            />
           </div>
         </div>
       </div>
