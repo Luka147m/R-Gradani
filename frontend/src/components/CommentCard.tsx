@@ -7,23 +7,19 @@ import "../style/DatasetPage.css";
 import { FetchedReplies } from "../types/fetchedReplies";
 
 interface CommentCardProps {
-  user_id: number;
   subject: string;
   message: string; // HTML content
   created: string;
   replies: FetchedReplies[];
-  comment_index: number;
-  comment_total: number;
+  comment_id: string;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
-  user_id,
   subject,
   message,
   created,
   replies,
-  comment_index,
-  comment_total,
+  comment_id
 }) => {
   const [selectedHomeProfile, setSelectedHomeProfile] = useState<
     "home" | "profile"
@@ -31,6 +27,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
   const [selectedComment, setSelectedComment] = useState<
     "AISearch" | "normalSearch"
   >("AISearch");
+  const [selectedNotAnalyzedComment, setSelectedNotAnalyzedComment] = useState<
+    "AISearch" | "normalSearch"
+  >("normalSearch");
   console.log(subject);
   console.log(created);
   console.log(selectedHomeProfile);
@@ -38,12 +37,36 @@ const CommentCard: React.FC<CommentCardProps> = ({
   if (replies.length === 0) {
     return (
       <div className="analysis-card">
-        <div className="user-info">
-          <MessageCircleDashed />
-          {user_id}
-        </div>
-        <div className="comments-flex">
-          <div className="comment-bubble-normal">
+        <div className="comments-flex2">
+          <div className="comment-bubble-normal" style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px",height: "fit-content"  }}>
+            <div className="user-inf" style={{display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  gap: "8px",
+  fontSize: "1.2rem",
+  color: "#bbbbbb"}}>
+              <MessageCircleDashed />
+              <span >ID: {comment_id}</span>
+            </div>
+            <div className="AI-normal-selector">
+              <button
+                className={`selector-btn ${
+                  selectedNotAnalyzedComment === "AISearch" ? "active-AISearch" : ""
+                }`}
+                onClick={() => setSelectedNotAnalyzedComment("normalSearch")}
+              >
+                <Sparkles size={24}/>
+              </button>
+
+              <button
+                className={`selector-btn profile-btn ${
+                  selectedNotAnalyzedComment === "normalSearch" ? "active-normalSearch" : ""
+                }`}
+                onClick={() => setSelectedNotAnalyzedComment("normalSearch")}
+              >
+                <TextSelect size={24} />
+              </button>
+            </div>
             <p dangerouslySetInnerHTML={{ __html: message }}></p>
           </div>
         </div>
@@ -52,12 +75,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
   }
   return (
     <div className="analysis-card">
-      <div className="user-info">
+      <div className="user-info" style={{ paddingTop: "8px" }}>
         <MessageCircleDashed />
-        <span>Korisnik: {user_id}</span>
-        <span>
-          (Komentar {comment_index} od {comment_total})
-        </span>
+        <span >ID: {comment_id}</span>
       </div>
       <div className="AI-normal-selector">
         <button

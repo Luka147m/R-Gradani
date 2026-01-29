@@ -81,6 +81,7 @@ const DatasetPage = () => {
         });
 
         setReplies(allAnswers);
+        console.log("Not found comments:", notFoundComments);
         /*
         if (notFoundComments.length > 0) {
           setError(`No answers found for comments:${notFoundComments}`);
@@ -230,13 +231,12 @@ const DatasetPage = () => {
         {loading && <p>Loading analyses...</p>}
         {comments.map((comment, index) => (
           <>
-            {/* <label htmlFor="" className="commentIndex">
+            {<label htmlFor="" className="commentIndex" style={{ backgroundColor: 'var(--text-dark)', padding: '5px 10px', borderRadius: '8px', marginBottom: '10px', width: 'fit-content', justifySelf: 'center'}}>
               Komentar {index + 1} / {comments.length}
-            </label> */}
+            </label> }
 
             <CommentCard
               key={index+1}
-              user_id={Number(comment.user_id) || 0}
               subject={String(comment.subject)}
               message={String(comment.message)}
               created={
@@ -245,8 +245,7 @@ const DatasetPage = () => {
               replies={replies.filter(
                 (reply) => reply.komentar_id === comment.id,
               )}
-              comment_index={index + 1}
-              comment_total={comments.length}
+              comment_id={comment.id}
             />
           </>
         ))}
