@@ -104,28 +104,28 @@ const CommentCard: React.FC<CommentCardProps> = ({
             <p dangerouslySetInnerHTML={{ __html: message }}></p>
           </div>
         ) : (
-          replies.map((reply) =>
-            reply.message?.izjave?.map((reply) => {
-              return (
-                <>
-                  <CommentBubble
-                    key={reply.id}
-                    content={reply.text || ""}
-                    isFromComment={true}
-                    usvojenost={reply.analysis?.usvojenost || false}
-                    podudarnost={reply.analysis?.podudarnost || 0}
-                  />
-                  <CommentBubble
-                    key={reply.id}
-                    content={reply.analysis?.komentar || ""}
-                    isFromComment={false}
-                    usvojenost={reply.analysis?.usvojenost || false}
-                    podudarnost={reply.analysis?.podudarnost || 0}
-                  />
-                </>
-              );
-            })
-          )
+          replies.map((reply, replyIndex) => (
+            <div key={replyIndex} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e0e0e0' }}>
+              {reply.message?.izjave?.map((reply) => {
+                return (
+                  <>
+                    <CommentBubble
+                      content={reply.text || ""}
+                      isFromComment={true}
+                      usvojenost={reply.analysis?.usvojenost || false}
+                      podudarnost={reply.analysis?.podudarnost || 0}
+                    />
+                    <CommentBubble
+                      content={reply.analysis?.komentar || ""}
+                      isFromComment={false}
+                      usvojenost={reply.analysis?.usvojenost || false}
+                      podudarnost={reply.analysis?.podudarnost || 0}
+                    />
+                  </>
+                );
+              })}
+            </div>
+          ))
         )}
       </div>
     </div>
